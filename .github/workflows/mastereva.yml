@@ -2,8 +2,8 @@ name: Master Eva Feed Update
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # Запуск кожні 4 години
-  workflow_dispatch:      # Додає кнопку ручного запуску
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Оновлено до v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Оновлено до v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: pip install requests lxml
@@ -31,5 +31,5 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           git add Masterevanew.xml
-          git commit -m "Update Masterevanew.xml via masterevaxml.py" || exit 0
+          git commit -m "Update Masterevanew.xml" || exit 0
           git push
