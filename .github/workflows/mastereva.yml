@@ -6,17 +6,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build_master_feed:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Оновлено до v4
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # Оновлено до v5
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -26,10 +28,21 @@ jobs:
       - name: Run Master Eva Script
         run: python masterevaxml.py
 
-      - name: Commit and push Masterevanew
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add Masterevanew.xml
-          git commit -m "Update Masterevanew.xml" || exit 0
-          git push
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Вказуємо папку, де лежить файл. . - це корінь
+          path: .
+          # Ми завантажуємо тільки Masterevanew.xml, щоб не вантажити зайвого
+          pattern: Masterevanew.xml
+
+  deploy:
+    needs: build_master_feed
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
