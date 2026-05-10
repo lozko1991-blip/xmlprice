@@ -1,0 +1,35 @@
+name: Master Eva Feed Update
+
+on:
+  schedule:
+    - cron: '0 */4 * * *' # Запуск кожні 4 години
+  workflow_dispatch:      # Додає кнопку ручного запуску
+
+permissions:
+  contents: write
+
+jobs:
+  build_master_feed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests lxml
+
+      - name: Run Master Eva Script
+        run: python masterevaxml.py
+
+      - name: Commit and push Masterevanew
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add Masterevanew.xml
+          git commit -m "Update Masterevanew.xml via masterevaxml.py" || exit 0
+          git push
