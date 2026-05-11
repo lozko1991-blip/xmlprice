@@ -2,6 +2,7 @@ import requests
 import lxml.etree as ET
 from datetime import datetime
 import sys
+import re
 
 SOURCES = [
     "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru",
@@ -14,112 +15,129 @@ SOURCES = [
 MARKUP_PERCENT = 1.35
 MARKUP_FIXED = 40
 
-def process():
-    all_categories = {}
-    all_offers = []
-    stats = []
-    cat_id_sources = {}
+def clean_text(text):
+    if text is None: return ""
+    text = text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').replace('&nbsp;', ' ')
+    text = re.sub(r'<(?!/?(p|br|b|strong|ul|li)\b)[^>]+>', '', text)
+    text = re.sub(r'([.,!?;:])(?=[^\s\d])', r'\1 ', text)
+    text = re.sub(r'\r|\n|\t', ' ', text)
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
 
-    for url in SOURCES:
+def process():
+    all_raw_data = []
+    id_usage_count = {} # Словник для підрахунку дублікатів ID
+
+    # Крок 1: Попереднє завантаження та пошук дублікатів ID
+    for index, url in enumerate(SOURCES):
         domain = url.split('/')[2]
         try:
-            print(f"Завантаження {domain}...")
+            print(f"Сканування {domain}...")
             r = requests.get(url, timeout=60)
-            if not r.ok:
-                stats.append(f"{domain}: Помилка HTTP {r.status_code}")
-                continue
-            
-            # Використовуємо recover=True для ігнорування дрібних помилок в XML
-            parser = ET.XMLParser(recover=True, encoding='utf-8')
-            root = ET.fromstring(r.content, parser=parser)
-            
-            if root is None:
-                stats.append(f"{domain}: Порожній або битий XML")
-                continue
-
-            # Обробка категорій
-            for cat in root.xpath(".//category"):
-                cid = cat.get('id')
-                if cid:
-                    name = cat.text or "Категорія"
-                    if cid not in cat_id_sources: cat_id_sources[cid] = []
-                    cat_id_sources[cid].append(f"{domain} ({name})")
-                    all_categories[cid] = cat
-
-            # Обробка товарів
-            count = 0
-            for offer in root.xpath(".//offer"):
-                avail = offer.get('available')
-                if avail in ['true', 'yes', '1']:
-                    # Ціна
-                    p_node = offer.find('price')
-                    if p_node is not None and p_node.text:
-                        try:
-                            val = float(p_node.text)
-                            p_node.text = str(round(val * MARKUP_PERCENT + MARKUP_FIXED))
-                        except: pass
-                    
-                    # Стара ціна
-                    op_node = offer.find('oldprice')
-                    if op_node is not None and op_node.text:
-                        try:
-                            val = float(op_node.text)
-                            op_node.text = str(round(val * MARKUP_PERCENT + MARKUP_FIXED))
-                        except: pass
-
-                    # EVA Налаштування
-                    offer.set('available', 'true')
-                    q = offer.find('quantity')
-                    if q is None: q = ET.SubElement(offer, 'quantity')
-                    q.text = "5"
-
-                    if offer.find('vendor') is None or not offer.find('vendor').text:
-                        v = offer.find('vendor')
-                        if v is None: v = ET.SubElement(offer, 'vendor')
-                        v.text = "Brand"
-                    
-                    all_offers.append(offer)
-                    count += 1
-            stats.append(f"{domain}: OK (+{count} товарів)")
+            if r.ok:
+                parser = ET.XMLParser(recover=True, encoding='utf-8')
+                root = ET.fromstring(r.content, parser=parser)
+                
+                categories = root.xpath(".//category")
+                offers = root.xpath(".//offer")
+                
+                # Рахуємо унікальні ID у розрізі постачальників
+                current_source_ids = set()
+                for cat in categories:
+                    cid = cat.get('id')
+                    if cid: current_source_ids.add(cid)
+                
+                for cid in current_source_ids:
+                    id_usage_count[cid] = id_usage_count.get(cid, 0) + 1
+                
+                all_raw_data.append({
+                    'prefix': str(index + 1),
+                    'domain': domain,
+                    'categories': categories,
+                    'offers': offers
+                })
         except Exception as e:
-            stats.append(f"{domain}: Помилка ({str(e)[:50]})")
+            print(f"Помилка при скануванні {domain}: {e}")
 
-    if not all_offers:
-        print("Критична помилка: Не вдалося завантажити жодного товару!")
-        sys.exit(1)
+    # Визначаємо, які ID є проблемними (зустрічаються більше ніж в 1 постачальника)
+    duplicate_ids = {cid for cid, count in id_usage_count.items() if count > 1}
 
-    # Фільтрація
-    cat_counts = {}
-    for o in all_offers:
-        cid = o.findtext('categoryId')
-        cat_counts[cid] = cat_counts.get(cid, 0) + 1
-    
-    valid_ids = {cid for cid, n in cat_counts.items() if n >= 4}
+    final_categories = []
+    final_offers = []
+    stats = []
 
-    # Збірка фіналу
+    # Крок 2: Обробка даних з розумним перейменуванням
+    for data in all_raw_data:
+        prefix = data['prefix']
+        domain = data['domain']
+        count = 0
+        
+        # Обробка категорій
+        for cat in data['categories']:
+            cid = cat.get('id')
+            pid = cat.get('parentId')
+            
+            if cid in duplicate_ids:
+                cat.set('id', f"{prefix}_{cid}")
+                if pid: cat.set('parentId', f"{prefix}_{pid}")
+            final_categories.append(cat)
+
+        # Обробка товарів
+        for offer in data['offers']:
+            avail = offer.get('available')
+            if avail in ['true', 'yes', '1']:
+                # Мапінг категорії товару
+                cat_node = offer.find('categoryId')
+                if cat_node is not None:
+                    cid = cat_node.text
+                    if cid in duplicate_ids:
+                        cat_node.text = f"{prefix}_{cid}"
+
+                # Ціни та тексти
+                for tag in ['price', 'oldprice']:
+                    n = offer.find(tag)
+                    if n is not None and n.text:
+                        try:
+                            val = float(n.text)
+                            n.text = str(round(val * MARKUP_PERCENT + MARKUP_FIXED))
+                        except: pass
+
+                for d_tag in ['description', 'description_ua']:
+                    d_node = offer.find(d_tag)
+                    if d_node is not None:
+                        d_node.text = ET.CDATA(clean_text(d_node.text))
+
+                # Очищення та кількість
+                offer.set('available', 'true')
+                for extra in ['stock_quantity', 'quantity_in_stock', 'pickup']:
+                    node = offer.find(extra)
+                    if node is not None: offer.remove(node)
+                
+                q = offer.find('quantity') or ET.SubElement(offer, 'quantity')
+                q.text = "5"
+                
+                if offer.find('vendor') is None:
+                    ET.SubElement(offer, 'vendor').text = "Brand"
+                
+                final_offers.append(offer)
+                count += 1
+        stats.append(f"{domain}: OK (+{count})")
+
+    # Фінальна збірка
     yml = ET.Element("yml_catalog", date=datetime.now().strftime("%Y-%m-%d %H:%M"))
     shop = ET.SubElement(yml, "shop")
     ET.SubElement(shop, "name").text = "Master Shop EVA"
-    
     currs = ET.SubElement(shop, "currencies")
     ET.SubElement(currs, "currency", id="UAH", rate="1")
     
     cats_node = ET.SubElement(shop, "categories")
-    for cid, cat in all_categories.items():
-        if cid in valid_ids: cats_node.append(cat)
+    for c in final_categories: cats_node.append(c)
         
     offers_node = ET.SubElement(shop, "offers")
-    for o in all_offers:
-        cid = o.findtext('categoryId')
-        if cid in valid_ids: offers_node.append(o)
+    for o in final_offers: offers_node.append(o)
 
-    # Запис
-    stats_txt = "\n".join(stats)
-    header = f"\n"
-    
     with open("Masterevanew.xml", "wb") as f:
-        f.write(header.encode('utf-8'))
-        f.write(ET.tostring(yml, encoding='utf-8', xml_declaration=False))
+        f.write(ET.tostring(yml, encoding='utf-8', xml_declaration=True, pretty_print=True))
 
 if __name__ == "__main__":
     process()
