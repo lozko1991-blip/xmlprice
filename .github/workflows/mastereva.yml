@@ -2,7 +2,9 @@ name: Master Eva Feed Update
 
 on:
   schedule:
+    # Запуск кожні 4 години
     - cron: '0 */4 * * *'
+  # Можливість запустити вручну з вкладки Actions
   workflow_dispatch:
 
 permissions:
@@ -26,15 +28,15 @@ jobs:
         run: pip install requests lxml
 
       - name: Run Master Eva Script
+        # Цей крок запустить ваш файл masterevaxml.py та виведе статистику в лог
         run: python masterevaxml.py
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Вказуємо папку, де лежить файл. . - це корінь
+          # Вказуємо корінь репозиторію. 
+          # Параметр pattern видалено, щоб уникнути помилки
           path: .
-          # Ми завантажуємо тільки Masterevanew.xml, щоб не вантажити зайвого
-          pattern: Masterevanew.xml
 
   deploy:
     needs: build_master_feed
