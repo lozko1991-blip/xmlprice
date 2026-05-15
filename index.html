@@ -1,70 +1,162 @@
-<div class="hidden sm:block ml-4">
-    <div id="lastUpdate" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-        Оновлення: завантаження...
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTRADE | Склад</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: sans-serif; background: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
+        .loader { border-top-color: #2563eb; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
 
-<script>
-    // Використовуємо глобальні змінні для швидкості
-    let products = [];
-    let categories = {};
-
-    async function init() {
-        const updateEl = document.getElementById('lastUpdate');
-        try {
-            const res = await fetch('Masterevanew.xml');
+    <nav class="sticky top-0 z-50 glass py-4">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-600 p-2 rounded-lg text-white"><i class="fa-solid fa-bolt text-xl"></i></div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-none">UTRADE</h1>
+                    <p id="lastUpdate" class="text-[10px] text-blue-500 font-bold uppercase mt-1">Оновлення: завантаження...</p>
+                </div>
+            </div>
             
-            // Перевіряємо дату останньої модифікації файлу з заголовків сервера
-            const lastMod = res.headers.get('Last-Modified');
-            if(lastMod) {
-                const date = new Date(lastMod);
-                updateEl.textContent = `Оновлено: ${date.toLocaleTimeString('uk-UA')} ${date.toLocaleDateString('uk-UA')}`;
-            }
+            <div class="flex-1 max-w-md mx-8 hidden md:block">
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Пошук товару або ID..." class="w-full bg-slate-100 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
 
-            const text = await res.text();
-            
-            // Використовуємо setTimeout, щоб дати браузеру "дихнути" перед парсингом 80МБ
-            setTimeout(() => {
-                const xml = new DOMParser().parseFromString(text, "text/xml");
+            <button onclick="toggleCart()" class="relative p-3 bg-slate-900 text-white rounded-xl">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div id="mainLoader" class="flex flex-col items-center py-20">
+            <div class="loader w-12 h-12 border-4 border-slate-200 rounded-full mb-4"></div>
+            <p class="text-slate-500 font-medium">Аналізуємо 32,000+ товарів...</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <aside class="lg:col-span-1 space-y-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-900 mb-4">Категорії</h3>
+                    <select id="catSelect" onchange="handleSearch()" class="w-full p-3 bg-slate-50 rounded-xl border-none outline-none text-sm font-medium">
+                        <option value="">Всі товари</option>
+                    </select>
+                </div>
+            </aside>
+
+            <div class="lg:col-span-3">
+                <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                <div id="loadMoreBtn" class="mt-8 text-center hidden">
+                    <button onclick="showMore()" class="px-8 py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50">Показати ще</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let allProducts = [];
+        let categories = {};
+        let visibleCount = 24;
+        let filteredProducts = [];
+
+        async function init() {
+            try {
+                // Вказуємо правильний файл — Masterevanew.xml
+                const response = await fetch('Masterevanew.xml');
                 
-                // Швидкий збір категорій
-                const catNodes = xml.getElementsByTagName("category");
-                for (let i = 0; i < catNodes.length; i++) {
-                    categories[catNodes[i].getAttribute('id')] = catNodes[i].textContent;
+                // Витягуємо дату оновлення з заголовків
+                const lastMod = response.headers.get('Last-Modified');
+                if (lastMod) {
+                    const d = new Date(lastMod);
+                    document.getElementById('lastUpdate').textContent = `Оновлено: ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')} (${d.toLocaleDateString()})`;
                 }
 
-                // Оптимізований збір товарів (тільки необхідні поля)
-                const offerNodes = xml.getElementsByTagName("offer");
-                const tempProducts = [];
-                for (let i = 0; i < offerNodes.length; i++) {
-                    const o = offerNodes[i];
-                    tempProducts.push({
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+                // Парсимо категорії
+                const cats = xmlDoc.getElementsByTagName("category");
+                const catSelect = document.getElementById('catSelect');
+                for (let c of cats) {
+                    categories[c.getAttribute('id')] = c.textContent;
+                    const opt = document.createElement('option');
+                    opt.value = c.getAttribute('id');
+                    opt.textContent = c.textContent;
+                    catSelect.appendChild(opt);
+                }
+
+                // Парсимо товари (Оптимізовано)
+                const offers = xmlDoc.getElementsByTagName("offer");
+                for (let o of offers) {
+                    allProducts.push({
                         id: o.getAttribute('id'),
-                        name: o.getElementsByTagName('name_ua')[0]?.textContent || o.getElementsByTagName('name')[0]?.textContent || "",
-                        price: parseFloat(o.getElementsByTagName('price')[0]?.textContent || 0),
-                        catId: o.getElementsByTagName('categoryId')[0]?.textContent,
-                        image: o.getElementsByTagName('picture')[0]?.textContent || '',
-                        desc: "" // Не вантажимо опис відразу, щоб зекономити пам'ять
+                        name: o.getElementsByTagName('name_ua')[0]?.textContent || o.getElementsByTagName('name')[0]?.textContent,
+                        price: o.getElementsByTagName('price')[0]?.textContent,
+                        img: o.getElementsByTagName('picture')[0]?.textContent,
+                        catId: o.getElementsByTagName('categoryId')[0]?.textContent
                     });
                 }
-                products = tempProducts;
 
-                setupUI();
-                renderHome();
+                filteredProducts = allProducts;
                 document.getElementById('mainLoader').classList.add('hidden');
-            }, 100);
+                renderProducts();
 
-        } catch (e) {
-            updateEl.textContent = "Помилка завантаження";
-            console.error("Критична помилка:", e);
+            } catch (err) {
+                console.error("Помилка:", err);
+                document.getElementById('mainLoader').innerHTML = `<p class="text-red-500">Помилка завантаження бази даних.</p>`;
+            }
         }
-    }
 
-    // Функція для пошуку, яка спрацьовує лише якщо введено > 2 символів (для швидкості)
-    function performSearch() {
-        const q = document.getElementById('searchInput').value.toLowerCase();
-        if (q.length > 0 && q.length < 2) return; // Чекаємо на більше букв
-        
-        // ... решта логіки пошуку ...
-    }
-</script>
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            const chunk = filteredProducts.slice(0, visibleCount);
+            
+            grid.innerHTML = chunk.map(p => `
+                <div class="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="aspect-square mb-4 bg-slate-50 rounded-2xl overflow-hidden">
+                        <img src="${p.img}" class="w-full h-full object-contain mix-blend-multiply" loading="lazy">
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-400 mb-1">ID: ${p.id}</p>
+                    <h3 class="text-xs font-bold text-slate-800 line-clamp-2 h-8 mb-3">${p.name}</h3>
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-black text-blue-600">${Math.round(p.price)} ₴</span>
+                        <button class="w-10 h-10 bg-slate-900 text-white rounded-xl"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('loadMoreBtn').classList.toggle('hidden', visibleCount >= filteredProducts.length);
+        }
+
+        function handleSearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const cat = document.getElementById('catSelect').value;
+
+            filteredProducts = allProducts.filter(p => {
+                const matchName = p.name.toLowerCase().includes(q) || p.id.includes(q);
+                const matchCat = !cat || p.catId === cat;
+                return matchName && matchCat;
+            });
+
+            visibleCount = 24;
+            renderProducts();
+        }
+
+        function showMore() {
+            visibleCount += 24;
+            renderProducts();
+        }
+
+        init();
+    </script>
+</body>
+</html>
