@@ -63,15 +63,16 @@
             
             <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block italic">Виберіть Категорію</label>
-                <select id="categorySelect" onchange="performSearch()" class="w-full bg-slate-100 border-none rounded-xl p-3 text-xs font-bold"></select>
+                <select id="categorySelect" onchange="performSearch()" class="w-full bg-slate-100 border-none rounded-xl p-3 text-xs font-bold italic"></select>
             </div>
 
             <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block italic">Товарів на сторінці</label>
-                <select id="limitSelect" onchange="performSearch()" class="w-full bg-slate-100 border-none rounded-xl p-3 text-xs font-bold">
+                <select id="limitSelect" onchange="performSearch()" class="w-full bg-slate-100 border-none rounded-xl p-3 text-xs font-bold italic">
                     <option value="20">Показувати 20</option>
                     <option value="50">Показувати 50</option>
                     <option value="100">Показувати 100</option>
+                    <option value="9999">Всі товари</option>
                 </select>
             </div>
 
@@ -123,7 +124,6 @@
 <script>
     let allProducts = [], categories = {}, cart = JSON.parse(localStorage.getItem('utrade_cart_4.5')) || [];
 
-    // --- ФУНКЦІЇ ІНТЕРФЕЙСУ ---
     function toggleMobileAside(show) {
         document.getElementById('sidePanel').classList.toggle('aside-open', show);
         document.getElementById('asideOverlay').classList.toggle('hidden', !show);
@@ -141,7 +141,6 @@
         document.body.style.overflow = 'auto';
     }
 
-    // --- ЗАВАНТАЖЕННЯ ДАНИХ ---
     async function init() {
         updateCartUI();
         try {
@@ -149,13 +148,18 @@
             const text = await res.text();
             const xml = new DOMParser().parseFromString(text, "text/xml");
 
-            // Збір категорій
+            // 1. Коректний збір категорій
             const catNodes = xml.getElementsByTagName('category');
-            categories = {"all": "Всі категорії"};
-            Array.from(catNodes).forEach(c => categories[c.getAttribute('id')] = c.textContent);
-            document.getElementById('categorySelect').innerHTML = Object.entries(categories).map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
+            let catOptions = '<option value="all">Всі категорії</option>';
+            Array.from(catNodes).forEach(c => {
+                const id = c.getAttribute('id');
+                const name = c.textContent.trim();
+                categories[id] = name;
+                catOptions += `<option value="${id}">${name}</option>`;
+            });
+            document.getElementById('categorySelect').innerHTML = catOptions;
 
-            // Збір товарів
+            // 2. Збір товарів
             const offers = xml.getElementsByTagName('offer');
             allProducts = Array.from(offers).map(o => {
                 const params = Array.from(o.getElementsByTagName('param')).map(p => ({
@@ -174,18 +178,23 @@
                 };
             });
 
-            const maxPrice = Math.max(...allProducts.map(p => p.price));
+            // 3. Налаштування фільтра ціни
+            const maxPrice = allProducts.length ? Math.max(...allProducts.map(p => p.price)) : 10000;
             document.getElementById('priceRange').max = maxPrice;
             document.getElementById('priceRange').value = maxPrice;
+            document.getElementById('priceLabel').textContent = Math.round(maxPrice) + ' ₴';
 
             document.getElementById('loader').classList.add('hidden');
+            
+            // 4. ПЕРШИЙ ВИКЛИК ПОШУКУ (щоб товари з'явилися)
             performSearch();
+
         } catch (e) {
-            document.getElementById('loader').innerHTML = '<p class="text-red-500 font-bold">Помилка завантаження складу!</p>';
+            console.error(e);
+            document.getElementById('loader').innerHTML = '<p class="text-red-500 font-bold">Помилка завантаження XML!</p>';
         }
     }
 
-    // --- ЛОГІКА ПОШУКУ ТА ФІЛЬТРАЦІЇ ---
     function performSearch() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const cat = document.getElementById('categorySelect').value;
@@ -194,19 +203,20 @@
 
         document.getElementById('priceLabel').textContent = Math.round(maxP) + ' ₴';
 
-        const filtered = allProducts.filter(p => 
-            (p.name.toLowerCase().includes(query) || p.id.includes(query)) &&
-            (cat === "all" || p.catId === cat) &&
-            (p.price <= maxP)
-        ).slice(0, limit);
+        const filtered = allProducts.filter(p => {
+            const matchesQuery = p.name.toLowerCase().includes(query) || p.id.includes(query);
+            const matchesCat = (cat === "all" || p.catId === cat);
+            const matchesPrice = (p.price <= maxP);
+            return matchesQuery && matchesCat && matchesPrice;
+        }).slice(0, limit);
 
         renderGrid(filtered);
     }
 
     function renderGrid(list) {
         const grid = document.getElementById('productGrid');
-        if(!list.length) {
-            grid.innerHTML = '<div class="col-span-full py-20 text-center font-bold text-slate-400 italic">Нічого не знайдено...</div>';
+        if(!list || !list.length) {
+            grid.innerHTML = '<div class="col-span-full py-20 text-center font-bold text-slate-400 italic">Товарів не знайдено...</div>';
             return;
         }
         grid.innerHTML = list.map(p => `
@@ -223,10 +233,10 @@
         `).join('');
     }
 
-    // --- ЛОГІКА КОШИКА ---
     function addToCart(id) {
         if(cart.find(i => i.id === id)) return toggleCart(true);
         const p = allProducts.find(x => x.id === id);
+        if(!p) return;
         cart.push({...p, salePrice: Math.round(p.price + 300)});
         saveCart();
         updateCartUI();
@@ -236,10 +246,9 @@
     function updateCartUI() {
         const items = document.getElementById('cartItems');
         let total = 0, profit = 0;
-        
         items.innerHTML = cart.length ? cart.map(p => {
-            const pProfit = p.salePrice - p.price;
-            total += p.salePrice;
+            const pProfit = (p.salePrice || 0) - p.price;
+            total += (p.salePrice || 0);
             profit += pProfit;
             return `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 relative mb-3">
@@ -271,47 +280,15 @@
         const item = cart.find(i => i.id === id);
         if(item) { item.salePrice = parseFloat(val) || 0; saveCart(); updateCartUI(); }
     }
-
     function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); updateCartUI(); }
     function saveCart() { localStorage.setItem('utrade_cart_4.5', JSON.stringify(cart)); }
 
-    // --- МОДАЛЬНЕ ВІКНО ---
     function openModal(id) {
         const p = allProducts.find(x => x.id === id);
         if(!p) return;
-
-        const paramsHTML = p.params.length ? `
-            <div class="mt-6 border-t pt-4">
-                <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Характеристики</h4>
-                <div class="grid grid-cols-1 gap-2">
-                    ${p.params.map(pr => `<div class="flex justify-between text-xs py-1 border-b border-slate-50 italic"><span class="text-slate-400">${pr.name}:</span><span class="font-bold text-slate-700">${pr.val}</span></div>`).join('')}
-                </div>
-            </div>` : '';
-
-        const descHTML = p.desc ? `
-            <div class="mt-6 border-t pt-4">
-                <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Опис товару</h4>
-                <div class="text-xs text-slate-600 leading-relaxed font-medium">${p.desc}</div>
-            </div>` : '';
-
-        document.getElementById('modalContent').innerHTML = `
-            <div class="w-full md:w-1/2 bg-slate-50 p-8 flex items-center justify-center border-r border-slate-100">
-                <img src="${p.img}" class="max-w-full max-h-[400px] object-contain mix-blend-multiply drop-shadow-xl">
-            </div>
-            <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col h-full overflow-hidden">
-                <div class="flex-1 overflow-y-auto pr-4 custom-scrollbar">
-                    <p class="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest">ID: ${p.id}</p>
-                    <h2 class="text-2xl font-black text-slate-900 leading-tight mb-4 uppercase italic tracking-tighter">${p.name}</h2>
-                    <div class="text-4xl font-black text-slate-900 mb-8 italic">${Math.round(p.price)} ₴</div>
-                    <span class="text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full uppercase italic">На складі: ${p.stock}</span>
-                    ${paramsHTML}
-                    ${descHTML}
-                </div>
-                <button onclick="addToCart('${p.id}'); closeModal();" class="mt-8 w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3 shadow-lg">
-                    <i class="fa-solid fa-plus"></i> ДОДАТИ У КОШИК
-                </button>
-            </div>`;
-        
+        const paramsHTML = p.params.length ? `<div class="mt-6 border-t pt-4"><h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Характеристики</h4><div class="grid grid-cols-1 gap-2">${p.params.map(pr => `<div class="flex justify-between text-xs py-1 border-b border-slate-50 italic"><span class="text-slate-400">${pr.name}:</span><span class="font-bold text-slate-700">${pr.val}</span></div>`).join('')}</div></div>` : '';
+        const descHTML = p.desc ? `<div class="mt-6 border-t pt-4"><h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Опис товару</h4><div class="text-xs text-slate-600 leading-relaxed font-medium">${p.desc}</div></div>` : '';
+        document.getElementById('modalContent').innerHTML = `<div class="w-full md:w-1/2 bg-slate-50 p-8 flex items-center justify-center border-r border-slate-100"><img src="${p.img}" class="max-w-full max-h-[400px] object-contain mix-blend-multiply drop-shadow-xl"></div><div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col h-full overflow-hidden"><div class="flex-1 overflow-y-auto pr-4 custom-scrollbar"><p class="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest">ID: ${p.id}</p><h2 class="text-2xl font-black text-slate-900 leading-tight mb-4 uppercase italic tracking-tighter">${p.name}</h2><div class="text-4xl font-black text-slate-900 mb-8 italic">${Math.round(p.price)} ₴</div><span class="text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full uppercase italic">На складі: ${p.stock}</span>${paramsHTML}${descHTML}</div><button onclick="addToCart('${p.id}'); closeModal();" class="mt-8 w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3 shadow-lg"><i class="fa-solid fa-plus"></i> ДОДАТИ У КОШИК</button></div>`;
         document.getElementById('productModal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
