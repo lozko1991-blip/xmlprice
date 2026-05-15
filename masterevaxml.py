@@ -21,7 +21,6 @@ MIN_PRICE_THRESHOLD = 150
 DESC_LIMIT = 2800 
 
 def fix_text(text):
-    """Виправляє апострофи для запобігання помилок валідації"""
     if not text: return ""
     return unescape(unescape(text)).replace("'", "’").strip()
 
@@ -31,7 +30,7 @@ def clean_description(text, name_ua, vendor):
     text = unescape(unescape(text))
     text = re.sub(r'<(script|style).*?>.*?</\1>', '', text, flags=re.DOTALL)
     text = re.sub(r'https?://\S+|www\.\S+', '', text)
-    text = re.sub(r'\sstyle="[^"]*"', '', text) # Очищення стилів для EVA
+    text = re.sub(r'\sstyle="[^"]*"', '', text)
     if len(text) > DESC_LIMIT:
         text = text[:DESC_LIMIT] + "..."
     return text.strip()
@@ -42,7 +41,7 @@ def process():
     source_results = []
     category_id_map = {}
 
-    print("--- СТАРТ ОБРОБКИ З ВИПРАВЛЕННЯМ ВАЛЮТ ---")
+    print("--- СТАРТ ОБРОБКИ (Тільки ID категорій з префіксами) ---")
 
     for prefix, url in SOURCES:
         domain = url.split('/')[2]
@@ -53,7 +52,6 @@ def process():
             
             count_ok, count_low, count_no = 0, 0, 0
 
-            # Обробка категорій
             for cat in root.xpath(".//category"):
                 orig_id = cat.get('id')
                 new_id = f"{prefix}{orig_id}" if prefix else orig_id
@@ -65,7 +63,6 @@ def process():
                     cat.set('parentId', f"{prefix}{cat.get('parentId')}" if prefix else cat.get('parentId'))
                 final_categories[new_id] = cat
 
-            # Обробка товарів
             for offer in root.xpath(".//offer"):
                 avail = offer.get('available', '').lower() in ['true', 'yes', '1']
                 if not avail:
@@ -96,7 +93,9 @@ def process():
                     if vendor.lower() not in name_ua.lower():
                         name_ua = f"{name_ua} {vendor}"
 
-                    new_off = ET.Element("offer", id=f"{prefix if prefix else '6'}_{offer.get('id')}", available="true")
+                    # ВИПРАВЛЕНО: ID товару тепер без префікса
+                    new_off = ET.Element("offer", id=offer.get('id'), available="true")
+                    
                     ET.SubElement(new_off, "name_ua").text = name_ua[:250]
                     ET.SubElement(new_off, "price").text = str(price)
                     ET.SubElement(new_off, "price_promo").text = str(price_promo)
@@ -127,14 +126,11 @@ def process():
                     count_ok += 1
                 except: continue
             
-            source_results.append(f"{domain}: OK:{count_ok}, LowPrice:{count_low}, NoStock:{count_no}")
+            source_results.append(f"{domain}: OK:{count_ok}")
         except: continue
 
-    # 3. ЗБІРКА XML З КОРЕКТНОЮ СТРУКТУРОЮ КУРСІВ
     yml = ET.Element("yml_catalog", date=datetime.now().strftime("%Y-%m-%d %H:%M"))
     shop = ET.SubElement(yml, "shop")
-    
-    # КРИТИЧНО: Повертаємо блок валют, який вимагає EVA
     currencies = ET.SubElement(shop, "currencies")
     ET.SubElement(currencies, "currency", id="UAH", rate="1")
     
@@ -147,8 +143,7 @@ def process():
     with open("Masterevanew.xml", "wb") as f:
         f.write(ET.tostring(yml, encoding='utf-8', xml_declaration=True, pretty_print=True))
     
-    print("\n--- СТАТИСТИКА ПІСЛЯ ВИПРАВЛЕННЯ ---")
-    for res in source_results: print(res)
+    print("\n--- ГОТОВО ---")
 
 if __name__ == "__main__":
     process()
