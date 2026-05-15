@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Eva - Пошук та Фільтри</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="max-w-6xl mx-auto p-4">
+        <header class="text-center py-6">
+            <h1 class="text-3xl font-extrabold text-gray-900">Склад Master Eva</h1>
+            <p id="status" class="text-sm text-gray-500 mt-2">Завантаження даних...</p>
+        </header>
+
+        <div class="flex flex-col md:flex-row gap-6">
+            <aside class="w-full md:w-1/4 bg-white p-4 rounded-xl shadow-sm h-fit sticky top-4">
+                <h2 class="font-bold text-lg mb-4 text-gray-700 border-b pb-2">Фільтри</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Пошук</label>
+                    <input type="text" id="searchInput" placeholder="Назва, ID, бренд..." 
+                        class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none text-sm">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Категорія</label>
+                    <select id="categoryFilter" class="w-full p-2 border rounded-md text-sm outline-none">
+                        <option value="">Всі категорії</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">
+                        Макс. ціна: <span id="priceLabel" class="font-bold text-blue-600">0</span> грн
+                    </label>
+                    <input type="range" id="priceFilter" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-gray-400 mt-1">
+                        <span id="minPriceLabel">0</span>
+                        <span id="maxPriceLabel">0</span>
+                    </div>
+                </div>
+
+                <button id="resetFilters" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-md text-sm transition">
+                    Скинути фільтри
+                </button>
+            </aside>
+
+            <main class="w-full md:w-3/4">
+                <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                    </div>
+                <div id="emptyState" class="hidden text-center py-20 text-gray-400">
+                    Товарів не знайдено за вашим запитом
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+        let categories = {};
+        let maxPriceFound = 0;
+        let minPriceFound = 1000000;
+
+        async function loadData() {
+            try {
+                const response = await fetch('Masterevanew.xml');
+                const str = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(str, "text/xml");
+                
+                // Парсимо назви категорій
+                const catNodes = xmlDoc.getElementsByTagName("category");
+                for (let c of catNodes) {
+                    categories[c.getAttribute('id')] = c.textContent;
+                }
+
+                // Парсимо товари
+                const offers = xmlDoc.getElementsByTagName("offer");
+                for (let offer of offers) {
+                    const price = parseFloat(offer.getElementsByTagName('price')[0]?.textContent || 0);
+                    if (price > maxPriceFound) maxPriceFound = price;
+                    if (price < minPriceFound && price > 0) minPriceFound = price;
+
+                    products.push({
+                        id: offer.getAttribute('id'),
+                        name: offer.getElementsByTagName('name_ua')[0]?.textContent || "Без назви",
+                        price: price,
+                        promo: offer.getElementsByTagName('price_promo')[0]?.textContent,
+                        vendor: offer.getElementsByTagName('vendor')[0]?.textContent,
+                        qty: offer.getElementsByTagName('stock_quantity')[0]?.textContent,
+                        catId: offer.getElementsByTagName('categoryId')[0]?.textContent,
+                        image: offer.getElementsByTagName('picture')[0]?.textContent || 'https://via.placeholder.com/150'
+                    });
+                }
+
+                initFilters();
+                renderResults();
+                document.getElementById('status').textContent = `Товарів: ${products.length} | Оновлено: ${new Date().toLocaleTimeString()}`;
+            } catch (e) {
+                document.getElementById('status').textContent = "Помилка завантаження прайсу.";
+            }
+        }
+
+        function initFilters() {
+            // Заповнення списку категорій
+            const select = document.getElementById('categoryFilter');
+            const uniqueCats = [...new Set(products.map(p => p.catId))];
+            uniqueCats.forEach(id => {
+                if (id) {
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = categories[id] || `Категорія ${id}`;
+                    select.appendChild(opt);
+                }
+            });
+
+            // Налаштування повзунка ціни
+            const pFilter = document.getElementById('priceFilter');
+            pFilter.min = minPriceFound;
+            pFilter.max = maxPriceFound;
+            pFilter.value = maxPriceFound;
+            document.getElementById('priceLabel').textContent = maxPriceFound;
+            document.getElementById('minPriceLabel').textContent = minPriceFound;
+            document.getElementById('maxPriceLabel').textContent = maxPriceFound;
+        }
+
+        function renderResults() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cat = document.getElementById('categoryFilter').value;
+            const price = parseFloat(document.getElementById('priceFilter').value);
+            
+            const filtered = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query) || (p.vendor && p.vendor.toLowerCase().includes(query));
+                const matchesCat = !cat || p.catId === cat;
+                const matchesPrice = p.price <= price;
+                return matchesSearch && matchesCat && matchesPrice;
+            });
+
+            const container = document.getElementById('results');
+            const empty = document.getElementById('emptyState');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                empty.classList.remove('hidden');
+            } else {
+                empty.classList.add('hidden');
+                filtered.slice(0, 100).forEach(p => { // Відображаємо перші 100 для швидкості
+                    container.innerHTML += `
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+                            <div class="flex gap-4">
+                                <img src="${p.image}" class="w-24 h-24 object-contain rounded-md bg-gray-50 border">
+                                <div class="flex-1 text-sm">
+                                    <h3 class="font-bold text-gray-800 line-clamp-2 mb-1">${p.name}</h3>
+                                    <p class="text-xs text-gray-400 mb-2">ID: ${p.id}</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg font-black text-green-600">${p.price} ₴</span>
+                                        ${p.promo ? `<span class="text-xs text-gray-400 line-through">${Math.round(p.price/0.93)} ₴</span>` : ''}
+                                    </div>
+                                    <p class="text-xs mt-1">Бренд: <span class="font-semibold text-gray-700">${p.vendor}</span></p>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t flex justify-between items-center text-xs">
+                                <span class="${p.qty > 0 ? 'text-blue-600' : 'text-red-500'} font-medium">
+                                    ● Наявність: ${p.qty} шт.
+                                </span>
+                                <button onclick="navigator.clipboard.writeText('${p.price}')" class="text-gray-400 hover:text-blue-500 transition">
+                                    Копіювати ціну
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', renderResults);
+        document.getElementById('categoryFilter').addEventListener('change', renderResults);
+        document.getElementById('priceFilter').addEventListener('input', (e) => {
+            document.getElementById('priceLabel').textContent = e.target.value;
+            renderResults();
+        });
+        document.getElementById('resetFilters').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('priceFilter').value = maxPriceFound;
+            document.getElementById('priceLabel').textContent = maxPriceFound;
+            renderResults();
+        });
+
+        loadData();
+    </script>
+</body>
+</html>
