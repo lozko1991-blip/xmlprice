@@ -148,7 +148,6 @@
             const text = await res.text();
             const xml = new DOMParser().parseFromString(text, "text/xml");
 
-            // 1. Коректний збір категорій
             const catNodes = xml.getElementsByTagName('category');
             let catOptions = '<option value="all">Всі категорії</option>';
             Array.from(catNodes).forEach(c => {
@@ -159,7 +158,6 @@
             });
             document.getElementById('categorySelect').innerHTML = catOptions;
 
-            // 2. Збір товарів
             const offers = xml.getElementsByTagName('offer');
             allProducts = Array.from(offers).map(o => {
                 const params = Array.from(o.getElementsByTagName('param')).map(p => ({
@@ -178,15 +176,12 @@
                 };
             });
 
-            // 3. Налаштування фільтра ціни
             const maxPrice = allProducts.length ? Math.max(...allProducts.map(p => p.price)) : 10000;
             document.getElementById('priceRange').max = maxPrice;
             document.getElementById('priceRange').value = maxPrice;
             document.getElementById('priceLabel').textContent = Math.round(maxPrice) + ' ₴';
 
             document.getElementById('loader').classList.add('hidden');
-            
-            // 4. ПЕРШИЙ ВИКЛИК ПОШУКУ (щоб товари з'явилися)
             performSearch();
 
         } catch (e) {
@@ -196,7 +191,13 @@
     }
 
     function performSearch() {
-        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        // Зчитуємо значення з обох інпутів (ПК та мобільного)
+        const pcQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+        const mobileQuery = document.getElementById('mobileSearch').value.toLowerCase().trim();
+        
+        // Використовуємо те значення, яке не пусте (або ПК за замовчуванням)
+        const query = pcQuery || mobileQuery;
+
         const cat = document.getElementById('categorySelect').value;
         const limit = parseInt(document.getElementById('limitSelect').value);
         const maxP = parseFloat(document.getElementById('priceRange').value);
