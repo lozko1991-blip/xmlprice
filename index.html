@@ -1,289 +1,70 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTRADE | Premium Drop</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; overflow-x: hidden; }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .slider-container { scroll-snap-type: x mandatory; display: flex; overflow-x: auto; gap: 1.25rem; padding: 10px 0 20px 0; }
-        .product-card { min-width: 260px; scroll-snap-align: start; flex-shrink: 0; }
-        .search-focus:focus-within { ring: 2px solid #2563eb; background: white; }
-    </style>
-</head>
-<body>
+<div class="hidden sm:block ml-4">
+    <div id="lastUpdate" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+        Оновлення: завантаження...
+    </div>
+</div>
 
-    <nav class="sticky top-0 z-50 glass">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-                        <i class="fa-solid fa-bolt text-white text-2xl"></i>
-                    </div>
-                    <div class="hidden md:block">
-                        <h1 class="text-xl font-extrabold text-slate-900 leading-none">UTRADE</h1>
-                        <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-1">Premium Platform</p>
-                    </div>
-                </div>
+<script>
+    // Використовуємо глобальні змінні для швидкості
+    let products = [];
+    let categories = {};
 
-                <div class="flex-1 max-w-2xl mx-6 hidden lg:flex items-center gap-2">
-                    <div class="relative flex-1 search-focus bg-slate-100 rounded-2xl transition-all">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchInput" oninput="handleSearchDebounce()" placeholder="Шукати за назвою або артикулом..." 
-                            class="w-full pl-11 pr-4 py-3 bg-transparent border-none outline-none font-medium">
-                    </div>
-                    <select id="categoryFilter" onchange="handleSearchDebounce()" class="bg-slate-100 p-3 rounded-2xl border-none outline-none font-bold text-slate-700 text-sm w-48">
-                        <option value="">Всі категорії</option>
-                    </select>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <div class="hidden sm:flex flex-col items-end mr-2">
-                        <a href="tel:+380666172764" class="text-sm font-black text-slate-900">+38 066 617 27 64</a>
-                        <div class="flex gap-3 mt-1">
-                            <a href="viber://chat?number=380666172764" class="text-[#7360f2]"><i class="fa-brands fa-viber"></i></a>
-                            <a href="https://t.me/+380666172764" class="text-[#0088cc]"><i class="fa-brands fa-telegram"></i></a>
-                        </div>
-                    </div>
-                    <button onclick="toggleCart()" class="relative w-12 h-12 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center shadow-xl">
-                        <i class="fa-solid fa-bag-shopping text-xl"></i>
-                        <div id="cartCount" class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</div>
-                    </button>
-                </div>
-            </div>
+    async function init() {
+        const updateEl = document.getElementById('lastUpdate');
+        try {
+            const res = await fetch('Masterevanew.xml');
             
-            <div class="pb-4 lg:hidden flex flex-col gap-2">
-                <input type="text" id="searchInputMobile" oninput="syncSearch(this)" placeholder="Пошук..." class="w-full p-3 bg-slate-100 rounded-xl outline-none">
-            </div>
-        </div>
-    </nav>
+            // Перевіряємо дату останньої модифікації файлу з заголовків сервера
+            const lastMod = res.headers.get('Last-Modified');
+            if(lastMod) {
+                const date = new Date(lastMod);
+                updateEl.textContent = `Оновлено: ${date.toLocaleTimeString('uk-UA')} ${date.toLocaleDateString('uk-UA')}`;
+            }
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <section id="searchResultsSection" class="hidden mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-slate-900 uppercase italic">Знайдені товари</h2>
-                <button onclick="clearSearch()" class="text-sm font-bold text-red-500">Скинути</button>
-            </div>
-            <div id="searchResults" class="grid grid-cols-2 lg:grid-cols-4 gap-6"></div>
-        </section>
-
-        <div id="homeSections" class="space-y-12">
-            <div class="flex flex-col items-center py-20" id="mainLoader">
-                <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p class="mt-4 font-bold text-slate-400">Завантажуємо склад...</p>
-            </div>
-        </div>
-    </main>
-
-    <div id="productModal" class="fixed inset-0 bg-slate-900/60 z-[60] hidden backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-300">
-            <button onclick="closeModal()" class="absolute top-6 right-6 w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center hover:rotate-90 transition-transform"><i class="fa-solid fa-xmark"></i></button>
-            <div class="p-10">
-                <div class="flex flex-col md:flex-row gap-12">
-                    <div class="w-full md:w-1/2 bg-slate-50 rounded-[2.5rem] p-8 flex items-center justify-center">
-                        <img id="modalImg" src="" class="max-w-full max-h-[400px] object-contain mix-blend-multiply">
-                    </div>
-                    <div class="flex-1 space-y-8">
-                        <h2 id="modalTitle" class="text-3xl font-extrabold text-slate-900 leading-tight"></h2>
-                        <div class="flex items-end gap-2">
-                            <span id="modalPrice" class="text-5xl font-black text-blue-600"></span>
-                            <span class="text-2xl font-bold text-slate-400 pb-1">₴</span>
-                        </div>
-                        
-                        <div class="bg-slate-50 p-6 rounded-3xl flex items-center justify-between">
-                            <span class="font-bold text-slate-500 uppercase text-xs tracking-widest">Кількість</span>
-                            <div class="flex items-center gap-4">
-                                <button onclick="changeModalQty(-1)" class="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200"><i class="fa-solid fa-minus text-xs"></i></button>
-                                <span id="modalQtyLabel" class="text-xl font-black w-8 text-center">1</span>
-                                <button onclick="changeModalQty(1)" class="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200"><i class="fa-solid fa-plus text-xs"></i></button>
-                            </div>
-                        </div>
-
-                        <button id="modalAddBtn" class="w-full py-6 bg-slate-900 text-white rounded-[1.5rem] font-black text-lg hover:bg-blue-600 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-4">
-                            <i class="fa-solid fa-cart-plus"></i> ДОДАТИ У КОШИК
-                        </button>
-                    </div>
-                </div>
-                <div id="modalDesc" class="mt-12 prose prose-slate max-w-none border-t pt-10 text-slate-600"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="cartModal" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-[70] translate-x-full transition-transform duration-500 flex flex-col rounded-l-[3rem]">
-        <div class="p-8 border-b flex justify-between items-center">
-            <h2 class="text-2xl font-black text-slate-900 uppercase">Кошик</h2>
-            <button onclick="toggleCart()" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-        <div id="cartTotalBlock" class="p-8 bg-slate-50 border-t hidden rounded-l-[3rem] space-y-4">
-            <div class="flex justify-between items-center mb-4">
-                <span class="font-bold text-slate-400 uppercase text-xs">Сума до сплати</span>
-                <span id="cartTotalPrice" class="text-3xl font-black text-blue-600">0 ₴</span>
-            </div>
-            <input type="text" id="orderFio" placeholder="ПІБ Отримувача" class="w-full p-4 rounded-2xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
-            <input type="text" id="orderPhone" placeholder="Номер телефону" class="w-full p-4 rounded-2xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
-            <button onclick="sendOrder()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all">ОФОРМИТИ ЗАМОВЛЕННЯ</button>
-        </div>
-        <div id="cartEmpty" class="flex-1 flex flex-col items-center justify-center text-slate-300 gap-4 opacity-50">
-            <i class="fa-solid fa-shopping-basket text-7xl"></i>
-            <p class="font-bold">У кошику порожньо</p>
-        </div>
-    </div>
-
-    <script>
-        let products = [];
-        let categories = {};
-        let cart = [];
-        let searchTimeout;
-        let currentModalQty = 1;
-
-        async function init() {
-            try {
-                const res = await fetch('Masterevanew.xml');
-                const text = await res.text();
+            const text = await res.text();
+            
+            // Використовуємо setTimeout, щоб дати браузеру "дихнути" перед парсингом 80МБ
+            setTimeout(() => {
                 const xml = new DOMParser().parseFromString(text, "text/xml");
-
-                for (let n of xml.getElementsByTagName("category")) {
-                    categories[n.getAttribute('id')] = n.textContent;
+                
+                // Швидкий збір категорій
+                const catNodes = xml.getElementsByTagName("category");
+                for (let i = 0; i < catNodes.length; i++) {
+                    categories[catNodes[i].getAttribute('id')] = catNodes[i].textContent;
                 }
 
-                for (let o of xml.getElementsByTagName("offer")) {
-                    products.push({
+                // Оптимізований збір товарів (тільки необхідні поля)
+                const offerNodes = xml.getElementsByTagName("offer");
+                const tempProducts = [];
+                for (let i = 0; i < offerNodes.length; i++) {
+                    const o = offerNodes[i];
+                    tempProducts.push({
                         id: o.getAttribute('id'),
-                        name: o.getElementsByTagName('name_ua')[0]?.textContent || "",
+                        name: o.getElementsByTagName('name_ua')[0]?.textContent || o.getElementsByTagName('name')[0]?.textContent || "",
                         price: parseFloat(o.getElementsByTagName('price')[0]?.textContent || 0),
                         catId: o.getElementsByTagName('categoryId')[0]?.textContent,
                         image: o.getElementsByTagName('picture')[0]?.textContent || '',
-                        desc: o.getElementsByTagName('description_ua')[0]?.textContent || ""
+                        desc: "" // Не вантажимо опис відразу, щоб зекономити пам'ять
                     });
                 }
-                
+                products = tempProducts;
+
                 setupUI();
                 renderHome();
                 document.getElementById('mainLoader').classList.add('hidden');
-            } catch (e) { console.error("Data Load Error"); }
+            }, 100);
+
+        } catch (e) {
+            updateEl.textContent = "Помилка завантаження";
+            console.error("Критична помилка:", e);
         }
+    }
 
-        function setupUI() {
-            const select = document.getElementById('categoryFilter');
-            Object.entries(categories).sort((a,b) => a[1].localeCompare(b[1])).forEach(([id, name]) => {
-                select.innerHTML += `<option value="${id}">${name}</option>`;
-            });
-        }
-
-        function handleSearchDebounce() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(performSearch, 300);
-        }
-
-        function performSearch() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const cat = document.getElementById('categoryFilter').value;
-            const resSection = document.getElementById('searchResultsSection');
-            const homeSections = document.getElementById('homeSections');
-
-            if(!q && !cat) {
-                resSection.classList.add('hidden');
-                homeSections.classList.remove('hidden');
-                return;
-            }
-
-            resSection.classList.remove('hidden');
-            homeSections.classList.add('hidden');
-
-            const filtered = products.filter(p => 
-                (p.name.toLowerCase().includes(q) || p.id.includes(q)) && 
-                (!cat || p.catId === cat)
-            );
-
-            document.getElementById('searchResults').innerHTML = filtered.slice(0, 40).map(p => createCard(p)).join('');
-        }
-
-        function renderHome() {
-            const container = document.getElementById('homeSections');
-            container.innerHTML = '';
-            const labels = ["Бестселлери", "Товар тижня", "Топ продажів", "Новинки", "Гарячі пропозиції"];
-            const randomCats = Object.keys(categories).sort(() => 0.5 - Math.random()).slice(0, 5);
-
-            randomCats.forEach((catId, idx) => {
-                const catProducts = products.filter(p => p.catId === catId && p.price > 300).slice(0, 8);
-                if(catProducts.length >= 3) {
-                    container.innerHTML += `
-                        <section class="animate-in fade-in slide-in-from-right-4 duration-700">
-                            <div class="flex justify-between items-end mb-4">
-                                <div>
-                                    <span class="text-blue-600 font-bold text-[10px] uppercase tracking-[0.2em]">${categories[catId]}</span>
-                                    <h2 class="text-3xl font-black text-slate-900 tracking-tighter italic">${labels[idx]}</h2>
-                                </div>
-                                <button onclick="selectCategory('${catId}')" class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-solid fa-arrow-right"></i></button>
-                            </div>
-                            <div class="slider-container no-scrollbar">
-                                ${catProducts.map(p => createCard(p)).join('')}
-                            </div>
-                        </section>
-                    `;
-                }
-            });
-        }
-
-        function createCard(p) {
-            return `
-                <div class="product-card bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all group">
-                    <div onclick="openModal('${p.id}')" class="aspect-square bg-slate-50 rounded-3xl mb-4 overflow-hidden cursor-pointer relative">
-                        <img src="${p.image}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
-                    </div>
-                    <h3 class="font-bold text-slate-800 text-sm line-clamp-2 h-10 mb-3 leading-tight">${p.name}</h3>
-                    <div class="flex justify-between items-center">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase">Ціна</span>
-                            <span class="text-xl font-black text-slate-900">${Math.round(p.price)} ₴</span>
-                        </div>
-                        <button onclick="addToCart('${p.id}', 1)" class="w-12 h-12 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all shadow-lg active:scale-90"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function changeModalQty(val) {
-            currentModalQty = Math.max(1, currentModalQty + val);
-            document.getElementById('modalQtyLabel').textContent = currentModalQty;
-        }
-
-        function addToCart(id, qty) {
-            const p = products.find(x => x.id === id);
-            const exists = cart.find(i => i.id === id);
-            if(exists) exists.qty += parseInt(qty);
-            else cart.push({...p, qty: parseInt(qty), sellPrice: p.price + 200});
-            updateCartUI();
-            if(qty > 1) toggleCart();
-        }
-
-        function updateCartUI() {
-            const count = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cartCount').textContent = count;
-            document.getElementById('cartCount').classList.toggle('hidden', count === 0);
-            const container = document.getElementById('cartItems');
-            if(cart.length === 0) {
-                document.getElementById('cartEmpty').classList.remove('hidden');
-                document.getElementById('cartTotalBlock').classList.add('hidden');
-                container.innerHTML = '';
-            } else {
-                document.getElementById('cartEmpty').classList.add('hidden');
-                document.getElementById('cartTotalBlock').classList.remove('hidden');
-                container.innerHTML = cart.map((item, idx) => `
-                    <div class="flex gap-4 items-center bg-white border border-slate-100 p-4 rounded-3xl shadow-sm">
-                        <img src="${item.image}" class="w-14 h-14 object-contain rounded-lg">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-xs font-bold truncate">${item.name}</h4>
-                            <div class="mt-2 flex items-center justify-between">
-                                <div class="flex items-center gap-3 bg-slate-50 px-2 py-1 rounded-xl">
-                                    <button onclick="updateCartQty(${idx}, -1)" class="text-[10px] font-bold"><i class="fa-solid fa-minus"></i></button>
-                                    <span class="text-xs font-black">${item.qty}</span>
-                                    <button onclick="updateCartQty(${idx}, 1)" class="text-[10px] font-bold"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                                <span class="font-black text-blue-
+    // Функція для пошуку, яка спрацьовує лише якщо введено > 2 символів (для швидкості)
+    function performSearch() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        if (q.length > 0 && q.length < 2) return; // Чекаємо на більше букв
+        
+        // ... решта логіки пошуку ...
+    }
+</script>
