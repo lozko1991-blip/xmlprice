@@ -7,156 +7,232 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #f8fafc; }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
-        .loader { border-top-color: #2563eb; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); } }
     </style>
 </head>
 <body>
 
-    <nav class="sticky top-0 z-50 glass py-4">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <div class="bg-blue-600 p-2 rounded-lg text-white"><i class="fa-solid fa-bolt text-xl"></i></div>
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
                 <div>
-                    <h1 class="font-bold text-slate-900 leading-none">UTRADE</h1>
-                    <p id="lastUpdate" class="text-[10px] text-blue-500 font-bold uppercase mt-1">Оновлення: завантаження...</p>
+                    <h1 class="font-black text-slate-900 tracking-tight leading-none">UTRADE</h1>
+                    <div id="lastUpdate" class="text-[9px] font-bold text-blue-500 uppercase mt-1">Оновлення...</div>
                 </div>
             </div>
             
-            <div class="flex-1 max-w-md mx-8 hidden md:block">
-                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Пошук товару або ID..." class="w-full bg-slate-100 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="hidden sm:flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+                <a href="tel:+380666172764" class="text-xs font-bold text-slate-700 hover:text-blue-600 transition-colors">+38 066 617 27 64</a>
+                <div class="flex gap-2">
+                    <a href="viber://chat?number=%2B380666172764" class="text-purple-500 hover:scale-110 transition-transform"><i class="fa-brands fa-viber text-lg"></i></a>
+                    <a href="https://t.me/sergey_lozko" class="text-blue-400 hover:scale-110 transition-transform"><i class="fa-brands fa-telegram text-lg"></i></a>
+                </div>
             </div>
 
-            <button onclick="toggleCart()" class="relative p-3 bg-slate-900 text-white rounded-xl">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
+            <button onclick="openCart()" class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center relative hover:bg-blue-600 transition-all">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="cartCount" class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
             </button>
         </div>
-    </nav>
-
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <div id="mainLoader" class="flex flex-col items-center py-20">
-            <div class="loader w-12 h-12 border-4 border-slate-200 rounded-full mb-4"></div>
-            <p class="text-slate-500 font-medium">Аналізуємо 32,000+ товарів...</p>
+        
+        <div class="max-w-xl mx-auto mt-2">
+            <input type="text" id="searchInput" oninput="debounceSearch()" placeholder="Пошук по 32 000+ товарах за назвою або ID..." 
+                class="w-full bg-slate-100 border-none rounded-2xl px-5 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
         </div>
+    </div>
+</nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <aside class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-slate-900 mb-4">Категорії</h3>
-                    <select id="catSelect" onchange="handleSearch()" class="w-full p-3 bg-slate-50 rounded-xl border-none outline-none text-sm font-medium">
-                        <option value="">Всі товари</option>
-                    </select>
+<main class="max-w-7xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
+    <aside class="w-full lg:w-64">
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 sticky top-32">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Категорія</label>
+            <select id="categoryFilter" onchange="performSearch()" class="w-full bg-slate-50 p-3 rounded-xl border-none outline-none font-bold text-slate-700 text-sm cursor-pointer hover:bg-slate-100 transition-colors">
+                <option value="">Всі товари</option>
+            </select>
+        </div>
+    </aside>
+
+    <div class="flex-1">
+        <div id="loader" class="flex flex-col items-center py-20">
+            <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-slate-400 font-bold text-sm tracking-wide">ПІДКЛЮЧЕННЯ ДО СКЛАДУ...</p>
+        </div>
+        <div id="productGrid" class="product-grid"></div>
+        <div id="loadMoreContainer" class="mt-10 text-center hidden">
+            <button onclick="loadMore()" class="px-10 py-4 bg-white text-slate-900 font-bold rounded-2xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-all">Показати ще</button>
+        </div>
+    </div>
+</main>
+
+<div id="productModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+        <button onclick="closeModal()" class="absolute top-6 right-6 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-red-50 text-slate-500 hover:text-red-500 transition-all z-10">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div id="modalContent" class="flex flex-col md:flex-row gap-8 p-8">
+            </div>
+    </div>
+</div>
+
+<script>
+    let products = [];
+    let filtered = [];
+    let cart = JSON.parse(localStorage.getItem('utrade_cart')) || [];
+    let displayLimit = 24;
+    let searchTimer;
+
+    async function init() {
+        updateCartBadge();
+        try {
+            const res = await fetch('Masterevanew.xml');
+            const lastMod = res.headers.get('Last-Modified');
+            if (lastMod) {
+                const date = new Date(lastMod);
+                document.getElementById('lastUpdate').textContent = `Оновлено: ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')} (${date.toLocaleDateString()})`;
+            }
+
+            const text = await res.text();
+            const xml = new DOMParser().parseFromString(text, "text/xml");
+
+            const cats = xml.getElementsByTagName("category");
+            const select = document.getElementById('categoryFilter');
+            for (let c of cats) {
+                const opt = document.createElement('option');
+                opt.value = c.getAttribute('id');
+                opt.textContent = c.textContent;
+                select.appendChild(opt);
+            }
+
+            const offers = xml.getElementsByTagName("offer");
+            for (let o of offers) {
+                products.push({
+                    id: o.getAttribute('id'),
+                    name: o.getElementsByTagName('name_ua')[0]?.textContent || o.getElementsByTagName('name')[0]?.textContent,
+                    price: parseFloat(o.getElementsByTagName('price')[0]?.textContent || 0),
+                    img: o.getElementsByTagName('picture')[0]?.textContent,
+                    catId: o.getElementsByTagName('categoryId')[0]?.textContent,
+                    desc: o.getElementsByTagName('description')[0]?.textContent || "Опис відсутній"
+                });
+            }
+
+            filtered = products;
+            document.getElementById('loader').classList.add('hidden');
+            render();
+        } catch (e) { console.error("Error loading XML"); }
+    }
+
+    function render() {
+        const grid = document.getElementById('productGrid');
+        const toShow = filtered.slice(0, displayLimit);
+        
+        grid.innerHTML = toShow.map(p => `
+            <div class="bg-white p-4 rounded-[2rem] border border-white hover:border-blue-100 hover:shadow-xl transition-all group cursor-pointer" onclick="openModal('${p.id}')">
+                <div class="aspect-square bg-slate-50 rounded-2xl mb-4 overflow-hidden relative">
+                    <img src="${p.img}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-all duration-500" loading="lazy">
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
                 </div>
-            </aside>
-
-            <div class="lg:col-span-3">
-                <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
-                <div id="loadMoreBtn" class="mt-8 text-center hidden">
-                    <button onclick="showMore()" class="px-8 py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50">Показати ще</button>
+                <p class="text-[9px] font-black text-slate-400 mb-1">ID: ${p.id}</p>
+                <h3 class="text-[12px] font-bold text-slate-800 line-clamp-2 h-9 leading-tight mb-4">${p.name}</h3>
+                <div class="flex justify-between items-center" onclick="event.stopPropagation()">
+                    <span class="text-lg font-black text-slate-900">${Math.round(p.price)} ₴</span>
+                    <button onclick="addToCart('${p.id}')" class="w-10 h-10 bg-slate-100 text-slate-900 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
                 </div>
             </div>
-        </div>
-    </main>
+        `).join('');
 
-    <script>
-        let allProducts = [];
-        let categories = {};
-        let visibleCount = 24;
-        let filteredProducts = [];
+        document.getElementById('loadMoreContainer').classList.toggle('hidden', displayLimit >= filtered.length);
+    }
 
-        async function init() {
-            try {
-                // Вказуємо правильний файл — Masterevanew.xml
-                const response = await fetch('Masterevanew.xml');
-                
-                // Витягуємо дату оновлення з заголовків
-                const lastMod = response.headers.get('Last-Modified');
-                if (lastMod) {
-                    const d = new Date(lastMod);
-                    document.getElementById('lastUpdate').textContent = `Оновлено: ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')} (${d.toLocaleDateString()})`;
-                }
-
-                const xmlText = await response.text();
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-                // Парсимо категорії
-                const cats = xmlDoc.getElementsByTagName("category");
-                const catSelect = document.getElementById('catSelect');
-                for (let c of cats) {
-                    categories[c.getAttribute('id')] = c.textContent;
-                    const opt = document.createElement('option');
-                    opt.value = c.getAttribute('id');
-                    opt.textContent = c.textContent;
-                    catSelect.appendChild(opt);
-                }
-
-                // Парсимо товари (Оптимізовано)
-                const offers = xmlDoc.getElementsByTagName("offer");
-                for (let o of offers) {
-                    allProducts.push({
-                        id: o.getAttribute('id'),
-                        name: o.getElementsByTagName('name_ua')[0]?.textContent || o.getElementsByTagName('name')[0]?.textContent,
-                        price: o.getElementsByTagName('price')[0]?.textContent,
-                        img: o.getElementsByTagName('picture')[0]?.textContent,
-                        catId: o.getElementsByTagName('categoryId')[0]?.textContent
-                    });
-                }
-
-                filteredProducts = allProducts;
-                document.getElementById('mainLoader').classList.add('hidden');
-                renderProducts();
-
-            } catch (err) {
-                console.error("Помилка:", err);
-                document.getElementById('mainLoader').innerHTML = `<p class="text-red-500">Помилка завантаження бази даних.</p>`;
-            }
-        }
-
-        function renderProducts() {
-            const grid = document.getElementById('productGrid');
-            const chunk = filteredProducts.slice(0, visibleCount);
-            
-            grid.innerHTML = chunk.map(p => `
-                <div class="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                    <div class="aspect-square mb-4 bg-slate-50 rounded-2xl overflow-hidden">
-                        <img src="${p.img}" class="w-full h-full object-contain mix-blend-multiply" loading="lazy">
-                    </div>
-                    <p class="text-[10px] font-bold text-slate-400 mb-1">ID: ${p.id}</p>
-                    <h3 class="text-xs font-bold text-slate-800 line-clamp-2 h-8 mb-3">${p.name}</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-black text-blue-600">${Math.round(p.price)} ₴</span>
-                        <button class="w-10 h-10 bg-slate-900 text-white rounded-xl"><i class="fa-solid fa-plus text-xs"></i></button>
+    // Функція відкриття «картки товару»
+    function openModal(id) {
+        const p = products.find(x => x.id === id);
+        if(!p) return;
+        
+        const modal = document.getElementById('productModal');
+        const content = document.getElementById('modalContent');
+        
+        content.innerHTML = `
+            <div class="w-full md:w-1/2 bg-slate-50 rounded-3xl p-6">
+                <img src="${p.img}" class="w-full h-auto object-contain mix-blend-multiply">
+            </div>
+            <div class="w-full md:w-1/2 flex flex-col justify-between">
+                <div>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-600 text-[10px] font-black rounded-full uppercase mb-4 inline-block">ID: ${p.id}</span>
+                    <h2 class="text-xl font-black text-slate-900 leading-tight mb-4">${p.name}</h2>
+                    <div class="text-2xl font-black text-blue-600 mb-6">${Math.round(p.price)} ₴</div>
+                    <div class="prose prose-sm text-slate-500 h-48 overflow-y-auto pr-2 custom-scrollbar">
+                        ${p.desc}
                     </div>
                 </div>
-            `).join('');
+                <button onclick="addToCart('${p.id}'); closeModal()" class="mt-8 w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-cart-plus"></i> ДОДАТИ В КОШИК
+                </button>
+            </div>
+        `;
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
 
-            document.getElementById('loadMoreBtn').classList.toggle('hidden', visibleCount >= filteredProducts.length);
+    function closeModal() {
+        document.getElementById('productModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Логіка кошика
+    function addToCart(id) {
+        const p = products.find(x => x.id === id);
+        cart.push(p);
+        localStorage.setItem('utrade_cart', JSON.stringify(cart));
+        updateCartBadge();
+        
+        // Маленька анімація кнопки
+        const btn = event.currentTarget;
+        const oldContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        btn.classList.replace('bg-slate-100', 'bg-green-500');
+        btn.classList.add('text-white');
+        setTimeout(() => {
+            btn.innerHTML = oldContent;
+            btn.classList.replace('bg-green-500', 'bg-slate-100');
+            btn.classList.remove('text-white');
+        }, 1000);
+    }
+
+    function updateCartBadge() {
+        const badge = document.getElementById('cartCount');
+        if (cart.length > 0) {
+            badge.textContent = cart.length;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
         }
+    }
 
-        function handleSearch() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const cat = document.getElementById('catSelect').value;
+    function debounceSearch() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(performSearch, 300);
+    }
 
-            filteredProducts = allProducts.filter(p => {
-                const matchName = p.name.toLowerCase().includes(q) || p.id.includes(q);
-                const matchCat = !cat || p.catId === cat;
-                return matchName && matchCat;
-            });
+    function performSearch() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const cat = document.getElementById('categoryFilter').value;
+        filtered = products.filter(p => (p.name.toLowerCase().includes(q) || p.id.includes(q)) && (!cat || p.catId === cat));
+        displayLimit = 24;
+        render();
+    }
 
-            visibleCount = 24;
-            renderProducts();
-        }
+    function loadMore() { displayLimit += 24; render(); }
 
-        function showMore() {
-            visibleCount += 24;
-            renderProducts();
-        }
-
-        init();
-    </script>
+    init();
+</script>
 </body>
 </html>
