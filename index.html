@@ -3,157 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTRADE | Дроп-платформа</title>
+    <title>UTRADE | Платформа Дропшипінгу</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
         body { font-family: 'Inter', sans-serif; background: #f8fafc; }
-        .product-card { transition: all 0.3s ease; border: 1px solid transparent; }
-        .product-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1); }
+        .product-card { transition: all 0.3s ease; }
+        .product-card:hover { transform: translateY(-5px); shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .aside-open { transform: translateX(0) !important; }
         .cart-open { transform: translateX(0) !important; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
-<body class="antialiased text-slate-900">
+<body class="antialiased">
 
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
-    <div class="max-w-[1600px] mx-auto px-4 h-20 flex items-center justify-between gap-6">
+<nav class="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
+    <div class="max-w-[1600px] mx-auto px-4 h-20 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3 shrink-0">
             <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
                 <i class="fa-solid fa-bolt text-xl"></i>
             </div>
             <div>
                 <h1 class="font-black text-xl tracking-tighter leading-none italic">UTRADE</h1>
-                <p class="text-[10px] font-bold text-blue-600 tracking-widest uppercase mt-0.5">Дроп-платформа</p>
+                <p class="text-[10px] font-bold text-blue-600 tracking-widest uppercase">Дроп-платформа</p>
             </div>
         </div>
-        
-        <div class="hidden md:flex flex-1 max-w-2xl relative">
+
+        <div class="hidden md:flex flex-1 max-w-xl relative">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="searchInput" oninput="performSearch()" placeholder="Пошук товару за назвою або ID..." 
+            <input type="text" id="searchInput" oninput="performSearch()" placeholder="Пошук назви або ID..." 
                    class="w-full bg-slate-100 border-none rounded-2xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
         </div>
 
-        <div class="flex items-center gap-4">
-            <div class="hidden lg:block text-right">
-                <p class="text-[10px] font-black text-slate-400 uppercase">Підтримка</p>
-                <a href="tel:+380666172764" class="text-sm font-black">+38 066 617 27 64</a>
-            </div>
-            <button onclick="toggleCart(true)" class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center relative hover:bg-blue-600 transition-all">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleMobileAside(true)" class="lg:hidden w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-filter"></i>
+            </button>
+            <button onclick="toggleCart(true)" class="w-11 h-11 bg-slate-900 text-white rounded-xl flex items-center justify-center relative">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cartCount" class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
             </button>
         </div>
     </div>
+    <div class="md:hidden px-4 pb-3">
+        <input type="text" id="mobileSearch" oninput="syncSearch(this.value)" placeholder="Пошук..." 
+               class="w-full bg-slate-100 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+    </div>
 </nav>
 
-<div class="max-w-[1600px] mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+<div class="max-w-[1600px] mx-auto px-4 py-6 flex flex-col lg:flex-row gap-8">
     
-    <aside class="w-full lg:w-72 shrink-0 space-y-6">
-        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 sticky top-28">
-            <h2 class="text-lg font-black mb-6 flex items-center gap-2 italic underline decoration-blue-500">Налаштування</h2>
+    <div id="asideOverlay" onclick="toggleMobileAside(false)" class="fixed inset-0 bg-slate-900/50 z-[60] hidden lg:hidden backdrop-blur-sm"></div>
+    <aside id="sidePanel" class="fixed lg:sticky lg:top-24 top-0 left-0 h-full lg:h-fit w-72 bg-white lg:bg-transparent z-[70] p-6 lg:p-0 -translate-x-full lg:translate-x-0 transition-transform duration-300">
+        <div class="lg:bg-white lg:p-6 lg:rounded-[2.5rem] lg:shadow-sm border-slate-100 space-y-6">
+            <div class="flex justify-between items-center lg:hidden mb-6">
+                <span class="font-black">ФІЛЬТРИ</span>
+                <button onclick="toggleMobileAside(false)"><i class="fa-solid fa-xmark"></i></button>
+            </div>
             
-            <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Категорія</label>
-                    <select id="categorySelect" onchange="performSearch()" class="w-full bg-slate-50 border-none rounded-xl p-3 text-xs font-bold focus:ring-2 focus:ring-blue-500"></select>
-                </div>
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block italic">Виберіть Категорію</label>
+                <select id="categorySelect" onchange="performSearch()" class="w-full bg-slate-100 border-none rounded-xl p-3 text-xs font-bold"></select>
+            </div>
 
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Товарів на сторінці</label>
-                    <select id="limitSelect" onchange="performSearch()" class="w-full bg-slate-50 border-none rounded-xl p-3 text-xs font-bold focus:ring-2 focus:ring-blue-500">
-                        <option value="20">Показувати 20</option>
-                        <option value="50">Показувати 50</option>
-                        <option value="100">Показувати 100</option>
-                        <option value="500">Показувати 500</option>
-                    </select>
-                </div>
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block italic">Товарів на сторінці</label>
+                <select id="limitSelect" onchange="performSearch()" class="w-full bg-slate-100 border-none rounded-xl p-3 text-xs font-bold">
+                    <option value="20">Показувати 20</option>
+                    <option value="50">Показувати 50</option>
+                    <option value="100">Показувати 100</option>
+                </select>
+            </div>
 
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Макс. ціна</label>
-                        <span id="priceLabel" class="text-xs font-black text-blue-600">0 ₴</span>
-                    </div>
-                    <input type="range" id="priceRange" oninput="performSearch()" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            <div>
+                <div class="flex justify-between mb-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Макс. ціна</label>
+                    <span id="priceLabel" class="text-xs font-black text-blue-600">0 ₴</span>
                 </div>
+                <input type="range" id="priceRange" oninput="performSearch()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
             </div>
         </div>
     </aside>
 
     <main class="flex-1">
-        <div id="loader" class="flex flex-col items-center py-32">
-            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4 text-slate-400 font-bold text-xs uppercase tracking-widest">З'єднуємося зі складом...</p>
+        <div id="loader" class="flex flex-col items-center py-20">
+            <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest italic">Склад завантажується...</p>
         </div>
-        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6"></div>
+        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"></div>
     </main>
 </div>
 
-<div id="cartOverlay" onclick="toggleCart(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] hidden"></div>
-<div id="cartSidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[70] translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+<div id="cartOverlay" onclick="toggleCart(false)" class="fixed inset-0 bg-slate-900/50 z-[100] hidden backdrop-blur-sm"></div>
+<div id="cartSidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[110] translate-x-full transition-transform duration-300 flex flex-col">
     <div class="p-6 border-b flex justify-between items-center">
-        <div>
-            <h2 class="text-xl font-black italic">КОШИК ЗАМОВЛЕНЬ</h2>
-            <p id="totalProfit" class="text-[10px] font-bold text-green-600 uppercase">Ваш прибуток: 0 ₴</p>
-        </div>
-        <button onclick="toggleCart(false)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+        <h2 class="text-xl font-black italic underline decoration-blue-500">КОШИК</h2>
+        <button onclick="toggleCart(false)" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
     </div>
-    <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-slate-50"></div>
-    <div class="p-6 border-t bg-white">
-        <div class="flex justify-between items-end mb-6">
-            <span class="text-[10px] font-black text-slate-400 uppercase">Загальна сума продажу</span>
-            <span id="cartTotal" class="text-3xl font-black text-blue-600">0 ₴</span>
+    <div id="cartItems" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50"></div>
+    <div class="p-6 border-t shadow-inner">
+        <p id="totalProfit" class="text-xs font-bold text-green-600 mb-2 uppercase italic text-center"></p>
+        <div class="flex justify-between items-center mb-6">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Разом клієнту:</span>
+            <span id="cartTotal" class="text-2xl font-black text-blue-600">0 ₴</span>
         </div>
-        <button onclick="checkoutViaViber()" class="w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3 shadow-xl">
+        <button onclick="checkoutViaViber()" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl flex items-center justify-center gap-3 hover:bg-blue-600 transition-all">
             <i class="fa-brands fa-viber text-lg"></i> ОФОРМИТИ В VIBER
         </button>
     </div>
 </div>
 
-<div id="productModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-    <div class="bg-white w-full max-w-5xl rounded-[2.5rem] overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col md:flex-row">
-        <button onclick="closeModal()" class="absolute top-6 right-6 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center hover:text-red-500 transition-all z-10"><i class="fa-solid fa-xmark"></i></button>
-        <div id="modalContent" class="flex flex-col md:flex-row w-full h-full overflow-y-auto custom-scrollbar"></div>
+<div id="productModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+    <div class="bg-white w-full max-w-4xl rounded-[2.5rem] overflow-hidden relative max-h-[90vh] flex flex-col md:flex-row">
+        <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-lg z-10 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+        <div id="modalContent" class="flex flex-col md:flex-row w-full h-full overflow-y-auto"></div>
     </div>
 </div>
 
 <script>
-    let allProducts = [], categories = {}, cart = JSON.parse(localStorage.getItem('utrade_cart_4.0')) || [];
+    let allProducts = [], categories = {}, cart = JSON.parse(localStorage.getItem('utrade_cart_4.5')) || [];
 
+    // --- ФУНКЦІЇ ІНТЕРФЕЙСУ ---
+    function toggleMobileAside(show) {
+        document.getElementById('sidePanel').classList.toggle('aside-open', show);
+        document.getElementById('asideOverlay').classList.toggle('hidden', !show);
+    }
+    function toggleCart(show) {
+        document.getElementById('cartSidebar').classList.toggle('cart-open', show);
+        document.getElementById('cartOverlay').classList.toggle('hidden', !show);
+    }
+    function syncSearch(val) {
+        document.getElementById('searchInput').value = val;
+        performSearch();
+    }
+    function closeModal() {
+        document.getElementById('productModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // --- ЗАВАНТАЖЕННЯ ДАНИХ ---
     async function init() {
         updateCartUI();
         try {
             const res = await fetch('Masterevanew.xml');
             const text = await res.text();
             const xml = new DOMParser().parseFromString(text, "text/xml");
-            
-            const cats = xml.getElementsByTagName('category');
-            categories = {"all": "Всі категорії"};
-            Array.from(cats).forEach(c => categories[c.getAttribute('id')] = c.textContent);
-            
-            const select = document.getElementById('categorySelect');
-            select.innerHTML = Object.entries(categories).map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
 
+            // Збір категорій
+            const catNodes = xml.getElementsByTagName('category');
+            categories = {"all": "Всі категорії"};
+            Array.from(catNodes).forEach(c => categories[c.getAttribute('id')] = c.textContent);
+            document.getElementById('categorySelect').innerHTML = Object.entries(categories).map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
+
+            // Збір товарів
             const offers = xml.getElementsByTagName('offer');
             allProducts = Array.from(offers).map(o => {
-                const img = o.getElementsByTagName('picture')[0]?.textContent || "";
-                const price = parseFloat(o.getElementsByTagName('price')[0]?.textContent || 0);
-                const desc = o.getElementsByTagName('description')[0]?.textContent || "";
-                const params = Array.from(o.getElementsByTagName('param')).map(p => ({ 
-                    name: p.getAttribute('name'), 
-                    val: p.textContent.trim() 
+                const params = Array.from(o.getElementsByTagName('param')).map(p => ({
+                    name: p.getAttribute('name'), val: p.textContent.trim()
                 })).filter(p => p.val !== "");
 
                 return {
                     id: o.getAttribute('id'),
                     name: (o.getElementsByTagName('name_ua')[0]?.textContent || o.getElementsByTagName('name')[0]?.textContent || "").toUpperCase(),
-                    price: price,
-                    img: img,
+                    price: parseFloat(o.getElementsByTagName('price')[0]?.textContent || 0),
+                    img: o.getElementsByTagName('picture')[0]?.textContent || "",
                     catId: o.getElementsByTagName('categoryId')[0]?.textContent,
-                    stock: o.getElementsByTagName('stock_quantity')[0]?.textContent || o.getAttribute('quantity') || "є",
-                    desc: desc.trim(),
+                    stock: o.getElementsByTagName('stock_quantity')[0]?.textContent || "є",
+                    desc: o.getElementsByTagName('description')[0]?.textContent.trim() || "",
                     params: params
                 };
             });
@@ -161,19 +177,21 @@
             const maxPrice = Math.max(...allProducts.map(p => p.price));
             document.getElementById('priceRange').max = maxPrice;
             document.getElementById('priceRange').value = maxPrice;
-            document.getElementById('priceLabel').textContent = Math.round(maxPrice) + ' ₴';
 
             document.getElementById('loader').classList.add('hidden');
             performSearch();
-        } catch (e) { console.error("Помилка завантаження XML:", e); }
+        } catch (e) {
+            document.getElementById('loader').innerHTML = '<p class="text-red-500 font-bold">Помилка завантаження складу!</p>';
+        }
     }
 
+    // --- ЛОГІКА ПОШУКУ ТА ФІЛЬТРАЦІЇ ---
     function performSearch() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const cat = document.getElementById('categorySelect').value;
         const limit = parseInt(document.getElementById('limitSelect').value);
         const maxP = parseFloat(document.getElementById('priceRange').value);
-        
+
         document.getElementById('priceLabel').textContent = Math.round(maxP) + ' ₴';
 
         const filtered = allProducts.filter(p => 
@@ -186,138 +204,123 @@
     }
 
     function renderGrid(list) {
-        document.getElementById('productGrid').innerHTML = list.map(p => `
-            <div class="bg-white p-4 rounded-[2rem] border border-white product-card cursor-pointer flex flex-col shadow-sm" onclick="openModal('${p.id}')">
-                <div class="aspect-square bg-slate-50 rounded-2xl mb-4 overflow-hidden p-2 flex items-center justify-center relative">
-                    <img src="${p.img}" class="max-w-full max-h-full object-contain mix-blend-multiply">
-                    <span class="absolute top-2 right-2 text-[8px] bg-green-100 text-green-600 px-2 py-1 rounded-full font-black">Склад: ${p.stock}</span>
+        const grid = document.getElementById('productGrid');
+        if(!list.length) {
+            grid.innerHTML = '<div class="col-span-full py-20 text-center font-bold text-slate-400 italic">Нічого не знайдено...</div>';
+            return;
+        }
+        grid.innerHTML = list.map(p => `
+            <div class="bg-white p-3 rounded-[2rem] border border-slate-100 shadow-sm product-card cursor-pointer flex flex-col" onclick="openModal('${p.id}')">
+                <div class="aspect-square bg-slate-50 rounded-2xl mb-3 flex items-center justify-center p-2">
+                    <img src="${p.img}" class="max-w-full max-h-full object-contain mix-blend-multiply" loading="lazy">
                 </div>
-                <p class="text-[9px] font-black text-slate-400 mb-1">ID: ${p.id}</p>
-                <h3 class="text-[11px] font-bold text-slate-800 line-clamp-2 h-8 mb-3 leading-tight uppercase">${p.name}</h3>
+                <h3 class="text-[11px] font-bold text-slate-800 line-clamp-2 h-8 leading-tight mb-3 uppercase italic">${p.name}</h3>
                 <div class="mt-auto flex justify-between items-center" onclick="event.stopPropagation()">
-                    <span class="text-md font-black text-slate-900">${Math.round(p.price)} ₴</span>
-                    <button onclick="addToCart('${p.id}')" class="w-10 h-10 bg-slate-100 rounded-xl hover:bg-blue-600 hover:text-white transition-all"><i class="fa-solid fa-plus text-xs"></i></button>
+                    <span class="text-sm font-black">${Math.round(p.price)} ₴</span>
+                    <button onclick="addToCart('${p.id}')" class="w-9 h-9 bg-slate-900 text-white rounded-xl hover:bg-blue-600 transition-all"><i class="fa-solid fa-plus text-xs"></i></button>
                 </div>
             </div>
         `).join('');
     }
 
-    // Кошик: Нова ціна та прибуток
+    // --- ЛОГІКА КОШИКА ---
     function addToCart(id) {
         if(cart.find(i => i.id === id)) return toggleCart(true);
         const p = allProducts.find(x => x.id === id);
-        // За замовчуванням ставимо націнку 300 грн
-        cart.push({...p, salePrice: Math.round(p.price + 300)}); 
+        cart.push({...p, salePrice: Math.round(p.price + 300)});
         saveCart();
         updateCartUI();
         toggleCart(true);
     }
 
-    function updateSalePrice(id, value) {
-        const item = cart.find(i => i.id === id);
-        if(item) {
-            item.salePrice = parseFloat(value) || 0;
-            saveCart();
-            updateCartUI();
-        }
-    }
-
     function updateCartUI() {
         const items = document.getElementById('cartItems');
-        let totalSum = 0, totalProfit = 0;
-
+        let total = 0, profit = 0;
+        
         items.innerHTML = cart.length ? cart.map(p => {
-            const profit = p.salePrice - p.price;
-            totalSum += p.salePrice;
-            totalProfit += profit;
-            
+            const pProfit = p.salePrice - p.price;
+            total += p.salePrice;
+            profit += pProfit;
             return `
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 relative mb-4">
-                    <button onclick="removeFromCart('${p.id}')" class="absolute top-3 right-3 text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
-                    <div class="flex gap-4 items-center mb-4">
-                        <img src="${p.img}" class="w-16 h-16 object-contain mix-blend-multiply bg-slate-50 rounded-xl">
-                        <div class="flex-1 min-w-0 pr-6">
-                            <h4 class="text-[10px] font-black line-clamp-2 uppercase">${p.name}</h4>
-                            <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter italic">Базова: ${Math.round(p.price)} ₴</p>
-                        </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 relative mb-3">
+                    <button onclick="removeFromCart('${p.id}')" class="absolute top-2 right-2 text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                    <div class="flex gap-3 items-center mb-3">
+                        <img src="${p.img}" class="w-12 h-12 object-contain bg-slate-50 rounded-lg">
+                        <div class="flex-1 min-w-0 italic"><h4 class="text-[10px] font-black truncate uppercase">${p.name}</h4></div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl">
                         <div>
-                            <label class="text-[8px] font-black text-slate-400 uppercase mb-1 block">Нова ціна продажу</label>
-                            <input type="number" value="${p.salePrice}" oninput="updateSalePrice('${p.id}', this.value)" class="w-full bg-transparent text-sm font-black border-b-2 border-blue-200 outline-none focus:border-blue-600">
+                            <p class="text-[8px] font-black text-slate-400 uppercase italic">Ціна продажу</p>
+                            <input type="number" value="${p.salePrice}" oninput="updateSalePrice('${p.id}', this.value)" class="bg-transparent text-sm font-black border-b border-blue-200 outline-none w-full">
                         </div>
                         <div class="text-right">
-                            <label class="text-[8px] font-black text-slate-400 uppercase mb-1 block">Ваш прибуток</label>
-                            <span class="text-sm font-black text-green-600">+${Math.round(profit)} ₴</span>
+                            <p class="text-[8px] font-black text-slate-400 uppercase italic">Прибуток</p>
+                            <span class="text-xs font-black text-green-600">+${Math.round(pProfit)} ₴</span>
                         </div>
                     </div>
-                </div>
-            `;
-        }).join('') : '<div class="text-center py-20 text-slate-400 font-bold italic">Кошик порожній...</div>';
+                </div>`;
+        }).join('') : '<p class="text-center py-20 text-slate-400 italic font-bold">Ваш кошик порожній...</p>';
 
         document.getElementById('cartCount').textContent = cart.length;
         document.getElementById('cartCount').classList.toggle('hidden', cart.length === 0);
-        document.getElementById('cartTotal').textContent = Math.round(totalSum) + ' ₴';
-        document.getElementById('totalProfit').textContent = `Ваш чистий прибуток: ${Math.round(totalProfit)} ₴`;
+        document.getElementById('cartTotal').textContent = Math.round(total) + ' ₴';
+        document.getElementById('totalProfit').textContent = cart.length ? `Ваш чистий прибуток: ${Math.round(profit)} ₴` : '';
+    }
+
+    function updateSalePrice(id, val) {
+        const item = cart.find(i => i.id === id);
+        if(item) { item.salePrice = parseFloat(val) || 0; saveCart(); updateCartUI(); }
     }
 
     function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); updateCartUI(); }
-    function saveCart() { localStorage.setItem('utrade_cart_4.0', JSON.stringify(cart)); }
-    function toggleCart(show) { document.getElementById('cartSidebar').classList.toggle('cart-open', show); document.getElementById('cartOverlay').classList.toggle('hidden', !show); }
-    
-    // Модалка з перевіркою наявності даних
+    function saveCart() { localStorage.setItem('utrade_cart_4.5', JSON.stringify(cart)); }
+
+    // --- МОДАЛЬНЕ ВІКНО ---
     function openModal(id) {
         const p = allProducts.find(x => x.id === id);
         if(!p) return;
 
-        // Формуємо блок характеристик тільки якщо вони є
-        const paramsHTML = p.params.length > 0 
-            ? `<div class="mb-8">
-                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b pb-2">Характеристики</h4>
-                 <div class="space-y-2">${p.params.map(pr => `<div class="flex justify-between text-xs border-b border-slate-50 pb-1"><span class="text-slate-400 italic">${pr.name}:</span><span class="font-bold text-slate-700">${pr.val}</span></div>`).join('')}</div>
-               </div>` 
-            : '';
+        const paramsHTML = p.params.length ? `
+            <div class="mt-6 border-t pt-4">
+                <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Характеристики</h4>
+                <div class="grid grid-cols-1 gap-2">
+                    ${p.params.map(pr => `<div class="flex justify-between text-xs py-1 border-b border-slate-50 italic"><span class="text-slate-400">${pr.name}:</span><span class="font-bold text-slate-700">${pr.val}</span></div>`).join('')}
+                </div>
+            </div>` : '';
 
-        // Формуємо блок опису тільки якщо він є
-        const descHTML = p.desc 
-            ? `<div class="mb-8">
-                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b pb-2">Опис товару</h4>
-                 <div class="text-sm text-slate-600 leading-relaxed font-medium">${p.desc}</div>
-               </div>` 
-            : '';
+        const descHTML = p.desc ? `
+            <div class="mt-6 border-t pt-4">
+                <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Опис товару</h4>
+                <div class="text-xs text-slate-600 leading-relaxed font-medium">${p.desc}</div>
+            </div>` : '';
 
         document.getElementById('modalContent').innerHTML = `
-            <div class="w-full md:w-1/2 bg-slate-50 p-12 flex items-center justify-center border-r border-slate-100">
-                <img src="${p.img}" class="max-w-full max-h-[450px] object-contain mix-blend-multiply drop-shadow-2xl">
+            <div class="w-full md:w-1/2 bg-slate-50 p-8 flex items-center justify-center border-r border-slate-100">
+                <img src="${p.img}" class="max-w-full max-h-[400px] object-contain mix-blend-multiply drop-shadow-xl">
             </div>
             <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col h-full overflow-hidden">
-                <div class="flex-1 overflow-y-auto custom-scrollbar pr-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">ID: ${p.id}</p>
-                        <span class="text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full">В наявності: ${p.stock}</span>
-                    </div>
-                    <h2 class="text-2xl font-black text-slate-900 leading-tight mb-6 uppercase tracking-tighter italic">${p.name}</h2>
-                    <div class="text-4xl font-black text-slate-900 mb-10">${Math.round(p.price)} ₴</div>
-                    
+                <div class="flex-1 overflow-y-auto pr-4 custom-scrollbar">
+                    <p class="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest">ID: ${p.id}</p>
+                    <h2 class="text-2xl font-black text-slate-900 leading-tight mb-4 uppercase italic tracking-tighter">${p.name}</h2>
+                    <div class="text-4xl font-black text-slate-900 mb-8 italic">${Math.round(p.price)} ₴</div>
+                    <span class="text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full uppercase italic">На складі: ${p.stock}</span>
                     ${paramsHTML}
                     ${descHTML}
                 </div>
-                <button onclick="addToCart('${p.id}'); closeModal();" class="mt-8 w-full py-6 bg-slate-900 text-white font-black rounded-3xl hover:bg-blue-600 transition-all flex items-center justify-center gap-4 text-xs tracking-widest uppercase shadow-2xl">
-                    <i class="fa-solid fa-plus text-lg"></i> ДОДАТИ У КОШИК
+                <button onclick="addToCart('${p.id}'); closeModal();" class="mt-8 w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3 shadow-lg">
+                    <i class="fa-solid fa-plus"></i> ДОДАТИ У КОШИК
                 </button>
-            </div>
-        `;
+            </div>`;
+        
         document.getElementById('productModal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
-
-    function closeModal() { document.getElementById('productModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
     function checkoutViaViber() {
         if(!cart.length) return;
         let totalProfit = cart.reduce((sum, p) => sum + (p.salePrice - p.price), 0);
         let msg = `🔥 ЗАМОВЛЕННЯ UTRADE 🔥\n\n💰 До сплати клієнту: ${document.getElementById('cartTotal').textContent}\n📈 Ваш чистий прибуток: ${Math.round(totalProfit)} ₴\n\n`;
-        cart.forEach((p, index) => msg += `${index + 1}. ${p.name}\n🆔 ID: ${p.id}\n💵 Ціна продажу: ${p.salePrice} ₴\n\n`);
+        cart.forEach((p, i) => msg += `${i+1}. ${p.name}\n🆔 ID: ${p.id}\n💵 Ціна продажу: ${p.salePrice} ₴\n\n`);
         window.open(`viber://chat?number=%2B380666172764&draft=${encodeURIComponent(msg)}`);
     }
 
