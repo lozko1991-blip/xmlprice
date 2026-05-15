@@ -6,7 +6,7 @@ import time
 from collections import defaultdict
 from html import unescape
 
-# Джерела (префікси 1-6 для збереження ID)
+# Джерела (префікси 1-6)
 SOURCES = [
     ("1", "https://shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
     ("2", "https://opt-drop.com/storage/xml/opt-drop-5.xml"),
@@ -38,8 +38,7 @@ def clean_description(text):
 
 def process_name(name, vendor):
     if not name: return ""
-    if not vendor: return name
-    # Якщо бренда немає в назві (без урахування регістру) - додаємо в кінець
+    if not vendor or vendor == "NoBrand": return name
     if vendor.lower() not in name.lower():
         name = f"{name} {vendor}"
     return name[:254].strip()
@@ -47,13 +46,21 @@ def process_name(name, vendor):
 def process():
     final_categories = {}
     processed_offers = []
+    source_results = []
     
-    print("--- СТАРТ ОБРОБКИ (EVA STANDARD) ---")
+    print("--- СТАРТ ОБРОБКИ (EVA STANDARD + PRIORITY AVAILABILITY) ---")
 
     for prefix, url in SOURCES:
         domain = url.split('/')[2]
         content = fetch_with_retry(url)
-        if not content: continue
+        
+        count_ok = 0
+        count_low_price = 0
+        count_no_stock = 0
+        
+        if not content:
+            print(f"Помилка завантаження: {domain}")
+            continue
 
         try:
             parser = ET.XMLParser(recover=True, encoding='utf-8')
@@ -69,39 +76,63 @@ def process():
                 final_categories[f_id] = cat
 
             # Обробка товарів
-            for offer in root.xpath(".//offer"):
+            offers = root.xpath(".//offer")
+            for offer in offers:
+                # 1. ПЕРЕВІРКА НАЯВНОСТІ (Пріоритет статусу true/false)
+                avail_attr = offer.get('available', '').lower()
+                avail_tag = (offer.findtext('available') or '').lower()
+                
+                # Визначаємо, чи вважає постачальник товар наявним
+                is_available = (avail_attr in ['true', 'yes', '1']) or (avail_tag in ['true', 'yes', '1'])
+                
+                # ФІЛЬТР: Якщо наявність FALSE — відразу в NoStock (незалежно від цифри кількості)
+                if not is_available:
+                    count_no_stock += 1
+                    continue
+
+                # Якщо наявність TRUE — визначаємо кількість
+                qty_nodes = offer.xpath(".//quantity | .//quantity_in_stock | .//stock_quantity | .//amount")
+                qty = 0
+                if qty_nodes:
+                    try:
+                        qty = int(re.sub(r'\D', '', qty_nodes[0].text))
+                    except: pass
+                
+                # Ваша умова: якщо наявність true а сток 0 (або не знайдений), ставимо 3 одиниці
+                if qty <= 0:
+                    qty = 3
+
+                # 2. Перевірка ціни
                 price_node = offer.find('price')
                 if price_node is None: continue
                 
                 try:
                     raw_price = float(price_node.text.replace(',', '.'))
                     price = round(raw_price * MARKUP_PERCENT + MARKUP_FIXED)
-                    if price < MIN_PRICE_THRESHOLD: continue
+                    
+                    if price < MIN_PRICE_THRESHOLD:
+                        count_low_price += 1
+                        continue
 
                     vendor = offer.findtext('vendor') or "NoBrand"
                     
-                    # Логіка назв (якщо name_ua є - беремо його, якщо ні - беремо name)
+                    # 3. Назви та Описи
                     raw_name = offer.findtext('name')
                     raw_name_ua = offer.findtext('name_ua')
                     
-                    # Формуємо name та name_ua з брендом в кінці (якщо його там немає)
                     final_name = process_name(raw_name, vendor)
                     final_name_ua = process_name(raw_name_ua if raw_name_ua else raw_name, vendor)
 
-                    # Опис
                     desc_src = offer.findtext('description_ua') or offer.findtext('description') or ""
                     desc_cleaned = clean_description(desc_src)
                     if len(desc_cleaned) < 30:
                         desc_cleaned = f"<p>{final_name_ua}. Характеристики та опис товару від виробника {vendor}.</p>"
 
-                    # Створюємо offer
+                    # 4. Створення Offer
                     new_off = ET.Element("offer", id=f"{prefix}_{offer.get('id')}", available="true")
                     
-                    # Якщо у вхідному файлі був тег name - додаємо його, name_ua додаємо завжди
-                    if raw_name:
-                        ET.SubElement(new_off, "name").text = final_name
+                    if raw_name: ET.SubElement(new_off, "name").text = final_name
                     ET.SubElement(new_off, "name_ua").text = final_name_ua
-                    
                     ET.SubElement(new_off, "price").text = str(price)
                     
                     old_p_node = offer.find('oldprice') or offer.find('price_old')
@@ -115,28 +146,16 @@ def process():
                     ET.SubElement(new_off, "currencyId").text = "UAH"
                     ET.SubElement(new_off, "categoryId").text = f"{prefix}_{offer.findtext('categoryId')}"
                     ET.SubElement(new_off, "vendor").text = vendor
-                    
-                    article = offer.findtext('vendorCode') or offer.findtext('article') or offer.get('id')
-                    ET.SubElement(new_off, "article").text = article
+                    ET.SubElement(new_off, "article").text = offer.findtext('vendorCode') or offer.findtext('article') or offer.get('id')
                     ET.SubElement(new_off, "description_ua").text = ET.CDATA(desc_cleaned)
-
-                    # Залишки
-                    qty_nodes = offer.xpath(".//quantity | .//quantity_in_stock | .//stock_quantity | .//amount")
-                    qty = "3"
-                    if qty_nodes:
-                        try:
-                            val = int(re.sub(r'\D', '', qty_nodes[0].text))
-                            if val > 0: qty = str(val)
-                        except: pass
-                    ET.SubElement(new_off, "stock_quantity").text = qty
+                    ET.SubElement(new_off, "stock_quantity").text = str(qty)
 
                     for pic in offer.findall('picture'):
                         if pic.text: ET.SubElement(new_off, "picture").text = pic.text
 
-                    # ПАРАМЕТРИ
+                    # Параметри (завжди заповнені для EVA)
                     params = offer.findall('param')
                     if not params:
-                        # Набір обов'язкових параметрів, якщо постачальник їх не надав
                         ET.SubElement(new_off, "param", name="Колір").text = "Комбінований"
                         ET.SubElement(new_off, "param", name="Розмір").text = "-"
                         ET.SubElement(new_off, "param", name="Бренд").text = vendor
@@ -145,17 +164,20 @@ def process():
                         for p in params: new_off.append(p)
 
                     processed_offers.append(new_off)
+                    count_ok += 1
                 except: continue
 
-            print(f"Оброблено: {domain}")
-        except Exception as e: print(f"Помилка {domain}: {e}")
+            source_results.append(f"{domain}: OK:{count_ok}, LowPrice:{count_low_price}, NoStock:{count_no_stock}")
+            print(f"Оброблено {domain}")
 
-    # Збірка фінального XML
+        except Exception as e:
+            print(f"Помилка {domain}: {e}")
+
+    # Збірка XML
     yml = ET.Element("yml_catalog", date=datetime.now().strftime("%Y-%m-%d %H:%M"))
     shop = ET.SubElement(yml, "shop")
-    ET.SubElement(shop, "name").text = "Master EVA"
-    ET.SubElement(shop, "company").text = "Master EVA"
-    
+    ET.SubElement(shop, "name").text = "Master Shop EVA"
+    ET.SubElement(shop, "company").text = "Master Shop"
     currs = ET.SubElement(shop, "currencies")
     ET.SubElement(currs, "currency", id="UAH", rate="1")
     
@@ -168,7 +190,10 @@ def process():
     with open("Masterevanew.xml", "wb") as f:
         f.write(ET.tostring(yml, encoding='utf-8', xml_declaration=True, pretty_print=True))
     
-    print(f"Готово! Всього товарів: {len(processed_offers)}")
+    print("\n--- СТАТИСТИКА ОБРОБКИ ---")
+    for res in source_results:
+        print(res)
+    print(f"Загальна кількість товарів у файлі: {len(processed_offers)}")
 
 if __name__ == "__main__":
     process()
