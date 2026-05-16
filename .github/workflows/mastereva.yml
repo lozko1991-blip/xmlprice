@@ -1,43 +1,43 @@
 name: Master Eva Feed Update
-
+ 
 on:
+  push:
+    branches:
+      - main  # ← автозапуск при кожному push
   schedule:
     # Запуск кожні 4 години
     - cron: '0 */4 * * *'
   # Можливість запустити вручну з вкладки Actions
   workflow_dispatch:
-
+ 
 permissions:
   contents: read
   pages: write
   id-token: write
-
+ 
 jobs:
   build_master_feed:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+ 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
+ 
       - name: Install dependencies
         run: pip install requests lxml
-
+ 
       - name: Run Master Eva Script
-        # Цей крок запустить ваш файл masterevaxml.py та виведе статистику в лог
         run: python masterevaxml.py
-
+ 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Вказуємо корінь репозиторію. 
-          # Параметр pattern видалено, щоб уникнути помилки
           path: .
-
+ 
   deploy:
     needs: build_master_feed
     runs-on: ubuntu-latest
