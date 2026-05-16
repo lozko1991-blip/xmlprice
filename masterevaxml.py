@@ -1,31 +1,34 @@
-import requests
-import lxml.etree as ET
-from datetime import datetime
+import os
 import re
+import requests
+from lxml import etree as ET
+from datetime import datetime
 from html import unescape
 
-# 1. КОНФІГУРАЦІЯ
+# --- КОНФІГУРАЦІЯ ПОСТАЧАЛЬНИКІВ ТА ПРАВИЛА НАЦІНКИ ---
 SOURCES = [
-    ("1111", "https://shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
-    ("2222", "https://opt-drop.com/storage/xml/opt-drop-5.xml"),
-    ("3333", "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),
-    ("4444", "https://dropom.com.ua/products_feed.xml?hash_tag=b55924e4ebc0576fda79ae6941f7a2a5&languages=uk%2Cru"),
-    ("",     "http://kievopt.com.ua/prices/rozetka-22294.yml"),
-    ("5555", "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml")
+    {
+        "url": "https://feed.lugi.com.ua/",  # URL фідів постачальника Lugi
+        "prefix": "lg_",
+        "domain": "lugi.com.ua"
+    }
 ]
 
-MARKUP_PERCENT = 1.35
-MARKUP_FIXED = 40
-PROMO_DISCOUNT = 0.07 
+MARKUP_PERCENT = 1.35   # +35%
+MARKUP_FIXED = 40       # +40 грн
 MIN_PRICE_THRESHOLD = 150
-DESC_LIMIT = 2800 
+DESC_LIMIT = 2800
 
 def fix_text(text):
-    if not text: return ""
-    return unescape(unescape(text)).replace("'", "’").strip()
+    if not text:
+        return ""
+    text = unescape(unescape(text))
+    # Заміна стандартних апострофів на правильні для EVA
+    text = text.replace("'", "’").replace("`", "’")
+    return text.strip()
 
 def clean_description(text, name_ua, vendor):
-    if not text: 
+    if not text:
         return f"<p>{name_ua} від виробника {vendor}.</p>"
     text = unescape(unescape(text))
     text = re.sub(r'<(script|style).*?>.*?</\1>', '', text, flags=re.DOTALL)
@@ -35,115 +38,185 @@ def clean_description(text, name_ua, vendor):
         text = text[:DESC_LIMIT] + "..."
     return text.strip()
 
-def process():
-    final_categories = {}
-    processed_offers = []
-    source_results = []
+def main():
+    print("=== MASTEREVANEW1: СТАРТ ОБРОБКИ ===")
+    
+    # Створення базової структури фінального файлу
+    xml_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    root_out = ET.Element("yml_catalog", date=xml_date)
+    shop_out = ET.SubElement(root_out, "shop")
+    
+    # ЗАПОВІДЬ: Валюта суворо UAH
+    currencies_out = ET.SubElement(shop_out, "currencies")
+    ET.SubElement(currencies_out, "currency", id="UAH", rate="1")
+    
+    categories_out = ET.SubElement(shop_out, "categories")
+    offers_out = ET.SubElement(shop_out, "offers")
+    
     category_id_map = {}
-
-    print("--- СТАРТ ОБРОБКИ (Тільки ID категорій з префіксами) ---")
-
-    for prefix, url in SOURCES:
-        domain = url.split('/')[2]
+    final_categories = {}
+    
+    for src in SOURCES:
+        url = src["url"]
+        prefix = src["prefix"]
+        domain = src["domain"]
+        
+        print(f"Завантаження даних з домену: {domain}...")
         try:
-            r = requests.get(url, timeout=120)
-            if not r.ok: continue
-            root = ET.fromstring(r.content, parser=ET.XMLParser(recover=True))
+            response = requests.get(url, timeout=60)
+            response.raise_for_status()
+            parser = ET.XMLParser(recover=True, remove_blank_text=True)
+            root = ET.fromstring(response.content, parser=parser)
+        except Exception as e:
+            print(f"Помилка завантаження/парсингу {domain}: {e}")
+            continue
             
-            count_ok, count_low, count_no = 0, 0, 0
+        # 1. ОБРОБКА КАТЕГОРІЙ
+        for cat in root.xpath(".//category"):
+            orig_id = cat.get('id')
+            new_id = f"{prefix}{orig_id}" if prefix else orig_id
+            
+            if new_id in category_id_map and category_id_map[new_id] != domain:
+                new_id = f"{new_id}9"
+                
+            category_id_map[new_id] = domain
+            cat.set('id', new_id)
+            
+            if cat.get('parentId'):
+                p_id = cat.get('parentId')
+                cat.set('parentId', f"{prefix}{p_id}" if prefix else p_id)
+                
+            final_categories[new_id] = cat
 
-            for cat in root.xpath(".//category"):
-                orig_id = cat.get('id')
-                new_id = f"{prefix}{orig_id}" if prefix else orig_id
-                if new_id in category_id_map and category_id_map[new_id] != domain:
-                    new_id = f"{new_id}9"
-                category_id_map[new_id] = domain
-                cat.set('id', new_id)
-                if cat.get('parentId'):
-                    cat.set('parentId', f"{prefix}{cat.get('parentId')}" if prefix else cat.get('parentId'))
-                final_categories[new_id] = cat
+        # 2. ОБРОБКА ТОВАРІВ
+        count_ok = 0
+        count_no = 0
+        count_low = 0
+        
+        offers = root.xpath(".//offer")
+        print(f"Знайдено товарів у джерела: {len(offers)}")
+        
+        for offer in offers:
+            # Фільтрація за наявністю
+            avail = offer.get('available', '').lower()
+            if avail not in ['true', 'yes', '1']:
+                count_no += 1
+                continue
+                
+            # Корекція кількості на складі
+            qty = 0
+            for tag in ['quantity', 'stock_quantity', 'amount']:
+                q_text = offer.findtext(tag)
+                if q_text:
+                    try:
+                        qty = int(re.sub(r'\D', '', q_text))
+                        break
+                    except ValueError:
+                        continue
+            if qty <= 0:
+                qty = 3
+                
+            vendor = fix_text(offer.findtext('vendor')) or "NoBrand"
+            
+            # Назва товару
+            name_ua = offer.findtext('name_ua') or offer.findtext('name')
+            name_ua = fix_text(name_ua)
+            if vendor.lower() not in name_ua.lower():
+                name_ua = f"{name_ua} {vendor}"
+            name_ua = name_ua[:250]
+            
+            # ЗАПОВІДЬ: Створення нового offer, ID БЕЗ ПРЕФІКСІВ
+            orig_offer_id = offer.get('id')
+            new_offer = ET.Element("offer", id=orig_offer_id, available="true")
+            
+            # --- ОНОВЛЕНИЙ БЛОК ОБРОБКИ ЦІН (ФІКС LUGI: PRICE ТА OLD_PRICE) ---
+            try:
+                # Шукаємо тег price строго ЯК ПРЯМИЙ ДОЧІРНІЙ елемент поточного offer
+                price_node = offer.find('./price')
+                
+                if price_node is None or not price_node.text:
+                    # Резервний пошук всередині поточного дерева offer, якщо структура засунута глибше
+                    price_node = offer.find('.//price')
 
-            for offer in root.xpath(".//offer"):
-                avail = offer.get('available', '').lower() in ['true', 'yes', '1']
-                if not avail:
+                if price_node is None or not price_node.text:
                     count_no += 1
                     continue
 
-                qty_nodes = offer.xpath(".//quantity|.//stock_quantity|.//amount")
-                qty = 3
-                if qty_nodes and qty_nodes[0].text:
-                    try:
-                        qty = int(re.sub(r'\D', '', qty_nodes[0].text))
-                        if qty <= 0: qty = 3
-                    except: qty = 3
+                raw_price = price_node.text.strip().replace(',', '.')
+                original_price = float(raw_price)
 
-                p_node = offer.find('price')
-                if p_node is None: continue
-                
-                try:
-                    raw_p = float(p_node.text.replace(',', '.'))
-                    price = round(raw_p * MARKUP_PERCENT + MARKUP_FIXED)
-                    if price < MIN_PRICE_THRESHOLD:
-                        count_low += 1
-                        continue
-                    
-                    price_promo = round(price * (1 - PROMO_DISCOUNT))
-                    vendor = offer.findtext('vendor') or "NoBrand"
-                    name_ua = fix_text(offer.findtext('name_ua') or offer.findtext('name'))
-                    if vendor.lower() not in name_ua.lower():
-                        name_ua = f"{name_ua} {vendor}"
+                # Математичний розрахунок націнки для нашої поточної ціни продажу
+                calculated_price = round(original_price * MARKUP_PERCENT + MARKUP_FIXED)
 
-                    # ВИПРАВЛЕНО: ID товару тепер без префікса
-                    new_off = ET.Element("offer", id=offer.get('id'), available="true")
-                    
-                    ET.SubElement(new_off, "name_ua").text = name_ua[:250]
-                    ET.SubElement(new_off, "price").text = str(price)
-                    ET.SubElement(new_off, "price_promo").text = str(price_promo)
-                    ET.SubElement(new_off, "currencyId").text = "UAH"
-                    
-                    orig_cat = offer.findtext('categoryId')
-                    cat_id = f"{prefix}{orig_cat}" if prefix else orig_cat
-                    ET.SubElement(new_off, "categoryId").text = cat_id
-                    
-                    ET.SubElement(new_off, "vendor").text = vendor
-                    ET.SubElement(new_off, "stock_quantity").text = str(qty)
-                    
-                    desc = clean_description(offer.findtext('description_ua') or offer.findtext('description'), name_ua, vendor)
-                    ET.SubElement(new_off, "description_ua").text = ET.CDATA(desc)
+                # Перевірка мінімального ліміту в 150 грн
+                if calculated_price < MIN_PRICE_THRESHOLD:
+                    count_low += 1
+                    continue
 
-                    for pic in offer.findall('picture'):
-                        if pic.text: ET.SubElement(new_off, "picture").text = pic.text
+                # Запис ціни продажу (price)
+                new_price_node = ET.SubElement(new_offer, 'price')
+                new_price_node.text = str(calculated_price)
 
-                    params = offer.findall('param')
-                    if not params:
-                        ET.SubElement(new_off, "param", name="Стан").text = "Новий"
-                    else:
-                        for p in params:
-                            p.text = fix_text(p.text)
-                            new_off.append(p)
+                # Запис старої закресленої ціни (old_price)
+                new_old_price_node = ET.SubElement(new_offer, 'old_price')
+                new_old_price_node.text = str(calculated_price)
 
-                    processed_offers.append(new_off)
-                    count_ok += 1
-                except: continue
+                # Валюта
+                new_curr = ET.SubElement(new_offer, 'currencyId')
+                new_curr.text = "UAH"
+
+            except (ValueError, TypeError):
+                count_no += 1
+                continue
+            # --- КІНЕЦЬ ОНОВЛЕНОГО БЛОКУ ОБРОБКИ ЦІН ---
             
-            source_results.append(f"{domain}: OK:{count_ok}")
-        except: continue
+            # Прив'язка категорії з префіксом
+            orig_cat = offer.findtext('categoryId')
+            cat_id = f"{prefix}{orig_cat}" if prefix else orig_cat
+            ET.SubElement(new_offer, "categoryId").text = cat_id
+            
+            # Назва та бренд
+            ET.SubElement(new_offer, "name_ua").text = name_ua
+            ET.SubElement(new_offer, "vendor").text = vendor
+            
+            # Картинки
+            for pic in offer.xpath("picture"):
+                if pic.text:
+                    ET.SubElement(new_offer, "picture").text = pic.text.strip()
+                    
+            # Опис товару в блоці CDATA
+            desc_text = offer.findtext('description_ua') or offer.findtext('description')
+            cleaned_desc = clean_description(desc_text, name_ua, vendor)
+            desc_node = ET.SubElement(new_offer, "description_ua")
+            desc_node.text = ET.CDATA(cleaned_desc)
+            
+            # Кількість
+            ET.SubElement(new_offer, "quantity").text = str(qty)
+            
+            # Параметри / Характеристики
+            params = offer.xpath("param")
+            if not params:
+                p_state = ET.SubElement(new_offer, "param", name="Стан")
+                p_state.text = "Новий"
+            else:
+                for p in params:
+                    p.text = fix_text(p.text)
+                    new_offer.append(p)
+                    
+            offers_out.append(new_offer)
+            count_ok += 1
+            
+        print(f"Успішно додано: {count_ok} | Пропущено (немає/відсутній): {count_no} | Відсіяно за ціною (<150): {count_low}")
 
-    yml = ET.Element("yml_catalog", date=datetime.now().strftime("%Y-%m-%d %H:%M"))
-    shop = ET.SubElement(yml, "shop")
-    currencies = ET.SubElement(shop, "currencies")
-    ET.SubElement(currencies, "currency", id="UAH", rate="1")
-    
-    cats_n = ET.SubElement(shop, "categories")
-    for c in final_categories.values(): cats_n.append(c)
-    
-    offers_n = ET.SubElement(shop, "offers")
-    for o in processed_offers: offers_n.append(o)
-
-    with open("Masterevanew.xml", "wb") as f:
-        f.write(ET.tostring(yml, encoding='utf-8', xml_declaration=True, pretty_print=True))
-    
-    print("\n--- ГОТОВО ---")
+    # Збирання категорій у фінальне дерево
+    for c_id in sorted(final_categories.keys()):
+        categories_out.append(final_categories[c_id])
+        
+    # Збереження готового результату
+    output_filename = "Masterevanew.xml"
+    tree_out = ET.ElementTree(root_out)
+    tree_out.write(output_filename, xml_declaration=True, encoding="utf-8", pretty_print=True)
+    print(f"=== ЗБЕРЕЖЕНО ФАЙЛ: {output_filename} ===")
 
 if __name__ == "__main__":
-    process()
+    main()
