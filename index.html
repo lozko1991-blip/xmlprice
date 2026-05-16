@@ -15,70 +15,58 @@ html{scroll-behavior:smooth;}
 body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
 .bebas{font-family:'Bebas Neue',sans-serif;}
 
-/* Skeleton */
 .sk{background:linear-gradient(90deg,var(--border) 25%,var(--surface2) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:10px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* Scrollbars */
-.cscroll::-webkit-scrollbar{width:4px;}
+.cscroll::-webkit-scrollbar{width:5px;}
+.cscroll::-webkit-scrollbar-track{background:transparent;}
 .cscroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
 [data-theme=dark] .cscroll::-webkit-scrollbar-thumb{background:#30363d;}
 .noscroll{-ms-overflow-style:none;scrollbar-width:none;}
 .noscroll::-webkit-scrollbar{display:none;}
 
-/* Cards */
 .pcard{transition:transform .25s ease,box-shadow .25s ease;background:var(--surface);border:1px solid var(--border);border-radius:1rem;}
 .pcard:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(37,99,235,.12);}
 
-/* Vendor pills */
 .vbtn{background:var(--surface);color:var(--text2);border:1px solid var(--border);transition:all .2s;border-radius:999px;padding:.4rem 1rem;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;cursor:pointer;}
 .vbtn:hover{border-color:var(--accent);color:var(--accent);}
 .vbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 14px rgba(37,99,235,.3);}
 
-/* Category */
 .cbtn{color:var(--text2);transition:all .15s;text-align:left;width:100%;border-radius:.5rem;padding:.3rem .6rem;font-size:.68rem;font-weight:700;cursor:pointer;display:block;}
 .cbtn:hover:not(.active){background:var(--surface2);}
 .cbtn.active{background:var(--accent);color:#fff;}
 
-/* Pagination */
 .pbtn{background:var(--surface);border:1px solid var(--border);color:var(--text2);border-radius:.5rem;width:2rem;height:2rem;font-size:.65rem;font-weight:800;transition:all .15s;cursor:pointer;}
 .pbtn.active{background:var(--text);color:#fff;border-color:var(--text);}
 .pbtn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
 
-/* Modal */
-#productModal{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
+/* ── MODAL ── */
+#productModal{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;padding:.75rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
 #productModal.open{display:flex;}
 
-/* Contact modal */
-#contactModal{display:none;position:fixed;inset:0;z-index:210;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
+/* ── CONTACT MODAL ── */
+#contactModal{display:none;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;padding:.75rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
 #contactModal.open{display:flex;}
 
-/* Wishlist modal */
-#wishlistModal{display:none;position:fixed;inset:0;z-index:210;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
-#wishlistModal.open{display:flex;}
-
-/* Overlays */
 .cart-open{transform:translateX(0)!important;}
 .aside-open{transform:translateX(0)!important;}
 
-/* Toast */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#0f172a;color:#fff;padding:10px 22px;border-radius:999px;font-size:12px;font-weight:800;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 [data-theme=dark] #toast{background:#58a6ff;color:#000;}
 
-/* Description */
+/* Description styles */
 .desc-content ul{list-style:disc;padding-left:18px;margin-bottom:8px;}
 .desc-content ol{list-style:decimal;padding-left:18px;margin-bottom:8px;}
 .desc-content p{margin-bottom:8px;line-height:1.7;}
 .desc-content strong,.desc-content b{font-weight:800;}
-.desc-content br{display:block;content:'';margin-top:4px;}
+.desc-content br{display:block;content:'';margin-top:3px;}
 
 /* Params table */
 .ptable tr:nth-child(even) td{background:var(--surface2);}
 .ptable td{border-bottom:1px solid var(--border);padding:.4rem .6rem;font-size:.7rem;color:var(--text);}
 .ptable td:first-child{color:var(--text2);font-weight:700;width:45%;}
 
-/* Inputs */
 input,select,textarea{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:.65rem;font-family:'Manrope',sans-serif;transition:border-color .15s;}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);}
 input::placeholder,textarea::placeholder{color:var(--text2);}
@@ -89,49 +77,58 @@ input::placeholder,textarea::placeholder{color:var(--text2);}
 
 nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
-/* Feature cards */
 .feat-card{background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;transition:transform .25s,box-shadow .25s;cursor:pointer;}
 .feat-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(37,99,235,.12);}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .3s ease both;}
 
-/* Tabs */
-.tab-btn{padding:.4rem .9rem;font-size:.7rem;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+/* ── TABS (fixed) ── */
+.tab-btn{
+  flex:1;padding:.55rem .5rem;font-size:.72rem;font-weight:800;cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .15s;text-align:center;
+  white-space:nowrap;
+}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
 .tab-btn:not(.active){color:var(--text2);}
 
-/* Gallery / Slider */
-.gallery-wrap{position:relative;overflow:hidden;background:var(--surface2);aspect-ratio:1;}
-.gallery-track{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);height:100%;}
-.gallery-slide{min-width:100%;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
-.gallery-slide img{max-width:100%;max-height:100%;object-fit:contain;}
-.gallery-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;transition:all .2s;}
-.gallery-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);}
-.gallery-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
-.gallery-btn.prev{left:8px;}
-.gallery-btn.next{right:8px;}
-.gallery-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;}
-.gallery-dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s;}
-.gallery-dot.active{background:var(--accent);width:16px;border-radius:3px;}
+/* ── GALLERY (inside photo panel only) ── */
+.gallery-wrap{position:relative;width:100%;height:100%;overflow:hidden;background:var(--surface2);}
+.gallery-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);}
+.gallery-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.gallery-slide img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-multiply;}
 
-/* Wishlist heart */
-.wish-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;transition:all .2s;z-index:5;}
-.wish-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);}
-.wish-btn.active{background:#fef2f2;border-color:#fca5a5;color:#ef4444;}
+/* Gallery nav buttons — STRICTLY inside photo panel */
+.gal-btn{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:10;
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;cursor:pointer;transition:all .2s;
+  background:rgba(255,255,255,.9);color:var(--text2);
+  border:1px solid var(--border);
+  opacity:0;pointer-events:none;
+}
+/* Show on hover of photo panel */
+.gallery-wrap:hover .gal-btn{opacity:1;pointer-events:auto;}
+[data-theme=dark] .gal-btn{background:rgba(22,27,34,.9);}
+.gal-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.gal-btn.prev{left:8px;}
+.gal-btn.next{right:8px;}
+
+/* Gallery dots — bottom of photo panel */
+.gal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:10;}
+.gal-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;border:1px solid rgba(0,0,0,.15);}
+.gal-dot.active{background:var(--accent);width:16px;border-radius:3px;border-color:var(--accent);}
+
+/* Photo count badge */
+.pic-count{position:absolute;bottom:10px;right:10px;font-size:.65rem;font-weight:800;padding:.2rem .5rem;border-radius:999px;background:rgba(0,0,0,.45);color:#fff;z-index:10;}
 
 /* Loading overlay */
 #loadingOverlay{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);}
+#loadProgress{height:3px;background:var(--accent);transition:width .4s;width:0%;}
 
-/* Contact card */
-.contact-card{background:var(--surface);border-radius:1.5rem;overflow:hidden;width:100%;max-width:420px;}
-
-/* Sidebar panels */
 #sidePanel{background:var(--surface);}
 #cartSidebar{background:var(--surface);}
-
-/* Progress bar */
-#loadProgress{height:3px;background:var(--accent);transition:width .3s;width:0%;}
 </style>
 </head>
 <body data-theme="light">
@@ -142,27 +139,29 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
     <div id="loadProgress"></div>
   </div>
   <div class="text-center px-6">
-    <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-xl mx-auto mb-6"
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-xl mx-auto mb-5"
          style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
       <i class="fa-solid fa-bolt text-2xl"></i>
     </div>
-    <div class="bebas tracking-widest mb-2" style="font-size:2rem;color:var(--text);">UTRADE</div>
+    <div class="bebas tracking-widest mb-1" style="font-size:2rem;color:var(--text);">UTRADE</div>
     <div class="sec-title mb-6" style="letter-spacing:.2em;">Дроп-платформа</div>
-    <div class="w-10 h-10 border-3 rounded-full animate-spin mx-auto mb-4"
+    <div class="w-10 h-10 rounded-full animate-spin mx-auto mb-4"
          style="border:3px solid var(--border);border-top-color:var(--accent);"></div>
-    <div id="loadingMsg" class="text-sm font-bold" style="color:var(--text2);">
+    <div id="loadingMsg" class="text-sm font-bold mb-1" style="color:var(--text);">
       📦 База даних завантажується, очікуйте...
     </div>
-    <div id="loadingDetail" class="text-xs mt-2" style="color:var(--text2);opacity:.6;"></div>
+    <div id="loadingDetail" class="text-xs" style="color:var(--text2);">Підключення до сервера...</div>
   </div>
 </div>
 
-<!-- ═══ TOAST ═══ -->
+<!-- TOAST -->
 <div id="toast">✓ Додано до кошика</div>
 
 <!-- ═══ NAV ═══ -->
 <nav class="sticky top-0 z-50 backdrop-blur-md">
-  <div class="max-w-[1700px] mx-auto px-4 h-16 flex items-center gap-3">
+  <div class="max-w-[1700px] mx-auto px-4 h-16 flex items-center gap-2">
+
+    <!-- Logo -->
     <a href="#" class="flex items-center gap-2.5 shrink-0">
       <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-md"
            style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
@@ -174,53 +173,58 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
       </div>
     </a>
 
-    <div class="flex-1 max-w-lg relative">
+    <!-- Search -->
+    <div class="flex-1 max-w-lg relative mx-2">
       <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color:var(--text2);"></i>
       <input id="searchInput" type="text" oninput="performSearch()" placeholder="Пошук товару або ID..."
              class="w-full pl-9 pr-3 py-2.5 text-sm">
     </div>
 
+    <!-- Controls -->
     <div class="flex items-center gap-1.5 ml-auto">
+
+      <!-- "Про нас" — помітна кольорова кнопка -->
+      <button onclick="openContact()"
+              class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all hover:opacity-85 shrink-0"
+              style="background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 2px 10px rgba(37,99,235,.35);">
+        <i class="fa-solid fa-store text-sm"></i>
+        <span class="hidden sm:inline">Про нас</span>
+      </button>
+
+      <!-- Viber -->
       <a href="viber://chat?number=%2B380666172764" title="Viber"
-         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80 transition-all"
+         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80"
          style="background:#7360f2;color:#fff;">
         <i class="fa-brands fa-viber text-sm"></i>
         <span class="hidden lg:inline">Viber</span>
       </a>
+
+      <!-- Telegram -->
       <a href="https://t.me/your_bot" target="_blank" title="Telegram"
-         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80 transition-all"
+         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80"
          style="background:#29b6f6;color:#fff;">
         <i class="fa-brands fa-telegram text-sm"></i>
         <span class="hidden lg:inline">Telegram</span>
       </a>
-      <!-- Contacts -->
-      <button onclick="openContact()" title="Контакти"
-              class="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:text-blue-500"
-              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
-        <i class="fa-solid fa-address-card text-sm"></i>
-      </button>
-      <!-- Wishlist -->
-      <button onclick="openWishlist()" title="Вибране"
-              class="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:text-red-400 relative"
-              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
-        <i class="fa-solid fa-heart text-sm"></i>
-        <span id="wishCount" class="absolute -top-1 -right-1 bg-red-500 text-[9px] text-white w-4 h-4 rounded-full items-center justify-center border-2 border-white font-bold hidden">0</span>
-      </button>
+
       <!-- Theme -->
       <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
               style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
         <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
       </button>
+
       <!-- CSV -->
       <button onclick="exportCSV()" class="hidden sm:flex w-9 h-9 rounded-xl items-center justify-center transition-all hover:text-green-500"
-              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);" title="Завантажити CSV">
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);" title="CSV">
         <i class="fa-solid fa-file-arrow-down text-sm"></i>
       </button>
+
       <!-- Mobile filter -->
       <button onclick="toggleAside(true)" class="lg:hidden w-9 h-9 rounded-xl flex items-center justify-center"
               style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
         <i class="fa-solid fa-sliders text-sm"></i>
       </button>
+
       <!-- Cart -->
       <button onclick="toggleCart(true)" class="w-9 h-9 rounded-xl flex items-center justify-center relative text-white"
               style="background:var(--text);">
@@ -276,22 +280,21 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
           <i class="fa-solid fa-rotate-left mr-1"></i> Скинути фільтри
         </button>
 
-        <!-- Contact card in sidebar -->
-        <div class="mt-5 rounded-xl overflow-hidden cursor-pointer" onclick="openContact()"
-             style="background:linear-gradient(135deg,#2563eb,#7c3aed);padding:1px;">
+        <!-- Mini contact card in sidebar -->
+        <div class="mt-4 rounded-xl overflow-hidden cursor-pointer" onclick="openContact()" style="padding:1px;background:linear-gradient(135deg,#2563eb,#7c3aed);">
           <div class="rounded-xl p-3" style="background:var(--surface);">
             <div class="flex items-center gap-2 mb-2">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs"
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs shrink-0"
                    style="background:linear-gradient(135deg,#2563eb,#7c3aed);">
-                <i class="fa-solid fa-headset"></i>
+                <i class="fa-solid fa-store"></i>
               </div>
               <div>
                 <div class="text-xs font-black" style="color:var(--text);">UTRADE</div>
                 <div class="sec-title">Дроп-платформа</div>
               </div>
             </div>
-            <div class="text-[10px] font-bold mb-2" style="color:var(--text2);">
-              Тисячі товарів від перевірених постачальників. Відправка 1-3 дні.
+            <div class="text-[10px] font-semibold mb-2" style="color:var(--text2);">
+              Тисячі товарів · Відправка 1-3 дні
             </div>
             <div class="flex gap-1">
               <span class="text-[9px] font-black px-2 py-0.5 rounded-full text-white" style="background:#7360f2;">Viber</span>
@@ -323,7 +326,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
       <div class="bebas tracking-widest" style="font-size:1.4rem;">Кошик</div>
       <div class="sec-title mt-0.5">Управління замовленням</div>
     </div>
-    <button onclick="toggleCart(false)" class="w-8 h-8 rounded-lg flex items-center justify-center hover:text-red-500 transition-all"
+    <button onclick="toggleCart(false)" class="w-8 h-8 rounded-lg flex items-center justify-center hover:text-red-500"
             style="background:var(--surface2);color:var(--text2);">
       <i class="fa-solid fa-xmark text-sm"></i>
     </button>
@@ -358,23 +361,21 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
     </button>
     <div id="checkoutForm">
       <div class="space-y-2 mb-3">
-        <input id="clientName"    type="text" placeholder="Ім'я клієнта"         class="w-full px-3 py-2.5 text-sm">
-        <input id="clientPhone"   type="tel"  placeholder="Телефон (+38...)"      class="w-full px-3 py-2.5 text-sm">
-        <input id="clientCity"    type="text" placeholder="Місто + відділення НП" class="w-full px-3 py-2.5 text-sm">
-        <select id="paymentType"  class="w-full px-3 py-2.5 text-sm font-bold">
+        <input id="clientName"  type="text" placeholder="Ім'я клієнта"         class="w-full px-3 py-2.5 text-sm">
+        <input id="clientPhone" type="tel"  placeholder="Телефон (+38...)"      class="w-full px-3 py-2.5 text-sm">
+        <input id="clientCity"  type="text" placeholder="Місто + відділення НП" class="w-full px-3 py-2.5 text-sm">
+        <select id="paymentType" class="w-full px-3 py-2.5 text-sm font-bold">
           <option>Накладений платіж</option>
           <option>Передоплата</option>
           <option>Карткою при отриманні</option>
         </select>
-        <textarea id="clientComment" placeholder="Коментар" rows="2" class="w-full px-3 py-2.5 text-sm resize-none"></textarea>
+        <textarea id="clientComment" placeholder="Коментар (необов'язково)" rows="2" class="w-full px-3 py-2.5 text-sm resize-none"></textarea>
       </div>
       <div class="grid grid-cols-3 gap-2">
-        <button onclick="sendOrder('viber')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80"
-                style="background:#7360f2;">
+        <button onclick="sendOrder('viber')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80" style="background:#7360f2;">
           <i class="fa-brands fa-viber"></i> Viber
         </button>
-        <button onclick="sendOrder('telegram')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80"
-                style="background:#29b6f6;">
+        <button onclick="sendOrder('telegram')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80" style="background:#29b6f6;">
           <i class="fa-brands fa-telegram"></i> Telegram
         </button>
         <button onclick="sendOrder('copy')" class="py-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 hover:opacity-80"
@@ -386,63 +387,100 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </div>
 
-<!-- ═══ PRODUCT MODAL ═══ -->
+<!-- ═══ PRODUCT MODAL (fixed layout) ═══ -->
 <div id="productModal">
-  <div class="w-full rounded-2xl overflow-hidden relative flex flex-col md:flex-row" style="max-width:900px;max-height:92vh;background:var(--surface);">
-    <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center z-20 shadow-lg"
+  <!--
+    СТРУКТУРА:
+    [Фото панель (42%)] | [Інфо панель (58%)]
+    Фото панель: gallery-wrap з кнопками ВСЕРЕДИНІ
+    Інфо панель: скролиться ВСЯ ЦІЛКОМ, вкладки sticky
+  -->
+  <div class="w-full rounded-2xl overflow-hidden relative"
+       style="max-width:920px;max-height:90vh;background:var(--surface);display:flex;flex-direction:column;">
+
+    <!-- Close btn — over everything -->
+    <button onclick="closeModal()"
+            class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center z-30 shadow-lg"
             style="background:var(--surface);color:var(--text);">
       <i class="fa-solid fa-xmark text-sm"></i>
     </button>
 
-    <!-- Gallery -->
-    <div class="w-full md:w-5/12 shrink-0 relative" style="min-height:280px;">
-      <div class="gallery-wrap h-full">
-        <div id="galleryTrack" class="gallery-track"></div>
-        <button class="gallery-btn prev" id="galleryPrev" onclick="galleryMove(-1)" style="display:none;">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-        <button class="gallery-btn next" id="galleryNext" onclick="galleryMove(1)" style="display:none;">
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
-        <div id="galleryDots" class="gallery-dots"></div>
-      </div>
-    </div>
+    <!-- Body: flex row on md, column on mobile -->
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div style="display:flex;flex-direction:row;flex:1;overflow:hidden;" class="flex-col-mobile">
 
-    <!-- Info -->
-    <div class="w-full md:w-7/12 flex flex-col overflow-hidden">
-      <div class="p-5 flex-1 overflow-y-auto cscroll">
-        <div class="flex flex-wrap gap-1.5 mb-3">
-          <span id="modalVendorBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full"
-                style="background:var(--surface2);color:var(--accent);"></span>
-          <span id="modalIdBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full"
-                style="background:var(--surface2);color:var(--text2);"></span>
-        </div>
-        <h2 id="modalName" class="text-base font-black uppercase leading-snug mb-2" style="color:var(--text);"></h2>
-        <div id="modalPrice" class="bebas mb-4" style="font-size:2rem;letter-spacing:.05em;color:var(--text);"></div>
+        <!-- ── LEFT: PHOTO GALLERY (buttons INSIDE this div only) ── -->
+        <div style="flex-shrink:0;width:42%;min-height:280px;position:relative;" class="gallery-wrap w-full-mobile">
+          <!-- Gallery track -->
+          <div id="galTrack" style="display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);"></div>
 
-        <!-- Tabs -->
-        <div class="flex gap-0 mb-3" style="border-bottom:1px solid var(--border);">
-          <button onclick="modalTab('desc')"   id="tabDesc"   class="tab-btn active">Опис</button>
-          <button onclick="modalTab('params')" id="tabParams" class="tab-btn">Характеристики</button>
+          <!-- Prev/Next INSIDE photo panel — won't affect text -->
+          <button class="gal-btn prev" id="galPrev" onclick="galMove(-1)">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button class="gal-btn next" id="galNext" onclick="galMove(1)">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <!-- Dots INSIDE photo panel -->
+          <div id="galDots" class="gal-dots"></div>
+
+          <!-- Photo count badge -->
+          <div id="galCount" class="pic-count" style="display:none;"></div>
         </div>
-        <div id="tabDescContent"   class="desc-content text-sm leading-relaxed overflow-y-auto cscroll" style="max-height:220px;color:var(--text2);"></div>
-        <div id="tabParamsContent" class="hidden overflow-y-auto cscroll" style="max-height:220px;">
-          <table id="paramsTable" class="ptable w-full"></table>
+
+        <!-- ── RIGHT: INFO (scrolls as one unit) ── -->
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;">
+
+          <!-- Scrollable info area -->
+          <div style="flex:1;overflow-y:auto;" class="cscroll p-5-desktop">
+            <div style="padding:1.25rem;">
+              <!-- Badges -->
+              <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem;">
+                <span id="modalVendorBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full"
+                      style="background:var(--surface2);color:var(--accent);"></span>
+                <span id="modalIdBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full"
+                      style="background:var(--surface2);color:var(--text2);"></span>
+              </div>
+
+              <!-- Name -->
+              <h2 id="modalName" style="font-size:.9rem;font-weight:900;text-transform:uppercase;line-height:1.3;margin-bottom:.5rem;color:var(--text);"></h2>
+
+              <!-- Price -->
+              <div id="modalPrice" class="bebas" style="font-size:2rem;letter-spacing:.05em;color:var(--text);margin-bottom:1rem;"></div>
+
+              <!-- ── TABS — sticky top of scroll area ── -->
+              <div style="position:sticky;top:0;z-index:10;background:var(--surface);padding-bottom:.5rem;margin-bottom:.5rem;">
+                <div style="display:flex;border-bottom:2px solid var(--border);">
+                  <button onclick="modalTab('desc')"   id="tabDesc"   class="tab-btn active">📄 Опис</button>
+                  <button onclick="modalTab('params')" id="tabParams" class="tab-btn">📋 Характеристики</button>
+                </div>
+              </div>
+
+              <!-- Description — no max-height, flows naturally -->
+              <div id="tabDescContent" class="desc-content text-sm leading-relaxed" style="color:var(--text2);"></div>
+
+              <!-- Params — no max-height -->
+              <div id="tabParamsContent" class="hidden">
+                <table id="paramsTable" class="ptable w-full"></table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer — always visible at bottom -->
+          <div style="padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;flex-shrink:0;background:var(--surface);">
+            <button onclick="copyModalDesc()"
+                    style="padding:.6rem 1rem;border-radius:.65rem;font-size:.7rem;font-weight:800;display:flex;align-items:center;gap:.4rem;cursor:pointer;background:var(--surface2);color:var(--text);border:1px solid var(--border);">
+              <i class="fa-solid fa-copy"></i> Копіювати
+            </button>
+            <button id="modalAddBtn"
+                    style="flex:1;padding:.6rem;border-radius:.65rem;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:.4rem;cursor:pointer;color:#fff;border:none;"
+                    class="hover:opacity-80"
+                    style="background:var(--text);">
+              <i class="fa-solid fa-bag-shopping"></i> До кошика
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="p-4 flex gap-2 shrink-0" style="border-top:1px solid var(--border);">
-        <button onclick="copyModalDesc()" class="px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 hover:opacity-70"
-                style="background:var(--surface2);color:var(--text);border:1px solid var(--border);">
-          <i class="fa-solid fa-copy"></i> Копіювати
-        </button>
-        <button id="modalWishBtn" onclick="" class="px-3 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 hover:opacity-70"
-                style="background:var(--surface2);color:var(--text);border:1px solid var(--border);">
-          <i class="fa-solid fa-heart"></i>
-        </button>
-        <button id="modalAddBtn" onclick="" class="flex-1 py-2.5 rounded-xl text-sm font-black text-white flex items-center justify-center gap-2 hover:opacity-80"
-                style="background:var(--text);">
-          <i class="fa-solid fa-bag-shopping"></i> До кошика
-        </button>
       </div>
     </div>
   </div>
@@ -450,130 +488,120 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
 <!-- ═══ CONTACT MODAL ═══ -->
 <div id="contactModal">
-  <div class="contact-card">
-    <div class="p-1" style="background:linear-gradient(135deg,#2563eb,#7c3aed);">
-      <div class="rounded-xl p-5" style="background:var(--surface);">
-        <button onclick="closeContact()" class="float-right w-7 h-7 rounded-lg flex items-center justify-center"
-                style="background:var(--surface2);color:var(--text2);">
-          <i class="fa-solid fa-xmark text-xs"></i>
-        </button>
-        <!-- Logo -->
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg"
-               style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
-            <i class="fa-solid fa-bolt text-xl"></i>
+  <div style="width:100%;max-width:400px;border-radius:1.25rem;overflow:hidden;background:linear-gradient(135deg,#2563eb,#7c3aed);padding:2px;">
+    <div style="border-radius:1.2rem;background:var(--surface);overflow:hidden;">
+
+      <!-- Header -->
+      <div style="padding:1.25rem 1.25rem .75rem;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <div style="width:44px;height:44px;border-radius:.75rem;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-bolt" style="color:#fff;font-size:1.1rem;"></i>
           </div>
           <div>
-            <div class="bebas tracking-widest" style="font-size:1.6rem;color:var(--text);">UTRADE</div>
-            <div class="sec-title" style="letter-spacing:.2em;">Дроп-платформа</div>
+            <div class="bebas" style="font-size:1.5rem;letter-spacing:.08em;line-height:1;color:var(--text);">UTRADE</div>
+            <div class="sec-title" style="letter-spacing:.15em;">Дроп-платформа</div>
           </div>
         </div>
+        <button onclick="closeContact()" style="width:30px;height:30px;border-radius:.5rem;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--surface2);color:var(--text2);border:none;">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
 
-        <!-- Description -->
-        <div class="rounded-xl p-3 mb-4 text-xs leading-relaxed font-medium" style="background:var(--surface2);color:var(--text2);">
-          🚀 <strong style="color:var(--text);">UTRADE</strong> — платформа для дропшипінгу з тисячами товарів від перевірених постачальників.<br><br>
-          📦 Відправка протягом <strong style="color:var(--text);">1-3 робочих днів</strong><br>
-          🏪 Товари знаходяться на різних складах по Україні<br>
-          💳 Доступна оплата при отриманні (НП) та передоплата на ФОП<br>
-          🔄 Без мінімальних обмежень на замовлення
+      <!-- Description -->
+      <div style="margin:0 1.25rem .75rem;padding:.75rem;border-radius:.75rem;background:var(--surface2);font-size:.75rem;line-height:1.6;color:var(--text2);">
+        🚀 <strong style="color:var(--text);">UTRADE</strong> — платформа дропшипінгу з тисячами товарів від перевірених постачальників.<br>
+        📦 Відправка <strong style="color:var(--text);">1-3 робочих дні</strong><br>
+        🏪 Товари на різних складах по Україні<br>
+        💳 Накладений платіж (НП) та передоплата на ФОП<br>
+        🔄 Без мінімальних обмежень на замовлення
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:0 1.25rem .75rem;">
+        <div style="text-align:center;padding:.6rem;border-radius:.65rem;background:var(--surface2);">
+          <div class="bebas" style="font-size:1.3rem;color:var(--accent);" id="contactCount">—</div>
+          <div class="sec-title">Товарів</div>
         </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-3 gap-2 mb-4">
-          <div class="rounded-xl p-2 text-center" style="background:var(--surface2);">
-            <div class="bebas text-xl" style="color:var(--accent);" id="contactProductCount">0</div>
-            <div class="sec-title">Товарів</div>
-          </div>
-          <div class="rounded-xl p-2 text-center" style="background:var(--surface2);">
-            <div class="bebas text-xl" style="color:var(--accent);">5</div>
-            <div class="sec-title">Склади</div>
-          </div>
-          <div class="rounded-xl p-2 text-center" style="background:var(--surface2);">
-            <div class="bebas text-xl" style="color:var(--accent);">1-3</div>
-            <div class="sec-title">Дні відпр.</div>
-          </div>
+        <div style="text-align:center;padding:.6rem;border-radius:.65rem;background:var(--surface2);">
+          <div class="bebas" style="font-size:1.3rem;color:var(--accent);">5</div>
+          <div class="sec-title">Склади</div>
         </div>
-
-        <!-- Contacts -->
-        <div class="space-y-2">
-          <a href="tel:+380666172764" class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm transition-all hover:opacity-80"
-             style="background:var(--surface2);color:var(--text);">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm shrink-0"
-                 style="background:#10b981;">
-              <i class="fa-solid fa-phone"></i>
-            </div>
-            <div>
-              <div class="text-xs font-black">Телефон</div>
-              <div class="text-[11px]" style="color:var(--text2);">+380 66 617 27 64</div>
-            </div>
-            <i class="fa-solid fa-chevron-right ml-auto text-xs" style="color:var(--text2);"></i>
-          </a>
-          <a href="viber://chat?number=%2B380666172764" class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm transition-all hover:opacity-80"
-             style="background:#f5f3ff;color:var(--text);">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm shrink-0"
-                 style="background:#7360f2;">
-              <i class="fa-brands fa-viber"></i>
-            </div>
-            <div>
-              <div class="text-xs font-black">Viber</div>
-              <div class="text-[11px]" style="color:var(--text2);">Написати у Viber</div>
-            </div>
-            <i class="fa-solid fa-chevron-right ml-auto text-xs" style="color:var(--text2);"></i>
-          </a>
-          <a href="https://t.me/your_bot" target="_blank" class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm transition-all hover:opacity-80"
-             style="background:#f0f9ff;color:var(--text);">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm shrink-0"
-                 style="background:#29b6f6;">
-              <i class="fa-brands fa-telegram"></i>
-            </div>
-            <div>
-              <div class="text-xs font-black">Telegram</div>
-              <div class="text-[11px]" style="color:var(--text2);">Написати у Telegram</div>
-            </div>
-            <i class="fa-solid fa-chevron-right ml-auto text-xs" style="color:var(--text2);"></i>
-          </a>
+        <div style="text-align:center;padding:.6rem;border-radius:.65rem;background:var(--surface2);">
+          <div class="bebas" style="font-size:1.3rem;color:var(--accent);">1-3</div>
+          <div class="sec-title">Дні відпр.</div>
         </div>
+      </div>
 
-        <!-- Payment info -->
-        <div class="mt-4 rounded-xl p-3" style="background:var(--surface2);">
-          <div class="sec-title mb-2">💳 Способи оплати</div>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:#ecfdf5;color:#059669;">Накладений платіж</span>
-            <span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:#eff6ff;color:#2563eb;">Передоплата на ФОП</span>
-            <span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:#fefce8;color:#d97706;">Карткою онлайн</span>
+      <!-- Contact links -->
+      <div style="display:flex;flex-direction:column;gap:.5rem;margin:0 1.25rem .75rem;">
+        <a href="tel:+380666172764"
+           style="display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:.75rem;text-decoration:none;background:var(--surface2);color:var(--text);">
+          <div style="width:34px;height:34px;border-radius:.5rem;background:#10b981;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fa-solid fa-phone" style="color:#fff;font-size:.8rem;"></i>
           </div>
+          <div>
+            <div style="font-size:.72rem;font-weight:800;">Телефон</div>
+            <div style="font-size:.68rem;color:var(--text2);">+380 66 617 27 64</div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="margin-left:auto;font-size:.65rem;color:var(--text2);"></i>
+        </a>
+
+        <a href="viber://chat?number=%2B380666172764"
+           style="display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:.75rem;text-decoration:none;background:#f5f3ff;color:var(--text);">
+          <div style="width:34px;height:34px;border-radius:.5rem;background:#7360f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fa-brands fa-viber" style="color:#fff;font-size:.9rem;"></i>
+          </div>
+          <div>
+            <div style="font-size:.72rem;font-weight:800;">Viber</div>
+            <div style="font-size:.68rem;color:var(--text2);">Написати у Viber</div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="margin-left:auto;font-size:.65rem;color:var(--text2);"></i>
+        </a>
+
+        <a href="https://t.me/your_bot" target="_blank"
+           style="display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:.75rem;text-decoration:none;background:#f0f9ff;color:var(--text);">
+          <div style="width:34px;height:34px;border-radius:.5rem;background:#29b6f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fa-brands fa-telegram" style="color:#fff;font-size:.9rem;"></i>
+          </div>
+          <div>
+            <div style="font-size:.72rem;font-weight:800;">Telegram</div>
+            <div style="font-size:.68rem;color:var(--text2);">Написати у Telegram</div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="margin-left:auto;font-size:.65rem;color:var(--text2);"></i>
+        </a>
+      </div>
+
+      <!-- Payment badges -->
+      <div style="margin:0 1.25rem 1.25rem;padding:.65rem;border-radius:.65rem;background:var(--surface2);">
+        <div class="sec-title" style="margin-bottom:.4rem;">💳 Способи оплати</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+          <span style="font-size:.65rem;font-weight:800;padding:.2rem .5rem;border-radius:.4rem;background:#ecfdf5;color:#059669;">Накладений платіж</span>
+          <span style="font-size:.65rem;font-weight:800;padding:.2rem .5rem;border-radius:.4rem;background:#eff6ff;color:#2563eb;">Передоплата на ФОП</span>
+          <span style="font-size:.65rem;font-weight:800;padding:.2rem .5rem;border-radius:.4rem;background:#fefce8;color:#d97706;">Карткою онлайн</span>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ WISHLIST MODAL ═══ -->
-<div id="wishlistModal">
-  <div class="w-full rounded-2xl overflow-hidden flex flex-col" style="max-width:600px;max-height:85vh;background:var(--surface);">
-    <div class="p-4 flex justify-between items-center shrink-0" style="border-bottom:1px solid var(--border);">
-      <div>
-        <div class="bebas tracking-widest" style="font-size:1.3rem;">❤️ Вибране</div>
-        <div class="sec-title mt-0.5">Збережені товари</div>
-      </div>
-      <button onclick="closeWishlist()" class="w-8 h-8 rounded-lg flex items-center justify-center"
-              style="background:var(--surface2);color:var(--text2);">
-        <i class="fa-solid fa-xmark text-sm"></i>
-      </button>
-    </div>
-    <div id="wishlistItems" class="flex-1 overflow-y-auto p-4 cscroll" style="background:var(--surface2);"></div>
-  </div>
-</div>
+<style>
+/* Mobile modal adjustments */
+@media(max-width:767px){
+  #productModal > div{flex-direction:column !important;max-height:95vh;}
+  #productModal > div > div > div:first-child{width:100% !important;height:240px;min-height:240px;}
+  #productModal > div > div > div:last-child{flex:1;min-height:0;}
+}
+</style>
 
 <script>
-// ═══ STATE ═══
+// ─── STATE ───
 let allProducts=[], categories=[], cart=JSON.parse(localStorage.getItem('utrade_v9'))||[];
-let wishlist=JSON.parse(localStorage.getItem('utrade_wish'))||[];
 let currentVendor='all', currentCategory='all', currentPage=1, itemsPerPage=20;
-let checkoutOpen=false, currentModalProduct=null, galleryIndex=0;
+let checkoutOpen=false, currentModalProduct=null;
+let galPics=[], galIdx=0;
 const PLACEHOLDER="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E";
 
-// ═══ VENDOR DETECTION ═══
+// ─── VENDOR DETECTION ───
 function getVendorName(url){
   if(!url) return 'Інше';
   const u=url.toLowerCase();
@@ -585,7 +613,7 @@ function getVendorName(url){
   return 'Інше';
 }
 
-// ═══ THEME ═══
+// ─── THEME ───
 function toggleTheme(){
   const dark=document.body.getAttribute('data-theme')!=='dark';
   document.body.setAttribute('data-theme',dark?'dark':'light');
@@ -599,29 +627,26 @@ function toggleTheme(){
   }
 })();
 
-// ═══ TOAST ═══
+// ─── TOAST ───
 function showToast(msg='✓ Додано до кошика'){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ═══ LOADING ═══
-function setLoadingMsg(msg,detail=''){
+// ─── LOADING ───
+function setProgress(pct){ document.getElementById('loadProgress').style.width=pct+'%'; }
+function setLoadMsg(msg,detail=''){
   document.getElementById('loadingMsg').textContent=msg;
   document.getElementById('loadingDetail').textContent=detail;
 }
-function setProgress(pct){
-  document.getElementById('loadProgress').style.width=pct+'%';
-}
 function hideLoading(){
   const o=document.getElementById('loadingOverlay');
-  o.style.transition='opacity .5s';
-  o.style.opacity='0';
+  o.style.transition='opacity .5s'; o.style.opacity='0';
   setTimeout(()=>o.remove(),500);
 }
 
-// ═══ SKELETON ═══
+// ─── SKELETON ───
 function buildSkeleton(){
   const g=document.getElementById('skeletonGrid');
   g.className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-5';
@@ -636,62 +661,47 @@ function buildSkeleton(){
   g.innerHTML=h;
 }
 
-// ═══ INIT ═══
+// ─── INIT ───
 async function init(){
   buildSkeleton();
-  setLoadingMsg('📦 База даних завантажується, очікуйте...','Підключення до сервера...');
-  setProgress(10);
-
+  setProgress(10); setLoadMsg('📦 База даних завантажується, очікуйте...','Підключення до сервера...');
   try{
-    setLoadingMsg('📥 Завантаження прайс-листу...','Це може зайняти 10-20 секунд (файл ~80МБ)');
-    setProgress(20);
-
+    setProgress(20); setLoadMsg('📥 Завантаження прайс-листу...','Файл ~80МБ, зачекайте хвилину...');
     const res=await fetch('Masterevanew.xml');
-    setProgress(45);
-    setLoadingMsg('⚙️ Обробка даних...','Парсинг XML файлу...');
-
+    setProgress(50); setLoadMsg('⚙️ Обробка даних...','Парсинг XML...');
     const text=await res.text();
-    setProgress(65);
-    setLoadingMsg('🔍 Формування каталогу...','Завантажено! Сортуємо товари...');
-
+    setProgress(70); setLoadMsg('🔍 Формування каталогу...','Майже готово...');
     const xml=new DOMParser().parseFromString(text,'text/xml');
-    setProgress(80);
 
-    // Categories
     categories=Array.from(xml.getElementsByTagName('category')).map(c=>({
       id:c.getAttribute('id'), name:c.textContent.trim()
     }));
 
-    // Products — parse all pictures, desc, params
-    const offers=xml.getElementsByTagName('offer');
-    allProducts=Array.from(offers).map(o=>{
-      // All pictures
+    allProducts=Array.from(xml.getElementsByTagName('offer')).map(o=>{
+      // ALL pictures
       const pics=Array.from(o.getElementsByTagName('picture')).map(p=>p.textContent.trim()).filter(Boolean);
       const img=pics[0]||'';
 
-      // Name
       const name=(
         o.getElementsByTagName('name_ua')[0]?.textContent||
         o.getElementsByTagName('name')[0]?.textContent||'Без назви'
       ).trim();
 
-      // Params — try multiple attribute names
+      // Params — try all known attribute names
       const params=Array.from(o.getElementsByTagName('param')).map(p=>{
-        const pname=p.getAttribute('name')||p.getAttribute('paramname')||p.getAttribute('NAME')||'';
-        return{name:pname.trim(), value:p.textContent.trim()};
+        const n=p.getAttribute('name')||p.getAttribute('paramname')||p.getAttribute('NAME')||'';
+        return{name:n.trim(),value:p.textContent.trim()};
       }).filter(p=>p.name&&p.value);
 
       // Description — multiple fallback tags
       let desc='';
-      const descTags=['description','description_ua','desc','full_description'];
-      for(const tag of descTags){
+      for(const tag of['description','description_ua','desc','full_description']){
         const el=o.getElementsByTagName(tag)[0];
         if(el&&el.textContent.trim()){desc=el.textContent.trim();break;}
       }
-      // Convert plain text newlines to <br>
-      if(desc&&!/<[a-z][\s\S]*>/i.test(desc)){
-        desc=desc.replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>');
-        desc='<p>'+desc+'</p>';
+      // Convert plain text to HTML
+      if(desc&&!/<[a-zA-Z][\s\S]*>/i.test(desc)){
+        desc='<p>'+desc.replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>')+'</p>';
       }
 
       return{
@@ -707,26 +717,23 @@ async function init(){
 
     setProgress(95);
     document.getElementById('skeletonGrid').remove();
-    document.getElementById('contactProductCount').textContent=allProducts.length.toLocaleString();
-    renderVendorBar();
-    renderCatList();
-    renderFeatured();
-    performSearch();
-    updateCartUI();
-    updateWishUI();
-    setProgress(100);
-    setTimeout(hideLoading,400);
+    // Set contact count
+    const cc=document.getElementById('contactCount');
+    if(cc) cc.textContent=allProducts.length.toLocaleString('uk');
+
+    renderVendorBar(); renderCatList(); renderFeatured(); performSearch(); updateCartUI();
+    setProgress(100); setTimeout(hideLoading,300);
 
   }catch(e){
-    setLoadingMsg('⚠️ Помилка завантаження','Перевірте файл Masterevanew.xml');
-    console.error(e);
+    setLoadMsg('⚠️ Помилка завантаження','Перевірте файл Masterevanew.xml');
     document.getElementById('skeletonGrid').innerHTML=
       '<p class="col-span-full text-center py-20 font-black" style="color:var(--red);">⚠️ Помилка завантаження XML</p>';
-    setTimeout(hideLoading,2000);
+    setTimeout(hideLoading,2500);
+    console.error(e);
   }
 }
 
-// ═══ VENDOR BAR ═══
+// ─── VENDOR BAR ───
 function renderVendorBar(){
   const vendors=['all',...new Set(allProducts.map(p=>p.vendor))];
   document.getElementById('vendorBar').innerHTML=vendors.map(v=>{
@@ -744,7 +751,7 @@ function filterByVendor(v){
   performSearch();
 }
 
-// ═══ CATEGORIES ═══
+// ─── CATEGORIES ───
 function renderCatList(){
   const vp=currentVendor==='all'?allProducts:allProducts.filter(p=>p.vendor===currentVendor);
   const activeCatIds=new Set(vp.map(p=>p.catId));
@@ -772,7 +779,7 @@ function filterCatList(){
   });
 }
 
-// ═══ FEATURED ═══
+// ─── FEATURED ───
 function renderFeatured(){
   if(!allProducts.length) return;
   const picks=allProducts.slice(0,10);
@@ -787,7 +794,7 @@ function renderFeatured(){
           <div class="feat-card fade-up" style="animation-delay:${i*35}ms" onclick="openModal('${p.id}')">
             <div class="aspect-square flex items-center justify-center p-3 relative" style="background:var(--surface2);">
               <img src="${p.img}" class="max-w-full max-h-full object-contain" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
-              ${p.pics&&p.pics.length>1?`<span class="absolute bottom-2 right-2 text-[8px] font-black px-1.5 py-0.5 rounded-full" style="background:var(--accent);color:#fff;">📷 ${p.pics.length}</span>`:''}
+              ${p.pics&&p.pics.length>1?`<span class="pic-count">📷 ${p.pics.length}</span>`:''}
             </div>
             <div class="p-3">
               <div class="text-[8px] font-black uppercase mb-1" style="color:var(--accent);">${p.vendor}</div>
@@ -808,7 +815,7 @@ function renderFeatured(){
     </div>`;
 }
 
-// ═══ SEARCH ═══
+// ─── SEARCH ───
 function performSearch(){
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
   const minP=parseFloat(document.getElementById('minPrice').value)||0;
@@ -845,7 +852,7 @@ function resetFilters(){
   renderVendorBar(); renderCatList(); performSearch();
 }
 
-// ═══ GRID ═══
+// ─── GRID ───
 function renderGrid(list){
   const grid=document.getElementById('productGrid');
   if(!list.length){
@@ -857,16 +864,12 @@ function renderGrid(list){
   grid.innerHTML=list.map((p,i)=>{
     const saleP=Math.round(p.price*(1+margin/100));
     const prof=saleP-p.price;
-    const isWished=wishlist.includes(p.id);
     const multiPic=p.pics&&p.pics.length>1;
     return`<div class="pcard p-3 cursor-pointer flex flex-col fade-up" style="animation-delay:${Math.min(i,8)*30}ms" onclick="openModal('${p.id}')">
       <div class="aspect-square rounded-xl mb-3 flex items-center justify-center p-3 relative overflow-hidden" style="background:var(--surface2);">
         <img src="${p.img}" class="max-w-full max-h-full object-contain mix-blend-multiply" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
         <span class="absolute top-2 left-2 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full" style="background:var(--surface);color:var(--accent);border:1px solid var(--border);">${p.vendor}</span>
-        <button onclick="event.stopPropagation();toggleWish('${p.id}')" class="wish-btn${isWished?' active':''}">
-          <i class="fa-${isWished?'solid':'regular'} fa-heart"></i>
-        </button>
-        ${multiPic?`<span class="absolute bottom-2 left-2 text-[8px] font-black px-1.5 py-0.5 rounded-full" style="background:var(--accent);color:#fff;">📷 ${p.pics.length}</span>`:''}
+        ${multiPic?`<span class="pic-count">📷 ${p.pics.length}</span>`:''}
       </div>
       <h3 class="text-[10px] font-bold leading-tight mb-2 uppercase line-clamp-2" style="color:var(--text);min-height:2.2rem;">${p.name}</h3>
       <div class="mt-auto flex justify-between items-center pt-2" style="border-top:1px solid var(--border);" onclick="event.stopPropagation()">
@@ -884,7 +887,7 @@ function renderGrid(list){
   }).join('');
 }
 
-// ═══ PAGINATION ═══
+// ─── PAGINATION ───
 function renderPagination(total){
   const w=document.getElementById('pagination');
   if(total<=1){w.innerHTML='';return;}
@@ -900,45 +903,58 @@ function renderPagination(total){
   w.innerHTML=h;
 }
 
-// ═══ GALLERY ═══
-let galleryPics=[];
-function initGallery(pics){
-  galleryPics=pics||[];
-  galleryIndex=0;
-  const track=document.getElementById('galleryTrack');
-  track.innerHTML=galleryPics.map(src=>`
-    <div class="gallery-slide">
-      <img src="${src}" alt="" onerror="this.src='${PLACEHOLDER}'" style="max-height:340px;">
-    </div>`).join('');
+// ─── GALLERY ───
+function galInit(pics){
+  galPics=pics&&pics.length?pics:[];
+  galIdx=0;
+  const track=document.getElementById('galTrack');
+  track.innerHTML=galPics.map(src=>
+    `<div style="min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
+      <img src="${src}" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-multiply;" onerror="this.src='${PLACEHOLDER}'">
+    </div>`
+  ).join('');
   track.style.transform='translateX(0)';
 
-  const showNav=galleryPics.length>1;
-  document.getElementById('galleryPrev').style.display=showNav?'flex':'none';
-  document.getElementById('galleryNext').style.display=showNav?'flex':'none';
+  const multi=galPics.length>1;
+  document.getElementById('galPrev').style.display=multi?'flex':'none';
+  document.getElementById('galNext').style.display=multi?'flex':'none';
 
-  const dots=document.getElementById('galleryDots');
-  dots.innerHTML=showNav?galleryPics.map((_,i)=>`<div class="gallery-dot${i===0?' active':''}" onclick="galleryGo(${i})"></div>`).join(''):'';
+  // Dots
+  const dots=document.getElementById('galDots');
+  dots.innerHTML=multi?galPics.map((_,i)=>
+    `<div class="gal-dot${i===0?' active':''}" onclick="galGo(${i})"></div>`
+  ).join(''):'';
+
+  // Count badge
+  const cnt=document.getElementById('galCount');
+  if(multi){cnt.style.display='block';cnt.textContent=`1 / ${galPics.length}`;}
+  else cnt.style.display='none';
 }
 
-function galleryMove(dir){
-  galleryIndex=(galleryIndex+dir+galleryPics.length)%galleryPics.length;
-  galleryGo(galleryIndex);
+function galMove(dir){
+  galIdx=(galIdx+dir+galPics.length)%galPics.length;
+  galGo(galIdx);
 }
 
-function galleryGo(idx){
-  galleryIndex=idx;
-  document.getElementById('galleryTrack').style.transform=`translateX(-${idx*100}%)`;
-  document.querySelectorAll('.gallery-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+function galGo(idx){
+  galIdx=idx;
+  document.getElementById('galTrack').style.transform=`translateX(-${idx*100}%)`;
+  document.querySelectorAll('.gal-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  const cnt=document.getElementById('galCount');
+  if(cnt.style.display!=='none') cnt.textContent=`${idx+1} / ${galPics.length}`;
 }
 
-// ═══ MODAL ═══
+// ─── MODAL ───
 function openModal(id){
   const p=allProducts.find(x=>x.id===id);
   if(!p) return;
   currentModalProduct=p;
 
-  initGallery(p.pics&&p.pics.length?p.pics:[p.img]);
+  // Gallery
+  const pics=p.pics&&p.pics.length?p.pics:(p.img?[p.img]:[]);
+  galInit(pics);
 
+  // Info
   document.getElementById('modalName').textContent=p.name;
   document.getElementById('modalPrice').textContent=p.price+' ₴';
   document.getElementById('modalVendorBadge').textContent=p.vendor;
@@ -946,28 +962,24 @@ function openModal(id){
 
   // Description
   const descEl=document.getElementById('tabDescContent');
-  if(p.desc&&p.desc.trim()){
-    descEl.innerHTML=p.desc;
-  }else{
-    descEl.innerHTML='<span style="opacity:.4;font-style:italic;">Опис відсутній</span>';
-  }
+  descEl.innerHTML=p.desc&&p.desc.trim()
+    ? p.desc
+    : '<span style="opacity:.4;font-style:italic;font-size:.8rem;">Опис відсутній</span>';
 
-  // Params — comprehensive parsing
+  // Params
   const tbl=document.getElementById('paramsTable');
   if(p.params&&p.params.length){
-    tbl.innerHTML=p.params.map(pr=>`
-      <tr><td>${pr.name}</td><td style="font-weight:700;">${pr.value}</td></tr>`).join('');
+    tbl.innerHTML=p.params.map(pr=>
+      `<tr><td>${pr.name}</td><td style="font-weight:700;">${pr.value}</td></tr>`
+    ).join('');
   }else{
     tbl.innerHTML='<tr><td colspan="2" style="opacity:.35;text-align:center;padding:16px;font-size:.75rem;">Характеристики відсутні</td></tr>';
   }
 
-  // Wishlist btn
-  const wb=document.getElementById('modalWishBtn');
-  const isWished=wishlist.includes(id);
-  wb.innerHTML=`<i class="fa-${isWished?'solid':'regular'} fa-heart" style="color:${isWished?'#ef4444':'inherit'}"></i>`;
-  wb.onclick=()=>{toggleWish(id); const iw=wishlist.includes(id); wb.innerHTML=`<i class="fa-${iw?'solid':'regular'} fa-heart" style="color:${iw?'#ef4444':'inherit'}"></i>`;};
-
+  // Add to cart btn color
+  document.getElementById('modalAddBtn').style.background=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#0f172a';
   document.getElementById('modalAddBtn').onclick=()=>{addToCart(id);closeModal();};
+
   modalTab('desc');
   document.getElementById('productModal').classList.add('open');
   document.body.style.overflow='hidden';
@@ -998,56 +1010,7 @@ function copyModalDesc(){
   navigator.clipboard.writeText(text).then(()=>showToast('📋 Опис скопійовано!'));
 }
 
-// ═══ WISHLIST ═══
-function toggleWish(id){
-  const idx=wishlist.indexOf(id);
-  if(idx>-1) wishlist.splice(idx,1);
-  else wishlist.push(id);
-  localStorage.setItem('utrade_wish',JSON.stringify(wishlist));
-  updateWishUI();
-  showToast(idx>-1?'💔 Видалено з вибраного':'❤️ Додано до вибраного');
-  // Re-render grid to update heart icons
-  performSearch();
-}
-
-function updateWishUI(){
-  const cnt=wishlist.length;
-  const wc=document.getElementById('wishCount');
-  wc.textContent=cnt; wc.classList.toggle('hidden',cnt===0); wc.classList.toggle('flex',cnt>0);
-}
-
-function openWishlist(){
-  const items=wishlist.map(id=>allProducts.find(p=>p.id===id)).filter(Boolean);
-  const el=document.getElementById('wishlistItems');
-  if(!items.length){
-    el.innerHTML=`<div class="py-20 text-center font-black uppercase opacity-25" style="color:var(--text2);">Вибране порожнє</div>`;
-  }else{
-    el.innerHTML=`<div class="grid grid-cols-2 gap-3">${items.map(p=>`
-      <div class="rounded-xl overflow-hidden cursor-pointer pcard" onclick="closeWishlist();openModal('${p.id}')">
-        <div class="aspect-square flex items-center justify-center p-3" style="background:var(--surface2);">
-          <img src="${p.img}" class="max-w-full max-h-full object-contain" onerror="this.src='${PLACEHOLDER}'">
-        </div>
-        <div class="p-2">
-          <div class="text-[9px] font-black uppercase truncate mb-1" style="color:var(--text);">${p.name}</div>
-          <div class="flex justify-between items-center">
-            <span class="text-sm font-black bebas" style="color:var(--text);">${p.price} ₴</span>
-            <button onclick="event.stopPropagation();addToCart('${p.id}');showToast()"
-              class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs"
-              style="background:var(--text);">+</button>
-          </div>
-        </div>
-      </div>`).join('')}</div>`;
-  }
-  document.getElementById('wishlistModal').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function closeWishlist(){
-  document.getElementById('wishlistModal').classList.remove('open');
-  document.body.style.overflow='';
-}
-
-// ═══ CONTACT MODAL ═══
+// ─── CONTACT ───
 function openContact(){
   document.getElementById('contactModal').classList.add('open');
   document.body.style.overflow='hidden';
@@ -1057,7 +1020,7 @@ function closeContact(){
   document.body.style.overflow='';
 }
 
-// ═══ CART ═══
+// ─── CART ───
 function addToCart(id){
   const existing=cart.find(i=>i.id===id);
   if(existing){existing.count++;}
@@ -1140,7 +1103,7 @@ function updateCartUI(){
   document.getElementById('cartProfit').textContent=(profit>=0?'+':'')+profit+' ₴';
 }
 
-// ═══ CHECKOUT ═══
+// ─── CHECKOUT ───
 function toggleCheckout(){
   checkoutOpen=!checkoutOpen;
   document.getElementById('checkoutForm').classList.toggle('open',checkoutOpen);
@@ -1177,7 +1140,7 @@ function sendOrder(channel){
   else navigator.clipboard.writeText(msg).then(()=>showToast('📋 Замовлення скопійовано!'));
 }
 
-// ═══ CSV ═══
+// ─── CSV ───
 function exportCSV(){
   const margin=parseInt(document.getElementById('globalMargin').value)||20;
   const q=document.getElementById('searchInput').value.toLowerCase();
@@ -1203,7 +1166,7 @@ function exportCSV(){
   showToast('📊 CSV завантажено!');
 }
 
-// ═══ UI HELPERS ═══
+// ─── UI HELPERS ───
 function toggleAside(show){
   document.getElementById('sidePanel').classList.toggle('aside-open',show);
   document.getElementById('asideOverlay').classList.toggle('hidden',!show);
@@ -1213,15 +1176,24 @@ function toggleCart(show){
   document.getElementById('cartOverlay').classList.toggle('hidden',!show);
 }
 
-// Backdrop clicks
+// Backdrops
 document.getElementById('productModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.getElementById('contactModal').addEventListener('click',function(e){if(e.target===this)closeContact();});
-document.getElementById('wishlistModal').addEventListener('click',function(e){if(e.target===this)closeWishlist();});
+
+// Keyboard
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeModal();closeContact();closeWishlist();}
-  if(e.key==='ArrowLeft') galleryMove(-1);
-  if(e.key==='ArrowRight') galleryMove(1);
+  if(e.key==='Escape'){closeModal();closeContact();}
+  if(e.key==='ArrowLeft'&&document.getElementById('productModal').classList.contains('open')) galMove(-1);
+  if(e.key==='ArrowRight'&&document.getElementById('productModal').classList.contains('open')) galMove(1);
 });
+
+// Touch swipe for gallery
+let touchStartX=0;
+document.getElementById('galTrack').addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX;},{passive:true});
+document.getElementById('galTrack').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(dx)>40) galMove(dx<0?1:-1);
+},{passive:true});
 
 init();
 </script>
