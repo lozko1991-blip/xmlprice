@@ -15,85 +15,157 @@ html{scroll-behavior:smooth;}
 body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
 .bebas{font-family:'Bebas Neue',sans-serif;}
 
+/* Skeleton */
 .sk{background:linear-gradient(90deg,var(--border) 25%,var(--surface2) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:10px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+/* Scrollbars */
 .cscroll::-webkit-scrollbar{width:4px;}
 .cscroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
 [data-theme=dark] .cscroll::-webkit-scrollbar-thumb{background:#30363d;}
 .noscroll{-ms-overflow-style:none;scrollbar-width:none;}
 .noscroll::-webkit-scrollbar{display:none;}
 
+/* Cards */
 .pcard{transition:transform .25s ease,box-shadow .25s ease;background:var(--surface);border:1px solid var(--border);border-radius:1rem;}
 .pcard:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(37,99,235,.12);}
 
+/* Vendor pills */
 .vbtn{background:var(--surface);color:var(--text2);border:1px solid var(--border);transition:all .2s;border-radius:999px;padding:.4rem 1rem;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;cursor:pointer;}
 .vbtn:hover{border-color:var(--accent);color:var(--accent);}
 .vbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 14px rgba(37,99,235,.3);}
 
+/* Category */
 .cbtn{color:var(--text2);transition:all .15s;text-align:left;width:100%;border-radius:.5rem;padding:.3rem .6rem;font-size:.68rem;font-weight:700;cursor:pointer;display:block;}
 .cbtn:hover:not(.active){background:var(--surface2);}
 .cbtn.active{background:var(--accent);color:#fff;}
 
+/* Pagination */
 .pbtn{background:var(--surface);border:1px solid var(--border);color:var(--text2);border-radius:.5rem;width:2rem;height:2rem;font-size:.65rem;font-weight:800;transition:all .15s;cursor:pointer;}
 .pbtn.active{background:var(--text);color:#fff;border-color:var(--text);}
 .pbtn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
 
-#productModal{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);}
+/* Modal */
+#productModal{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
 #productModal.open{display:flex;}
 
+/* Contact modal */
+#contactModal{display:none;position:fixed;inset:0;z-index:210;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
+#contactModal.open{display:flex;}
+
+/* Wishlist modal */
+#wishlistModal{display:none;position:fixed;inset:0;z-index:210;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);}
+#wishlistModal.open{display:flex;}
+
+/* Overlays */
 .cart-open{transform:translateX(0)!important;}
 .aside-open{transform:translateX(0)!important;}
 
+/* Toast */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#0f172a;color:#fff;padding:10px 22px;border-radius:999px;font-size:12px;font-weight:800;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 [data-theme=dark] #toast{background:#58a6ff;color:#000;}
 
+/* Description */
 .desc-content ul{list-style:disc;padding-left:18px;margin-bottom:8px;}
 .desc-content ol{list-style:decimal;padding-left:18px;margin-bottom:8px;}
 .desc-content p{margin-bottom:8px;line-height:1.7;}
 .desc-content strong,.desc-content b{font-weight:800;}
+.desc-content br{display:block;content:'';margin-top:4px;}
 
+/* Params table */
 .ptable tr:nth-child(even) td{background:var(--surface2);}
 .ptable td{border-bottom:1px solid var(--border);padding:.4rem .6rem;font-size:.7rem;color:var(--text);}
 .ptable td:first-child{color:var(--text2);font-weight:700;width:45%;}
 
+/* Inputs */
 input,select,textarea{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:.65rem;font-family:'Manrope',sans-serif;transition:border-color .15s;}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);}
 input::placeholder,textarea::placeholder{color:var(--text2);}
 
 .sec-title{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);}
-
 #checkoutForm{display:none;}
 #checkoutForm.open{display:block;}
 
 nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
+/* Feature cards */
 .feat-card{background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;transition:transform .25s,box-shadow .25s;cursor:pointer;}
 .feat-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(37,99,235,.12);}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .3s ease both;}
 
+/* Tabs */
 .tab-btn{padding:.4rem .9rem;font-size:.7rem;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
 .tab-btn:not(.active){color:var(--text2);}
 
+/* Gallery / Slider */
+.gallery-wrap{position:relative;overflow:hidden;background:var(--surface2);aspect-ratio:1;}
+.gallery-track{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);height:100%;}
+.gallery-slide{min-width:100%;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.gallery-slide img{max-width:100%;max-height:100%;object-fit:contain;}
+.gallery-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;transition:all .2s;}
+.gallery-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);}
+.gallery-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.gallery-btn.prev{left:8px;}
+.gallery-btn.next{right:8px;}
+.gallery-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;}
+.gallery-dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s;}
+.gallery-dot.active{background:var(--accent);width:16px;border-radius:3px;}
+
+/* Wishlist heart */
+.wish-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;transition:all .2s;z-index:5;}
+.wish-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);}
+.wish-btn.active{background:#fef2f2;border-color:#fca5a5;color:#ef4444;}
+
+/* Loading overlay */
+#loadingOverlay{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);}
+
+/* Contact card */
+.contact-card{background:var(--surface);border-radius:1.5rem;overflow:hidden;width:100%;max-width:420px;}
+
+/* Sidebar panels */
 #sidePanel{background:var(--surface);}
 #cartSidebar{background:var(--surface);}
+
+/* Progress bar */
+#loadProgress{height:3px;background:var(--accent);transition:width .3s;width:0%;}
 </style>
 </head>
 <body data-theme="light">
 
+<!-- ═══ LOADING OVERLAY ═══ -->
+<div id="loadingOverlay">
+  <div style="width:100%;height:3px;background:var(--border);position:fixed;top:0;left:0;">
+    <div id="loadProgress"></div>
+  </div>
+  <div class="text-center px-6">
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-xl mx-auto mb-6"
+         style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+      <i class="fa-solid fa-bolt text-2xl"></i>
+    </div>
+    <div class="bebas tracking-widest mb-2" style="font-size:2rem;color:var(--text);">UTRADE</div>
+    <div class="sec-title mb-6" style="letter-spacing:.2em;">Дроп-платформа</div>
+    <div class="w-10 h-10 border-3 rounded-full animate-spin mx-auto mb-4"
+         style="border:3px solid var(--border);border-top-color:var(--accent);"></div>
+    <div id="loadingMsg" class="text-sm font-bold" style="color:var(--text2);">
+      📦 База даних завантажується, очікуйте...
+    </div>
+    <div id="loadingDetail" class="text-xs mt-2" style="color:var(--text2);opacity:.6;"></div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
 <div id="toast">✓ Додано до кошика</div>
 
 <!-- ═══ NAV ═══ -->
 <nav class="sticky top-0 z-50 backdrop-blur-md">
   <div class="max-w-[1700px] mx-auto px-4 h-16 flex items-center gap-3">
-
-    <!-- Logo -->
-    <a href="#" class="flex items-center gap-2.5 shrink-0 no-underline">
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-md" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+    <a href="#" class="flex items-center gap-2.5 shrink-0">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-md"
+           style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
         <i class="fa-solid fa-bolt text-sm"></i>
       </div>
       <div class="hidden sm:block">
@@ -102,32 +174,41 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
       </div>
     </a>
 
-    <!-- Search -->
     <div class="flex-1 max-w-lg relative">
       <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color:var(--text2);"></i>
       <input id="searchInput" type="text" oninput="performSearch()" placeholder="Пошук товару або ID..."
              class="w-full pl-9 pr-3 py-2.5 text-sm">
     </div>
 
-    <!-- Controls -->
     <div class="flex items-center gap-1.5 ml-auto">
-      <!-- Viber -->
-      <a href="viber://chat?number=%2B380666172764" title="Написати у Viber"
-         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80"
+      <a href="viber://chat?number=%2B380666172764" title="Viber"
+         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80 transition-all"
          style="background:#7360f2;color:#fff;">
         <i class="fa-brands fa-viber text-sm"></i>
         <span class="hidden lg:inline">Viber</span>
       </a>
-      <!-- Telegram -->
-      <a href="https://t.me/your_bot" target="_blank" title="Написати у Telegram"
-         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80"
+      <a href="https://t.me/your_bot" target="_blank" title="Telegram"
+         class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80 transition-all"
          style="background:#29b6f6;color:#fff;">
         <i class="fa-brands fa-telegram text-sm"></i>
         <span class="hidden lg:inline">Telegram</span>
       </a>
+      <!-- Contacts -->
+      <button onclick="openContact()" title="Контакти"
+              class="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:text-blue-500"
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i class="fa-solid fa-address-card text-sm"></i>
+      </button>
+      <!-- Wishlist -->
+      <button onclick="openWishlist()" title="Вибране"
+              class="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:text-red-400 relative"
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i class="fa-solid fa-heart text-sm"></i>
+        <span id="wishCount" class="absolute -top-1 -right-1 bg-red-500 text-[9px] text-white w-4 h-4 rounded-full items-center justify-center border-2 border-white font-bold hidden">0</span>
+      </button>
       <!-- Theme -->
       <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);" title="Темна/світла тема">
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
         <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
       </button>
       <!-- CSV -->
@@ -152,20 +233,15 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
 <!-- ═══ PAGE ═══ -->
 <div class="max-w-[1700px] mx-auto px-4 py-5">
-
-  <!-- Vendor bar -->
   <div id="vendorBar" class="mb-5 flex gap-2 overflow-x-auto noscroll pb-1"></div>
 
   <div class="flex gap-5">
-
-    <!-- Aside overlay -->
     <div id="asideOverlay" onclick="toggleAside(false)" class="fixed inset-0 bg-black/50 z-[60] hidden lg:hidden backdrop-blur-sm"></div>
 
     <!-- ═══ ASIDE ═══ -->
-    <aside id="sidePanel" class="fixed lg:sticky lg:top-[72px] top-0 left-0 h-full lg:h-fit w-68 shrink-0 z-[70] -translate-x-full lg:translate-x-0 transition-transform duration-300 lg:rounded-2xl overflow-y-auto lg:overflow-visible"
-           style="width:260px;border-right:1px solid var(--border);lg:border:1px solid var(--border);">
+    <aside id="sidePanel" class="fixed lg:sticky lg:top-[72px] top-0 left-0 h-full lg:h-fit shrink-0 z-[70] -translate-x-full lg:translate-x-0 transition-transform duration-300 lg:rounded-2xl overflow-y-auto lg:overflow-visible"
+           style="width:260px;border-right:1px solid var(--border);">
       <div class="p-4">
-        <!-- Mobile header -->
         <div class="flex justify-between items-center lg:hidden mb-4">
           <span class="bebas tracking-widest" style="font-size:1.2rem;">Фільтри</span>
           <button onclick="toggleAside(false)" class="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -173,16 +249,11 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
-
-        <!-- Category search -->
         <div class="mb-4">
           <div class="sec-title mb-2">Категорії</div>
-          <input id="catSearch" type="text" oninput="filterCatList()" placeholder="Пошук категорії..."
-                 class="w-full px-3 py-2 text-xs mb-2">
+          <input id="catSearch" type="text" oninput="filterCatList()" placeholder="Пошук категорії..." class="w-full px-3 py-2 text-xs mb-2">
           <div id="categoryList" class="overflow-y-auto cscroll space-y-0.5 pr-0.5" style="max-height:38vh;"></div>
         </div>
-
-        <!-- Price -->
         <div class="mb-4">
           <div class="sec-title mb-2">Ціна (₴)</div>
           <div class="flex gap-2">
@@ -190,8 +261,6 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
             <input id="maxPrice" type="number" oninput="performSearch()" placeholder="До"  class="w-1/2 px-3 py-2 text-xs font-bold">
           </div>
         </div>
-
-        <!-- Sort -->
         <div class="mb-4">
           <div class="sec-title mb-2">Сортування</div>
           <select id="sortSelect" onchange="performSearch()" class="w-full px-3 py-2 text-xs font-bold">
@@ -202,30 +271,44 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
             <option value="name_desc">Назва Я→А</option>
           </select>
         </div>
-
-        <!-- Reset -->
         <button onclick="resetFilters()" class="w-full py-2 rounded-xl text-xs font-bold transition-all hover:text-red-500"
                 style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);">
           <i class="fa-solid fa-rotate-left mr-1"></i> Скинути фільтри
         </button>
+
+        <!-- Contact card in sidebar -->
+        <div class="mt-5 rounded-xl overflow-hidden cursor-pointer" onclick="openContact()"
+             style="background:linear-gradient(135deg,#2563eb,#7c3aed);padding:1px;">
+          <div class="rounded-xl p-3" style="background:var(--surface);">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs"
+                   style="background:linear-gradient(135deg,#2563eb,#7c3aed);">
+                <i class="fa-solid fa-headset"></i>
+              </div>
+              <div>
+                <div class="text-xs font-black" style="color:var(--text);">UTRADE</div>
+                <div class="sec-title">Дроп-платформа</div>
+              </div>
+            </div>
+            <div class="text-[10px] font-bold mb-2" style="color:var(--text2);">
+              Тисячі товарів від перевірених постачальників. Відправка 1-3 дні.
+            </div>
+            <div class="flex gap-1">
+              <span class="text-[9px] font-black px-2 py-0.5 rounded-full text-white" style="background:#7360f2;">Viber</span>
+              <span class="text-[9px] font-black px-2 py-0.5 rounded-full text-white" style="background:#29b6f6;">Telegram</span>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
 
     <!-- ═══ MAIN ═══ -->
     <main class="flex-1 min-w-0">
-
-      <!-- Skeleton (visible immediately) -->
       <div id="skeletonGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-5"></div>
-
-      <!-- Info bar -->
       <div id="infoBar" class="hidden flex items-center justify-between mb-4">
         <span id="resultsCount" class="sec-title"></span>
       </div>
-
-      <!-- Featured -->
       <div id="featuredSection"></div>
-
-      <!-- Product grid -->
       <div id="productGrid"></div>
       <div id="pagination" class="mt-10 flex flex-wrap items-center justify-center gap-2 pb-8"></div>
     </main>
@@ -235,8 +318,6 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 <!-- ═══ CART ═══ -->
 <div id="cartOverlay" onclick="toggleCart(false)" class="fixed inset-0 bg-black/50 z-[100] hidden backdrop-blur-sm"></div>
 <div id="cartSidebar" class="fixed top-0 right-0 h-full w-full z-[110] translate-x-full transition-transform duration-300 flex flex-col shadow-2xl" style="max-width:420px;">
-
-  <!-- Header -->
   <div class="p-4 flex justify-between items-center shrink-0" style="border-bottom:1px solid var(--border);">
     <div>
       <div class="bebas tracking-widest" style="font-size:1.4rem;">Кошик</div>
@@ -247,22 +328,15 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
       <i class="fa-solid fa-xmark text-sm"></i>
     </button>
   </div>
-
-  <!-- Global margin -->
   <div class="px-4 py-2.5 flex items-center gap-2 shrink-0" style="border-bottom:1px solid var(--border);background:var(--surface2);">
     <div class="sec-title shrink-0">Маржа:</div>
     <input id="globalMargin" type="number" value="20" min="0" max="999" class="w-16 px-2 py-1 text-xs font-bold text-center">
     <span class="text-xs font-bold" style="color:var(--text2);">%</span>
-    <button onclick="applyGlobalMargin()" class="ml-auto px-3 py-1.5 rounded-lg text-xs font-black text-white transition-all hover:opacity-80"
+    <button onclick="applyGlobalMargin()" class="ml-auto px-3 py-1.5 rounded-lg text-xs font-black text-white hover:opacity-80"
             style="background:var(--accent);">Застосувати</button>
   </div>
-
-  <!-- Items -->
   <div id="cartItems" class="flex-1 overflow-y-auto p-3 space-y-3 cscroll" style="background:var(--surface2);"></div>
-
-  <!-- Footer -->
   <div class="p-4 shrink-0" style="border-top:1px solid var(--border);">
-    <!-- Stats -->
     <div class="grid grid-cols-3 gap-2 mb-3">
       <div class="rounded-xl p-2.5 text-center" style="background:var(--surface2);">
         <div class="sec-title mb-1">Закуп</div>
@@ -277,38 +351,33 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <div id="cartProfit" class="text-sm font-black" style="color:#059669;">0 ₴</div>
       </div>
     </div>
-
-    <!-- Checkout toggle -->
     <button onclick="toggleCheckout()" id="checkoutToggleBtn"
-            class="w-full py-3 rounded-xl text-sm font-black text-white mb-3 flex items-center justify-center gap-2 transition-all hover:opacity-90"
+            class="w-full py-3 rounded-xl text-sm font-black text-white mb-3 flex items-center justify-center gap-2 hover:opacity-90"
             style="background:var(--accent);">
       <i class="fa-solid fa-clipboard-list"></i> Оформити замовлення
     </button>
-
-    <!-- Checkout form -->
     <div id="checkoutForm">
       <div class="space-y-2 mb-3">
-        <input id="clientName"    type="text"  placeholder="Ім'я клієнта"          class="w-full px-3 py-2.5 text-sm">
-        <input id="clientPhone"   type="tel"   placeholder="Телефон (+38...)"       class="w-full px-3 py-2.5 text-sm">
-        <input id="clientCity"    type="text"  placeholder="Місто + відділення НП"  class="w-full px-3 py-2.5 text-sm">
+        <input id="clientName"    type="text" placeholder="Ім'я клієнта"         class="w-full px-3 py-2.5 text-sm">
+        <input id="clientPhone"   type="tel"  placeholder="Телефон (+38...)"      class="w-full px-3 py-2.5 text-sm">
+        <input id="clientCity"    type="text" placeholder="Місто + відділення НП" class="w-full px-3 py-2.5 text-sm">
         <select id="paymentType"  class="w-full px-3 py-2.5 text-sm font-bold">
           <option>Накладений платіж</option>
           <option>Передоплата</option>
           <option>Карткою при отриманні</option>
         </select>
-        <textarea id="clientComment" placeholder="Коментар (необов'язково)" rows="2"
-                  class="w-full px-3 py-2.5 text-sm resize-none"></textarea>
+        <textarea id="clientComment" placeholder="Коментар" rows="2" class="w-full px-3 py-2.5 text-sm resize-none"></textarea>
       </div>
       <div class="grid grid-cols-3 gap-2">
-        <button onclick="sendOrder('viber')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 transition-all hover:opacity-80"
+        <button onclick="sendOrder('viber')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80"
                 style="background:#7360f2;">
           <i class="fa-brands fa-viber"></i> Viber
         </button>
-        <button onclick="sendOrder('telegram')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 transition-all hover:opacity-80"
+        <button onclick="sendOrder('telegram')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80"
                 style="background:#29b6f6;">
           <i class="fa-brands fa-telegram"></i> Telegram
         </button>
-        <button onclick="sendOrder('copy')" class="py-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all hover:opacity-80"
+        <button onclick="sendOrder('copy')" class="py-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 hover:opacity-80"
                 style="background:var(--surface2);color:var(--text);border:1px solid var(--border);">
           <i class="fa-solid fa-copy"></i> Копія
         </button>
@@ -317,27 +386,38 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </div>
 
-<!-- ═══ MODAL ═══ -->
+<!-- ═══ PRODUCT MODAL ═══ -->
 <div id="productModal">
   <div class="w-full rounded-2xl overflow-hidden relative flex flex-col md:flex-row" style="max-width:900px;max-height:92vh;background:var(--surface);">
-    <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center z-10 shadow-lg"
+    <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center z-20 shadow-lg"
             style="background:var(--surface);color:var(--text);">
       <i class="fa-solid fa-xmark text-sm"></i>
     </button>
 
-    <!-- Image side -->
-    <div class="w-full md:w-5/12 flex items-center justify-center p-6 shrink-0" style="background:var(--surface2);min-height:260px;">
-      <img id="modalImg" src="" alt="" class="max-w-full object-contain drop-shadow-lg" style="max-height:360px;">
+    <!-- Gallery -->
+    <div class="w-full md:w-5/12 shrink-0 relative" style="min-height:280px;">
+      <div class="gallery-wrap h-full">
+        <div id="galleryTrack" class="gallery-track"></div>
+        <button class="gallery-btn prev" id="galleryPrev" onclick="galleryMove(-1)" style="display:none;">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="gallery-btn next" id="galleryNext" onclick="galleryMove(1)" style="display:none;">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div id="galleryDots" class="gallery-dots"></div>
+      </div>
     </div>
 
-    <!-- Info side -->
+    <!-- Info -->
     <div class="w-full md:w-7/12 flex flex-col overflow-hidden">
       <div class="p-5 flex-1 overflow-y-auto cscroll">
         <div class="flex flex-wrap gap-1.5 mb-3">
-          <span id="modalVendorBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full" style="background:var(--surface2);color:var(--accent);"></span>
-          <span id="modalIdBadge"     class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full" style="background:var(--surface2);color:var(--text2);"></span>
+          <span id="modalVendorBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full"
+                style="background:var(--surface2);color:var(--accent);"></span>
+          <span id="modalIdBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full"
+                style="background:var(--surface2);color:var(--text2);"></span>
         </div>
-        <h2 id="modalName"  class="text-base font-black uppercase leading-snug mb-2" style="color:var(--text);"></h2>
+        <h2 id="modalName" class="text-base font-black uppercase leading-snug mb-2" style="color:var(--text);"></h2>
         <div id="modalPrice" class="bebas mb-4" style="font-size:2rem;letter-spacing:.05em;color:var(--text);"></div>
 
         <!-- Tabs -->
@@ -345,19 +425,21 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
           <button onclick="modalTab('desc')"   id="tabDesc"   class="tab-btn active">Опис</button>
           <button onclick="modalTab('params')" id="tabParams" class="tab-btn">Характеристики</button>
         </div>
-        <div id="tabDescContent"   class="desc-content text-sm leading-relaxed overflow-y-auto cscroll" style="max-height:200px;color:var(--text2);"></div>
-        <div id="tabParamsContent" class="hidden overflow-y-auto cscroll" style="max-height:200px;">
+        <div id="tabDescContent"   class="desc-content text-sm leading-relaxed overflow-y-auto cscroll" style="max-height:220px;color:var(--text2);"></div>
+        <div id="tabParamsContent" class="hidden overflow-y-auto cscroll" style="max-height:220px;">
           <table id="paramsTable" class="ptable w-full"></table>
         </div>
       </div>
-
-      <!-- Modal footer -->
       <div class="p-4 flex gap-2 shrink-0" style="border-top:1px solid var(--border);">
-        <button onclick="copyModalDesc()" class="px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all hover:opacity-70"
+        <button onclick="copyModalDesc()" class="px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 hover:opacity-70"
                 style="background:var(--surface2);color:var(--text);border:1px solid var(--border);">
           <i class="fa-solid fa-copy"></i> Копіювати
         </button>
-        <button id="modalAddBtn" class="flex-1 py-2.5 rounded-xl text-sm font-black text-white flex items-center justify-center gap-2 transition-all hover:opacity-80"
+        <button id="modalWishBtn" onclick="" class="px-3 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 hover:opacity-70"
+                style="background:var(--surface2);color:var(--text);border:1px solid var(--border);">
+          <i class="fa-solid fa-heart"></i>
+        </button>
+        <button id="modalAddBtn" onclick="" class="flex-1 py-2.5 rounded-xl text-sm font-black text-white flex items-center justify-center gap-2 hover:opacity-80"
                 style="background:var(--text);">
           <i class="fa-solid fa-bag-shopping"></i> До кошика
         </button>
@@ -366,13 +448,132 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </div>
 
-<script>
-// ─── STATE ───
-let allProducts=[], categories=[], cart=JSON.parse(localStorage.getItem('utrade_v9'))||[];
-let currentVendor='all', currentCategory='all', currentPage=1, itemsPerPage=20;
-let checkoutOpen=false, currentModalProduct=null;
+<!-- ═══ CONTACT MODAL ═══ -->
+<div id="contactModal">
+  <div class="contact-card">
+    <div class="p-1" style="background:linear-gradient(135deg,#2563eb,#7c3aed);">
+      <div class="rounded-xl p-5" style="background:var(--surface);">
+        <button onclick="closeContact()" class="float-right w-7 h-7 rounded-lg flex items-center justify-center"
+                style="background:var(--surface2);color:var(--text2);">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+        <!-- Logo -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg"
+               style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+            <i class="fa-solid fa-bolt text-xl"></i>
+          </div>
+          <div>
+            <div class="bebas tracking-widest" style="font-size:1.6rem;color:var(--text);">UTRADE</div>
+            <div class="sec-title" style="letter-spacing:.2em;">Дроп-платформа</div>
+          </div>
+        </div>
 
-// ─── VENDOR DETECTION ───
+        <!-- Description -->
+        <div class="rounded-xl p-3 mb-4 text-xs leading-relaxed font-medium" style="background:var(--surface2);color:var(--text2);">
+          🚀 <strong style="color:var(--text);">UTRADE</strong> — платформа для дропшипінгу з тисячами товарів від перевірених постачальників.<br><br>
+          📦 Відправка протягом <strong style="color:var(--text);">1-3 робочих днів</strong><br>
+          🏪 Товари знаходяться на різних складах по Україні<br>
+          💳 Доступна оплата при отриманні (НП) та передоплата на ФОП<br>
+          🔄 Без мінімальних обмежень на замовлення
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          <div class="rounded-xl p-2 text-center" style="background:var(--surface2);">
+            <div class="bebas text-xl" style="color:var(--accent);" id="contactProductCount">0</div>
+            <div class="sec-title">Товарів</div>
+          </div>
+          <div class="rounded-xl p-2 text-center" style="background:var(--surface2);">
+            <div class="bebas text-xl" style="color:var(--accent);">5</div>
+            <div class="sec-title">Склади</div>
+          </div>
+          <div class="rounded-xl p-2 text-center" style="background:var(--surface2);">
+            <div class="bebas text-xl" style="color:var(--accent);">1-3</div>
+            <div class="sec-title">Дні відпр.</div>
+          </div>
+        </div>
+
+        <!-- Contacts -->
+        <div class="space-y-2">
+          <a href="tel:+380666172764" class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm transition-all hover:opacity-80"
+             style="background:var(--surface2);color:var(--text);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm shrink-0"
+                 style="background:#10b981;">
+              <i class="fa-solid fa-phone"></i>
+            </div>
+            <div>
+              <div class="text-xs font-black">Телефон</div>
+              <div class="text-[11px]" style="color:var(--text2);">+380 66 617 27 64</div>
+            </div>
+            <i class="fa-solid fa-chevron-right ml-auto text-xs" style="color:var(--text2);"></i>
+          </a>
+          <a href="viber://chat?number=%2B380666172764" class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm transition-all hover:opacity-80"
+             style="background:#f5f3ff;color:var(--text);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm shrink-0"
+                 style="background:#7360f2;">
+              <i class="fa-brands fa-viber"></i>
+            </div>
+            <div>
+              <div class="text-xs font-black">Viber</div>
+              <div class="text-[11px]" style="color:var(--text2);">Написати у Viber</div>
+            </div>
+            <i class="fa-solid fa-chevron-right ml-auto text-xs" style="color:var(--text2);"></i>
+          </a>
+          <a href="https://t.me/your_bot" target="_blank" class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm transition-all hover:opacity-80"
+             style="background:#f0f9ff;color:var(--text);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm shrink-0"
+                 style="background:#29b6f6;">
+              <i class="fa-brands fa-telegram"></i>
+            </div>
+            <div>
+              <div class="text-xs font-black">Telegram</div>
+              <div class="text-[11px]" style="color:var(--text2);">Написати у Telegram</div>
+            </div>
+            <i class="fa-solid fa-chevron-right ml-auto text-xs" style="color:var(--text2);"></i>
+          </a>
+        </div>
+
+        <!-- Payment info -->
+        <div class="mt-4 rounded-xl p-3" style="background:var(--surface2);">
+          <div class="sec-title mb-2">💳 Способи оплати</div>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:#ecfdf5;color:#059669;">Накладений платіж</span>
+            <span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:#eff6ff;color:#2563eb;">Передоплата на ФОП</span>
+            <span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:#fefce8;color:#d97706;">Карткою онлайн</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ WISHLIST MODAL ═══ -->
+<div id="wishlistModal">
+  <div class="w-full rounded-2xl overflow-hidden flex flex-col" style="max-width:600px;max-height:85vh;background:var(--surface);">
+    <div class="p-4 flex justify-between items-center shrink-0" style="border-bottom:1px solid var(--border);">
+      <div>
+        <div class="bebas tracking-widest" style="font-size:1.3rem;">❤️ Вибране</div>
+        <div class="sec-title mt-0.5">Збережені товари</div>
+      </div>
+      <button onclick="closeWishlist()" class="w-8 h-8 rounded-lg flex items-center justify-center"
+              style="background:var(--surface2);color:var(--text2);">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+    <div id="wishlistItems" class="flex-1 overflow-y-auto p-4 cscroll" style="background:var(--surface2);"></div>
+  </div>
+</div>
+
+<script>
+// ═══ STATE ═══
+let allProducts=[], categories=[], cart=JSON.parse(localStorage.getItem('utrade_v9'))||[];
+let wishlist=JSON.parse(localStorage.getItem('utrade_wish'))||[];
+let currentVendor='all', currentCategory='all', currentPage=1, itemsPerPage=20;
+let checkoutOpen=false, currentModalProduct=null, galleryIndex=0;
+const PLACEHOLDER="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E";
+
+// ═══ VENDOR DETECTION ═══
 function getVendorName(url){
   if(!url) return 'Інше';
   const u=url.toLowerCase();
@@ -384,7 +585,7 @@ function getVendorName(url){
   return 'Інше';
 }
 
-// ─── THEME ───
+// ═══ THEME ═══
 function toggleTheme(){
   const dark=document.body.getAttribute('data-theme')!=='dark';
   document.body.setAttribute('data-theme',dark?'dark':'light');
@@ -398,14 +599,29 @@ function toggleTheme(){
   }
 })();
 
-// ─── TOAST ───
+// ═══ TOAST ═══
 function showToast(msg='✓ Додано до кошика'){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ─── SKELETON ───
+// ═══ LOADING ═══
+function setLoadingMsg(msg,detail=''){
+  document.getElementById('loadingMsg').textContent=msg;
+  document.getElementById('loadingDetail').textContent=detail;
+}
+function setProgress(pct){
+  document.getElementById('loadProgress').style.width=pct+'%';
+}
+function hideLoading(){
+  const o=document.getElementById('loadingOverlay');
+  o.style.transition='opacity .5s';
+  o.style.opacity='0';
+  setTimeout(()=>o.remove(),500);
+}
+
+// ═══ SKELETON ═══
 function buildSkeleton(){
   const g=document.getElementById('skeletonGrid');
   g.className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-5';
@@ -420,60 +636,97 @@ function buildSkeleton(){
   g.innerHTML=h;
 }
 
-// ─── INIT ───
+// ═══ INIT ═══
 async function init(){
   buildSkeleton();
-  try{
-    const res=await fetch('Masterevanew.xml');
-    const text=await res.text();
-    const xml=new DOMParser().parseFromString(text,'text/xml');
+  setLoadingMsg('📦 База даних завантажується, очікуйте...','Підключення до сервера...');
+  setProgress(10);
 
+  try{
+    setLoadingMsg('📥 Завантаження прайс-листу...','Це може зайняти 10-20 секунд (файл ~80МБ)');
+    setProgress(20);
+
+    const res=await fetch('Masterevanew.xml');
+    setProgress(45);
+    setLoadingMsg('⚙️ Обробка даних...','Парсинг XML файлу...');
+
+    const text=await res.text();
+    setProgress(65);
+    setLoadingMsg('🔍 Формування каталогу...','Завантажено! Сортуємо товари...');
+
+    const xml=new DOMParser().parseFromString(text,'text/xml');
+    setProgress(80);
+
+    // Categories
     categories=Array.from(xml.getElementsByTagName('category')).map(c=>({
       id:c.getAttribute('id'), name:c.textContent.trim()
     }));
 
-    allProducts=Array.from(xml.getElementsByTagName('offer')).map(o=>{
-      const img=(o.getElementsByTagName('picture')[0]?.textContent||'').trim();
+    // Products — parse all pictures, desc, params
+    const offers=xml.getElementsByTagName('offer');
+    allProducts=Array.from(offers).map(o=>{
+      // All pictures
+      const pics=Array.from(o.getElementsByTagName('picture')).map(p=>p.textContent.trim()).filter(Boolean);
+      const img=pics[0]||'';
+
+      // Name
       const name=(
         o.getElementsByTagName('name_ua')[0]?.textContent||
         o.getElementsByTagName('name')[0]?.textContent||'Без назви'
       ).trim();
 
-      // Parse <param> characteristics
-      const params=Array.from(o.getElementsByTagName('param')).map(p=>({
-        name: p.getAttribute('name')||p.getAttribute('paramname')||'',
-        value: p.textContent.trim()
-      })).filter(p=>p.name&&p.value);
+      // Params — try multiple attribute names
+      const params=Array.from(o.getElementsByTagName('param')).map(p=>{
+        const pname=p.getAttribute('name')||p.getAttribute('paramname')||p.getAttribute('NAME')||'';
+        return{name:pname.trim(), value:p.textContent.trim()};
+      }).filter(p=>p.name&&p.value);
 
-      // Description
-      let desc=(o.getElementsByTagName('description')[0]?.textContent||'').trim();
-      if(desc&&!/<[a-z][\s\S]*>/i.test(desc)) desc=desc.replace(/\n/g,'<br>');
+      // Description — multiple fallback tags
+      let desc='';
+      const descTags=['description','description_ua','desc','full_description'];
+      for(const tag of descTags){
+        const el=o.getElementsByTagName(tag)[0];
+        if(el&&el.textContent.trim()){desc=el.textContent.trim();break;}
+      }
+      // Convert plain text newlines to <br>
+      if(desc&&!/<[a-z][\s\S]*>/i.test(desc)){
+        desc=desc.replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>');
+        desc='<p>'+desc+'</p>';
+      }
 
       return{
         id:o.getAttribute('id'),
         name:name.toUpperCase(),
         price:Math.round(parseFloat(o.getElementsByTagName('price')[0]?.textContent||0)),
-        img, vendor:getVendorName(img),
+        img, pics,
+        vendor:getVendorName(img),
         catId:o.getElementsByTagName('categoryId')[0]?.textContent||'',
         desc, params
       };
     });
 
+    setProgress(95);
     document.getElementById('skeletonGrid').remove();
+    document.getElementById('contactProductCount').textContent=allProducts.length.toLocaleString();
     renderVendorBar();
     renderCatList();
     renderFeatured();
     performSearch();
     updateCartUI();
+    updateWishUI();
+    setProgress(100);
+    setTimeout(hideLoading,400);
 
   }catch(e){
-    document.getElementById('skeletonGrid').innerHTML=
-      '<p class="col-span-full text-center py-20 font-black" style="color:var(--red);">⚠️ Помилка завантаження XML. Перевірте файл Masterevanew.xml</p>';
+    setLoadingMsg('⚠️ Помилка завантаження','Перевірте файл Masterevanew.xml');
     console.error(e);
+    document.getElementById('skeletonGrid').innerHTML=
+      '<p class="col-span-full text-center py-20 font-black" style="color:var(--red);">⚠️ Помилка завантаження XML</p>';
+    setTimeout(hideLoading,2000);
   }
 }
 
-// ─── VENDOR BAR ───
+// ═══ VENDOR BAR ═══
 function renderVendorBar(){
   const vendors=['all',...new Set(allProducts.map(p=>p.vendor))];
   document.getElementById('vendorBar').innerHTML=vendors.map(v=>{
@@ -491,12 +744,11 @@ function filterByVendor(v){
   performSearch();
 }
 
-// ─── CATEGORIES (dynamic by vendor) ───
+// ═══ CATEGORIES ═══
 function renderCatList(){
   const vp=currentVendor==='all'?allProducts:allProducts.filter(p=>p.vendor===currentVendor);
   const activeCatIds=new Set(vp.map(p=>p.catId));
   const visible=categories.filter(c=>activeCatIds.has(c.id));
-
   document.getElementById('categoryList').innerHTML=
     `<button onclick="selectCat('all')" class="cbtn${currentCategory==='all'?' active':''}">Всі категорії</button>`+
     visible.map(c=>{
@@ -520,7 +772,7 @@ function filterCatList(){
   });
 }
 
-// ─── FEATURED ───
+// ═══ FEATURED ═══
 function renderFeatured(){
   if(!allProducts.length) return;
   const picks=allProducts.slice(0,10);
@@ -533,9 +785,9 @@ function renderFeatured(){
       <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         ${picks.map((p,i)=>`
           <div class="feat-card fade-up" style="animation-delay:${i*35}ms" onclick="openModal('${p.id}')">
-            <div class="aspect-square flex items-center justify-center p-3" style="background:var(--surface2);">
-              <img src="${p.img}" class="max-w-full max-h-full object-contain" loading="lazy"
-                   onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>'">
+            <div class="aspect-square flex items-center justify-center p-3 relative" style="background:var(--surface2);">
+              <img src="${p.img}" class="max-w-full max-h-full object-contain" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
+              ${p.pics&&p.pics.length>1?`<span class="absolute bottom-2 right-2 text-[8px] font-black px-1.5 py-0.5 rounded-full" style="background:var(--accent);color:#fff;">📷 ${p.pics.length}</span>`:''}
             </div>
             <div class="p-3">
               <div class="text-[8px] font-black uppercase mb-1" style="color:var(--accent);">${p.vendor}</div>
@@ -543,7 +795,7 @@ function renderFeatured(){
               <div class="flex justify-between items-center">
                 <span class="bebas" style="font-size:1rem;color:var(--text);">${p.price} ₴</span>
                 <button onclick="event.stopPropagation();addToCart('${p.id}')"
-                  class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs transition-all hover:opacity-80"
+                  class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs hover:opacity-80"
                   style="background:var(--text);">+</button>
               </div>
             </div>
@@ -556,7 +808,7 @@ function renderFeatured(){
     </div>`;
 }
 
-// ─── SEARCH / FILTER / SORT ───
+// ═══ SEARCH ═══
 function performSearch(){
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
   const minP=parseFloat(document.getElementById('minPrice').value)||0;
@@ -580,7 +832,6 @@ function performSearch(){
   const start=(currentPage-1)*itemsPerPage;
   renderGrid(filtered.slice(start,start+itemsPerPage));
   renderPagination(Math.ceil(total/itemsPerPage));
-
   document.getElementById('resultsCount').textContent=`Знайдено: ${total} товарів`;
   document.getElementById('infoBar').classList.toggle('hidden',total===0);
 }
@@ -594,9 +845,7 @@ function resetFilters(){
   renderVendorBar(); renderCatList(); performSearch();
 }
 
-// ─── GRID ───
-const PLACEHOLDER="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>";
-
+// ═══ GRID ═══
 function renderGrid(list){
   const grid=document.getElementById('productGrid');
   if(!list.length){
@@ -608,10 +857,16 @@ function renderGrid(list){
   grid.innerHTML=list.map((p,i)=>{
     const saleP=Math.round(p.price*(1+margin/100));
     const prof=saleP-p.price;
+    const isWished=wishlist.includes(p.id);
+    const multiPic=p.pics&&p.pics.length>1;
     return`<div class="pcard p-3 cursor-pointer flex flex-col fade-up" style="animation-delay:${Math.min(i,8)*30}ms" onclick="openModal('${p.id}')">
       <div class="aspect-square rounded-xl mb-3 flex items-center justify-center p-3 relative overflow-hidden" style="background:var(--surface2);">
         <img src="${p.img}" class="max-w-full max-h-full object-contain mix-blend-multiply" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
         <span class="absolute top-2 left-2 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full" style="background:var(--surface);color:var(--accent);border:1px solid var(--border);">${p.vendor}</span>
+        <button onclick="event.stopPropagation();toggleWish('${p.id}')" class="wish-btn${isWished?' active':''}">
+          <i class="fa-${isWished?'solid':'regular'} fa-heart"></i>
+        </button>
+        ${multiPic?`<span class="absolute bottom-2 left-2 text-[8px] font-black px-1.5 py-0.5 rounded-full" style="background:var(--accent);color:#fff;">📷 ${p.pics.length}</span>`:''}
       </div>
       <h3 class="text-[10px] font-bold leading-tight mb-2 uppercase line-clamp-2" style="color:var(--text);min-height:2.2rem;">${p.name}</h3>
       <div class="mt-auto flex justify-between items-center pt-2" style="border-top:1px solid var(--border);" onclick="event.stopPropagation()">
@@ -620,7 +875,7 @@ function renderGrid(list){
           <div class="text-[9px] font-bold" style="color:var(--green);">+${prof} ₴</div>
         </div>
         <button onclick="addToCart('${p.id}')"
-          class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm transition-all hover:opacity-80 active:scale-90"
+          class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm hover:opacity-80 active:scale-90"
           style="background:var(--text);">
           <i class="fa-solid fa-plus"></i>
         </button>
@@ -629,7 +884,7 @@ function renderGrid(list){
   }).join('');
 }
 
-// ─── PAGINATION ───
+// ═══ PAGINATION ═══
 function renderPagination(total){
   const w=document.getElementById('pagination');
   if(total<=1){w.innerHTML='';return;}
@@ -645,26 +900,72 @@ function renderPagination(total){
   w.innerHTML=h;
 }
 
-// ─── MODAL ───
+// ═══ GALLERY ═══
+let galleryPics=[];
+function initGallery(pics){
+  galleryPics=pics||[];
+  galleryIndex=0;
+  const track=document.getElementById('galleryTrack');
+  track.innerHTML=galleryPics.map(src=>`
+    <div class="gallery-slide">
+      <img src="${src}" alt="" onerror="this.src='${PLACEHOLDER}'" style="max-height:340px;">
+    </div>`).join('');
+  track.style.transform='translateX(0)';
+
+  const showNav=galleryPics.length>1;
+  document.getElementById('galleryPrev').style.display=showNav?'flex':'none';
+  document.getElementById('galleryNext').style.display=showNav?'flex':'none';
+
+  const dots=document.getElementById('galleryDots');
+  dots.innerHTML=showNav?galleryPics.map((_,i)=>`<div class="gallery-dot${i===0?' active':''}" onclick="galleryGo(${i})"></div>`).join(''):'';
+}
+
+function galleryMove(dir){
+  galleryIndex=(galleryIndex+dir+galleryPics.length)%galleryPics.length;
+  galleryGo(galleryIndex);
+}
+
+function galleryGo(idx){
+  galleryIndex=idx;
+  document.getElementById('galleryTrack').style.transform=`translateX(-${idx*100}%)`;
+  document.querySelectorAll('.gallery-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+}
+
+// ═══ MODAL ═══
 function openModal(id){
   const p=allProducts.find(x=>x.id===id);
   if(!p) return;
   currentModalProduct=p;
 
-  document.getElementById('modalImg').src=p.img||PLACEHOLDER;
-  document.getElementById('modalImg').onerror=function(){this.src=PLACEHOLDER;};
+  initGallery(p.pics&&p.pics.length?p.pics:[p.img]);
+
   document.getElementById('modalName').textContent=p.name;
   document.getElementById('modalPrice').textContent=p.price+' ₴';
   document.getElementById('modalVendorBadge').textContent=p.vendor;
   document.getElementById('modalIdBadge').textContent='ID: '+p.id;
-  document.getElementById('tabDescContent').innerHTML=p.desc||'<span style="opacity:.4">Опис відсутній</span>';
 
+  // Description
+  const descEl=document.getElementById('tabDescContent');
+  if(p.desc&&p.desc.trim()){
+    descEl.innerHTML=p.desc;
+  }else{
+    descEl.innerHTML='<span style="opacity:.4;font-style:italic;">Опис відсутній</span>';
+  }
+
+  // Params — comprehensive parsing
   const tbl=document.getElementById('paramsTable');
   if(p.params&&p.params.length){
-    tbl.innerHTML=p.params.map(pr=>`<tr><td>${pr.name}</td><td style="font-weight:700;">${pr.value}</td></tr>`).join('');
+    tbl.innerHTML=p.params.map(pr=>`
+      <tr><td>${pr.name}</td><td style="font-weight:700;">${pr.value}</td></tr>`).join('');
   }else{
     tbl.innerHTML='<tr><td colspan="2" style="opacity:.35;text-align:center;padding:16px;font-size:.75rem;">Характеристики відсутні</td></tr>';
   }
+
+  // Wishlist btn
+  const wb=document.getElementById('modalWishBtn');
+  const isWished=wishlist.includes(id);
+  wb.innerHTML=`<i class="fa-${isWished?'solid':'regular'} fa-heart" style="color:${isWished?'#ef4444':'inherit'}"></i>`;
+  wb.onclick=()=>{toggleWish(id); const iw=wishlist.includes(id); wb.innerHTML=`<i class="fa-${iw?'solid':'regular'} fa-heart" style="color:${iw?'#ef4444':'inherit'}"></i>`;};
 
   document.getElementById('modalAddBtn').onclick=()=>{addToCart(id);closeModal();};
   modalTab('desc');
@@ -688,8 +989,8 @@ function modalTab(tab){
 function copyModalDesc(){
   const p=currentModalProduct; if(!p) return;
   const tmp=document.createElement('div');
-  tmp.innerHTML=p.desc;
-  let text=p.name+'\n\nЦіна: '+p.price+' ₴\n\n'+(tmp.textContent||tmp.innerText||'');
+  tmp.innerHTML=p.desc||'';
+  let text=p.name+'\n\nЦіна: '+p.price+' ₴\n\n'+(tmp.textContent||tmp.innerText||'Опис відсутній');
   if(p.params&&p.params.length){
     text+='\n\nХарактеристики:\n';
     p.params.forEach(pr=>{text+=pr.name+': '+pr.value+'\n';});
@@ -697,10 +998,69 @@ function copyModalDesc(){
   navigator.clipboard.writeText(text).then(()=>showToast('📋 Опис скопійовано!'));
 }
 
-// ─── CART ───
+// ═══ WISHLIST ═══
+function toggleWish(id){
+  const idx=wishlist.indexOf(id);
+  if(idx>-1) wishlist.splice(idx,1);
+  else wishlist.push(id);
+  localStorage.setItem('utrade_wish',JSON.stringify(wishlist));
+  updateWishUI();
+  showToast(idx>-1?'💔 Видалено з вибраного':'❤️ Додано до вибраного');
+  // Re-render grid to update heart icons
+  performSearch();
+}
+
+function updateWishUI(){
+  const cnt=wishlist.length;
+  const wc=document.getElementById('wishCount');
+  wc.textContent=cnt; wc.classList.toggle('hidden',cnt===0); wc.classList.toggle('flex',cnt>0);
+}
+
+function openWishlist(){
+  const items=wishlist.map(id=>allProducts.find(p=>p.id===id)).filter(Boolean);
+  const el=document.getElementById('wishlistItems');
+  if(!items.length){
+    el.innerHTML=`<div class="py-20 text-center font-black uppercase opacity-25" style="color:var(--text2);">Вибране порожнє</div>`;
+  }else{
+    el.innerHTML=`<div class="grid grid-cols-2 gap-3">${items.map(p=>`
+      <div class="rounded-xl overflow-hidden cursor-pointer pcard" onclick="closeWishlist();openModal('${p.id}')">
+        <div class="aspect-square flex items-center justify-center p-3" style="background:var(--surface2);">
+          <img src="${p.img}" class="max-w-full max-h-full object-contain" onerror="this.src='${PLACEHOLDER}'">
+        </div>
+        <div class="p-2">
+          <div class="text-[9px] font-black uppercase truncate mb-1" style="color:var(--text);">${p.name}</div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-black bebas" style="color:var(--text);">${p.price} ₴</span>
+            <button onclick="event.stopPropagation();addToCart('${p.id}');showToast()"
+              class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs"
+              style="background:var(--text);">+</button>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+  document.getElementById('wishlistModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeWishlist(){
+  document.getElementById('wishlistModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ═══ CONTACT MODAL ═══
+function openContact(){
+  document.getElementById('contactModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeContact(){
+  document.getElementById('contactModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ═══ CART ═══
 function addToCart(id){
   const existing=cart.find(i=>i.id===id);
-  if(existing){existing.count++;} 
+  if(existing){existing.count++;}
   else{
     const p=allProducts.find(x=>x.id===id); if(!p) return;
     const margin=parseInt(document.getElementById('globalMargin').value)||20;
@@ -726,16 +1086,12 @@ function updateCount(id,delta){
   if(item){item.count=Math.max(1,item.count+delta); saveCart(); updateCartUI();}
 }
 
-function removeFromCart(id){
-  cart=cart.filter(i=>i.id!==id); saveCart(); updateCartUI();
-}
-
+function removeFromCart(id){cart=cart.filter(i=>i.id!==id); saveCart(); updateCartUI();}
 function saveCart(){localStorage.setItem('utrade_v9',JSON.stringify(cart));}
 
 function updateCartUI(){
   const el=document.getElementById('cartItems');
   let cost=0,total=0,profit=0;
-
   if(!cart.length){
     el.innerHTML=`<div class="py-20 text-center font-black uppercase" style="color:var(--text2);opacity:.25;">Кошик порожній</div>`;
   }else{
@@ -745,11 +1101,10 @@ function updateCartUI(){
       cost+=p.price*p.count; total+=pT; profit+=pP;
       const pc=pP>=0?'var(--green)':'var(--red)';
       return`<div class="rounded-xl p-3 relative" style="background:var(--surface);border:1px solid var(--border);">
-        <button onclick="removeFromCart('${p.id}')" class="absolute top-2.5 right-2.5 w-6 h-6 rounded-lg flex items-center justify-center text-xs transition-all hover:text-red-500"
+        <button onclick="removeFromCart('${p.id}')" class="absolute top-2.5 right-2.5 w-6 h-6 rounded-lg flex items-center justify-center text-xs hover:text-red-500"
                 style="background:var(--surface2);color:var(--text2);">✕</button>
         <div class="flex gap-2.5 items-center mb-2.5 pr-7">
-          <img src="${p.img}" class="w-10 h-10 object-contain rounded-lg shrink-0" style="background:var(--surface2);"
-               onerror="this.src='${PLACEHOLDER}'">
+          <img src="${p.img}" class="w-10 h-10 object-contain rounded-lg shrink-0" style="background:var(--surface2);" onerror="this.src='${PLACEHOLDER}'">
           <div class="min-w-0">
             <div class="text-[10px] font-black truncate uppercase" style="color:var(--text);">${p.name}</div>
             <div class="text-[9px] font-bold" style="color:var(--text2);">Закуп: ${p.price} ₴ · ${p.vendor}</div>
@@ -767,7 +1122,7 @@ function updateCartUI(){
             <div class="flex items-center justify-center gap-2 mt-1">
               <button onclick="updateCount('${p.id}',-1)" class="w-6 h-6 rounded-md text-xs font-black" style="background:var(--border);color:var(--text);">−</button>
               <span class="text-sm font-black" style="color:var(--text);">${p.count}</span>
-              <button onclick="updateCount('${p.id}',1)"  class="w-6 h-6 rounded-md text-xs font-black" style="background:var(--border);color:var(--text);">+</button>
+              <button onclick="updateCount('${p.id}',1)" class="w-6 h-6 rounded-md text-xs font-black" style="background:var(--border);color:var(--text);">+</button>
             </div>
           </div>
         </div>
@@ -777,18 +1132,15 @@ function updateCartUI(){
       </div>`;
     }).join('');
   }
-
   const cnt=cart.reduce((s,i)=>s+i.count,0);
   const cc=document.getElementById('cartCount');
-  cc.textContent=cnt;
-  cc.classList.toggle('hidden',cnt===0);
-  cc.classList.toggle('flex',cnt>0);
+  cc.textContent=cnt; cc.classList.toggle('hidden',cnt===0); cc.classList.toggle('flex',cnt>0);
   document.getElementById('cartCost').textContent=cost+' ₴';
   document.getElementById('cartTotal').textContent=total+' ₴';
   document.getElementById('cartProfit').textContent=(profit>=0?'+':'')+profit+' ₴';
 }
 
-// ─── CHECKOUT ───
+// ═══ CHECKOUT ═══
 function toggleCheckout(){
   checkoutOpen=!checkoutOpen;
   document.getElementById('checkoutForm').classList.toggle('open',checkoutOpen);
@@ -798,11 +1150,11 @@ function toggleCheckout(){
 }
 
 function buildOrderText(){
-  const name    =document.getElementById('clientName').value.trim()||'Не вказано';
-  const phone   =document.getElementById('clientPhone').value.trim()||'Не вказано';
-  const city    =document.getElementById('clientCity').value.trim()||'Не вказано';
-  const payment =document.getElementById('paymentType').value;
-  const comment =document.getElementById('clientComment').value.trim();
+  const name=document.getElementById('clientName').value.trim()||'Не вказано';
+  const phone=document.getElementById('clientPhone').value.trim()||'Не вказано';
+  const city=document.getElementById('clientCity').value.trim()||'Не вказано';
+  const payment=document.getElementById('paymentType').value;
+  const comment=document.getElementById('clientComment').value.trim();
   let cost=0,total=0,profit=0,lines='';
   cart.forEach((p,i)=>{
     const t=p.salePrice*p.count;
@@ -820,16 +1172,12 @@ function buildOrderText(){
 function sendOrder(channel){
   if(!cart.length){showToast('⚠️ Кошик порожній!');return;}
   const msg=buildOrderText();
-  if(channel==='viber'){
-    window.open(`viber://chat?number=%2B380666172764&draft=${encodeURIComponent(msg)}`);
-  }else if(channel==='telegram'){
-    window.open(`https://t.me/your_bot?text=${encodeURIComponent(msg)}`);
-  }else{
-    navigator.clipboard.writeText(msg).then(()=>showToast('📋 Замовлення скопійовано!'));
-  }
+  if(channel==='viber') window.open(`viber://chat?number=%2B380666172764&draft=${encodeURIComponent(msg)}`);
+  else if(channel==='telegram') window.open(`https://t.me/your_bot?text=${encodeURIComponent(msg)}`);
+  else navigator.clipboard.writeText(msg).then(()=>showToast('📋 Замовлення скопійовано!'));
 }
 
-// ─── CSV EXPORT ───
+// ═══ CSV ═══
 function exportCSV(){
   const margin=parseInt(document.getElementById('globalMargin').value)||20;
   const q=document.getElementById('searchInput').value.toLowerCase();
@@ -850,14 +1198,12 @@ function exportCSV(){
   });
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`utrade_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`utrade_${new Date().toISOString().slice(0,10)}.csv`; a.click();
   showToast('📊 CSV завантажено!');
 }
 
-// ─── UI HELPERS ───
+// ═══ UI HELPERS ═══
 function toggleAside(show){
   document.getElementById('sidePanel').classList.toggle('aside-open',show);
   document.getElementById('asideOverlay').classList.toggle('hidden',!show);
@@ -867,14 +1213,16 @@ function toggleCart(show){
   document.getElementById('cartOverlay').classList.toggle('hidden',!show);
 }
 
-// Close modal on backdrop click
-document.getElementById('productModal').addEventListener('click',function(e){
-  if(e.target===this) closeModal();
+// Backdrop clicks
+document.getElementById('productModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('contactModal').addEventListener('click',function(e){if(e.target===this)closeContact();});
+document.getElementById('wishlistModal').addEventListener('click',function(e){if(e.target===this)closeWishlist();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeContact();closeWishlist();}
+  if(e.key==='ArrowLeft') galleryMove(-1);
+  if(e.key==='ArrowRight') galleryMove(1);
 });
-// Escape key
-document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
 
-// Start
 init();
 </script>
 </body>
