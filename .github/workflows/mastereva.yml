@@ -1,11 +1,10 @@
 name: Master Eva Feed Update
- 
+
 on:
   push:
     branches:
       - main
     paths:
-      # Запускати action при зміні будь-якого з цих файлів:
       - 'index.html'
       - 'masterevaxml.py'
       - 'process_xml.py'
@@ -13,42 +12,48 @@ on:
       - '**.html'
       - '**.py'
       - '**.xml'
- 
+
   schedule:
-    # Запуск кожні 4 години
     - cron: '0 */4 * * *'
- 
-  # Можливість запустити вручну з вкладки Actions
+
   workflow_dispatch:
- 
+
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
- 
+
 jobs:
   build_master_feed:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
- 
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
- 
+
       - name: Install dependencies
         run: pip install requests lxml
- 
+
       - name: Run Master Eva Script
         run: python masterevaxml.py
- 
+
+      - name: Save REPORT and logs to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Masterevanew.xml REPORT.md price_warnings.log --force
+          git diff --staged --quiet || git commit -m "Auto update: price + report"
+          git push
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
- 
+
   deploy:
     needs: build_master_feed
     runs-on: ubuntu-latest
