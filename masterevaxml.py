@@ -2,6 +2,7 @@ import requests
 import lxml.etree as ET
 from datetime import datetime
 import re
+import time
 from html import unescape
 from collections import defaultdict
 
@@ -20,20 +21,21 @@ SOURCES = [
 MARKUP_PERCENT      = 1.35
 MARKUP_FIXED        = 40
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
-MIN_PRICE_THRESHOLD = 150
-DESC_LIMIT          = 2800
+MIN_PRICE_THRESHOLD = 150      # мінімальна ціна в грн
+DESC_LIMIT          = 2800     # максимальна довжина опису
 DEFAULT_QTY         = 2        # кількість якщо постачальник не вказав або вказав 0
+REQUEST_DELAY       = 3        # затримка між запитами в секундах (щоб не отримати 429)
 
 # Індивідуальні налаштування наценки по доменах
 # Якщо домену нема в словнику — використовується глобальна наценка вище
 CUSTOM_MARKUP = {
     "kievopt.com.ua": {
-        "markup_percent": 1.0,   # без наценки — ціна постачальника як є
+        "markup_percent": 1.0,  # без наценки — ціна постачальника як є
         "markup_fixed":   0,
     },
     "feed.lugi.com.ua": {
-        "markup_percent": 1.20,  # +20%
-        "markup_fixed":   50,    # +50 грн
+        "markup_percent": 1.20, # +20%
+        "markup_fixed":   50,   # +50 грн
     },
 }
 
@@ -41,7 +43,7 @@ CUSTOM_MARKUP = {
 MAX_PRICE_UAH      = 500_000
 SUSPICIOUS_LOW_UAH = 10.0
 
-# Запасні курси валют
+# Запасні курси валют (якщо фід не дає курс або дає CBR/НБУ)
 FALLBACK_RATES = {
     "UAH": 1.0,
     "USD": 41.5,
@@ -59,49 +61,80 @@ FALLBACK_RATES = {
 # ==============================================================================
 
 def fix_text(text):
-    """Подвійний unescape HTML-ентіті + нормалізація лапок."""
+    """
+    Подвійний unescape HTML-ентіті + нормалізація лапок.
+    Безпечно обробляє None.
+    """
     if not text:
         return ""
-    return unescape(unescape(text)).replace("'", "'").strip()
+    return unescape(unescape(str(text))).replace("\u2019", "'").strip()
 
 
 def clean_description(text, name_ua, vendor):
     """
-    Чистить HTML-опис товару:
-    - прибирає <script>/<style>
-    - прибирає <img> теги (EVA не дозволяє картинки в описі)
-    - прибирає URL
-    - прибирає inline style=
+    Нормалізує HTML-опис товару для EVA:
+    - подвійний unescape (для opt-drop з закодованим HTML)
+    - видаляє <script>/<style> з вмістом
+    - видаляє <img> теги (EVA не приймає картинки в описі)
+    - видаляє всі URL
+    - видаляє inline style=
+    - видаляє порожні HTML теги (залишки після очистки)
     - обрізає до DESC_LIMIT символів
-    - якщо опис порожній або коротший 30 символів — генерує заглушку
+    - якщо чистий текст < 30 символів — генерує заглушку (вимога EVA)
     """
     fallback = f"<p>{name_ua} від виробника {vendor}.</p>"
     if not text:
         return fallback
-    text = unescape(unescape(text))
-    text = re.sub(r'<(script|style).*?>.*?</\1>', '', text, flags=re.DOTALL)
-    text = re.sub(r'<img[^>]*>', '', text)
+
+    # Подвійний unescape — для opt-drop який дає &lt;p&gt; замість <p>
+    text = unescape(unescape(str(text)))
+
+    # Видаляємо небажані теги
+    text = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', text, flags=re.DOTALL)
+    text = re.sub(r'<img[^>]*/?>', '', text)
+
+    # Видаляємо URL
     text = re.sub(r'https?://\S+|www\.\S+', '', text)
-    text = re.sub(r'\sstyle="[^"]*"', '', text)
+
+    # Видаляємо inline стилі
+    text = re.sub(r'\s+style="[^"]*"', '', text)
+    text = re.sub(r"\s+style='[^']*'", '', text)
+
+    # Видаляємо порожні теги (залишки після видалення img/url)
+    text = re.sub(r'<(\w+)[^>]*>\s*</\1>', '', text)
+
+    # Обрізаємо
     if len(text) > DESC_LIMIT:
         text = text[:DESC_LIMIT] + "..."
+
     text = text.strip()
+
     # Перевірка мінімум 30 символів чистого тексту (вимога EVA)
     plain = re.sub(r'<[^>]+>', '', text).strip()
     if len(plain) < 30:
         return fallback
+
     return text
 
 
 def parse_price(raw_text):
     """
     Розумний парсер рядка ціни → float або None.
-    Обробляє формати: "1 299,00", "1.299,00", "1,299.00", "199,99", "1299"
+
+    Обробляє формати:
+      "1 299,00"  → 1299.0  (пробіл + кома)
+      "1.299,00"  → 1299.0  (EU: крапка=тисячі, кома=десяткові)
+      "1,299.00"  → 1299.0  (US: кома=тисячі, крапка=десяткові)
+      "199,99"    → 199.99
+      "329.7"     → 329.7
+      "1299"      → 1299.0
     Видаляє: пробіли, \xa0, \u2009, \u202f
     """
     if not raw_text:
         return None
-    cleaned = raw_text.strip()
+
+    cleaned = str(raw_text).strip()
+    # Видаляємо всі види пробілів і спецсимволів
     cleaned = cleaned.replace('\xa0', '').replace('\u2009', '').replace('\u202f', '')
     cleaned = cleaned.replace(' ', '').replace('\t', '')
 
@@ -115,8 +148,10 @@ def parse_price(raw_text):
     elif ',' in cleaned:
         parts = cleaned.split(',')
         if len(parts) == 2 and len(parts[1]) <= 2:
+            # 199,99 — кома як десятковий розділювач
             cleaned = cleaned.replace(',', '.')
         else:
+            # 1,299 — кома як тисячний розділювач
             cleaned = cleaned.replace(',', '')
 
     try:
@@ -130,6 +165,7 @@ def get_currency_rates(root):
     """
     Витягує курси валют із секції <currencies> XML-фіду.
     Якщо курс = 'CBR'/'НБУ'/'NBU'/'ECB' — підставляє FALLBACK_RATES.
+    Повертає dict {currency_id: rate_float}.
     """
     rates = dict(FALLBACK_RATES)
     for cur in root.xpath(".//currencies/currency"):
@@ -137,7 +173,8 @@ def get_currency_rates(root):
         rate_str = cur.get('rate', '1')
         if not cur_id:
             continue
-        if rate_str in ('CBR', 'НБУ', 'NBU', 'ECB'):
+        if rate_str in ('CBR', 'НБУ', 'NBU', 'ECB', 'CB'):
+            # Плаваючий курс — використовуємо FALLBACK
             rates.setdefault(cur_id, FALLBACK_RATES.get(cur_id, 1.0))
         else:
             parsed = parse_price(rate_str)
@@ -154,7 +191,7 @@ def convert_to_uah(raw_price, currency_id, rates, domain, offer_id):
     currency_id = (currency_id or 'UAH').upper().strip()
     warning = None
 
-    # Захист 1: невідома валюта
+    # Захист 1: невідома валюта → лікуємо як UAH
     if currency_id not in rates:
         warning = (f"[НЕВІДОМА ВАЛЮТА] {domain} offer={offer_id} "
                    f"currency={currency_id} — використовуємо UAH")
@@ -169,7 +206,7 @@ def convert_to_uah(raw_price, currency_id, rates, domain, offer_id):
                    f"price={raw_price} UAH < {SUSPICIOUS_LOW_UAH} грн — пропускаємо")
         return None, warning
 
-    # Захист 3: іноземна валюта але число занадто велике
+    # Захист 3: іноземна валюта але число занадто велике (можливо вже в грн)
     if currency_id != 'UAH' and raw_price > 500:
         warning = (f"[УВАГА ВАЛЮТА] {domain} offer={offer_id} "
                    f"price={raw_price} {currency_id} — конвертуємо: {price_uah:.2f} UAH")
@@ -192,39 +229,130 @@ def convert_to_uah(raw_price, currency_id, rates, domain, offer_id):
 def get_qty(offer):
     """
     Читає кількість товару на складі.
-    Підтримує: quantity, stock_quantity, amount, outlets (kievopt).
+
+    Підтримує всі варіанти тегів постачальників:
+    - quantity        (shkatulka, opt-drop)
+    - quantity_in_stock (lugi, dropom)
+    - stock_quantity  (kievopt, royaltoys)
+    - amount          (загальний)
+    - outlets count="" (kievopt YML формат)
+
     Якщо кількість = 0 або тег відсутній → повертає DEFAULT_QTY.
     Повертає (qty: int, used_default: bool).
     """
-    # Числові теги кількості
-    qty_nodes = offer.xpath(".//quantity|.//quantity_in_stock|.//stock_quantity|.//amount")
-    if qty_nodes and (qty_nodes[0].text or '').strip():
-        try:
-            qty = int(re.sub(r'\D', '', qty_nodes[0].text))
-            if qty > 0:
-                return qty, False
-        except:
-            pass
+    qty_nodes = offer.xpath(
+        ".//quantity|.//quantity_in_stock|.//stock_quantity|.//amount"
+    )
+    if qty_nodes:
+        node_text = (qty_nodes[0].text or '').strip()
+        if node_text:
+            try:
+                qty = int(re.sub(r'\D', '', node_text))
+                if qty > 0:
+                    return qty, False
+            except (ValueError, TypeError):
+                pass
 
-    # Для kievopt — читаємо <outlets count="N">
+    # Для kievopt YML — <outlets count="N">
     outlets = offer.xpath(".//outlets")
     if outlets:
         try:
             qty = int(outlets[0].get('count', '0'))
             if qty > 0:
                 return qty, False
-        except:
+        except (ValueError, TypeError):
             pass
 
-    # Кількість не вказана або 0 — ставимо DEFAULT_QTY
     return DEFAULT_QTY, True
+
+
+def get_availability(offer):
+    """
+    Читає наявність товару.
+
+    Підтримує:
+    - available атрибут (всі постачальники)
+    - in_stock атрибут (lugi додатково)
+
+    Повертає True якщо товар доступний.
+    """
+    # Основний атрибут
+    avail_raw = offer.get('available', '').lower().strip()
+
+    # Якщо available відсутній — перевіряємо in_stock (lugi)
+    if not avail_raw:
+        avail_raw = offer.get('in_stock', 'false').lower().strip()
+
+    return avail_raw in ['true', 'yes', '1']
+
+
+def get_name(offer):
+    """
+    Читає назву товару.
+    Пріоритет: name_ua → name.
+    Обробляє CDATA і звичайний текст.
+    """
+    name = fix_text(offer.findtext('name_ua') or '')
+    if not name:
+        name = fix_text(offer.findtext('name') or '')
+    return name
+
+
+def get_description(offer):
+    """
+    Читає опис товару.
+    Пріоритет: description_ua → description.
+    Обробляє CDATA і HTML-ентіті (opt-drop).
+    """
+    desc = offer.findtext('description_ua') or ''
+    if not desc or not desc.strip():
+        desc = offer.findtext('description') or ''
+    return desc
+
+
+def get_params(offer):
+    """
+    Читає характеристики товару.
+
+    Нормалізує:
+    - звичайні <param name="...">значення</param>
+    - royaltoys: <param name="..."><value lang="uk">R R</value></param>
+      → пропускаємо (немає корисного тексту)
+    - пропускаємо порожні параметри
+
+    Повертає список (name, value) або порожній список.
+    """
+    result = []
+    for p in offer.findall('param'):
+        # Читаємо прямий текст параметра
+        val = fix_text(p.text)
+        if not val:
+            # Намагаємось знайти текст в <value lang="uk">
+            for v in p.findall('value'):
+                lang = v.get('lang', '').lower()
+                if lang in ('uk', 'ua'):
+                    val = fix_text(v.text)
+                    break
+            # Якщо українського нема — беремо перший будь-який
+            if not val and p.findall('value'):
+                val = fix_text(p.findall('value')[0].text)
+
+        # Пропускаємо порожні і нерелевантні
+        if not val or val in ('R R', 'r r'):
+            continue
+
+        name = (p.get('name') or '').strip()
+        if name:
+            result.append((name, val))
+
+    return result
 
 
 def load_blacklist():
     """
     Читає blacklist.txt.
     Якщо файл відсутній — повертає порожню множину і не ламає прайс.
-    Формат файлу: один offer id на рядок, # для коментарів.
+    Формат: один offer id на рядок, # для коментарів.
     """
     try:
         with open("blacklist.txt", "r", encoding="utf-8") as f:
@@ -250,10 +378,9 @@ def process():
     price_warnings   = []
     source_results   = []
 
-    # Структури для звіту
     report_stats     = {}
-    cross_duplicates = []   # колізії між постачальниками
-    inner_duplicates = []   # дублікати всередині одного постачальника
+    cross_duplicates = []
+    inner_duplicates = []
     blacklist_hits   = defaultdict(int)
     category_errors  = []
 
@@ -266,30 +393,41 @@ def process():
 
     # --------------------------------------------------------------------------
     # КРОК 2: Завантаження всіх фідів в пам'ять
+    # Затримка REQUEST_DELAY секунд між запитами — щоб не отримати 429
     # --------------------------------------------------------------------------
-    feeds = []  # (prefix, url, domain, root, currency_rates)
+    feeds = []
 
-    for prefix, url in SOURCES:
+    for i, (prefix, url) in enumerate(SOURCES):
         domain = url.split('/')[2]
+
+        # Затримка між запитами (крім першого)
+        if i > 0:
+            time.sleep(REQUEST_DELAY)
+
         try:
-            r = requests.get(url, timeout=120)
+            r = requests.get(url, timeout=120, headers={
+                'User-Agent': 'Mozilla/5.0 (compatible; PriceParser/1.0)'
+            })
             if not r.ok:
                 print(f"[HTTP ERROR] {domain}: {r.status_code}")
                 report_stats[domain] = {"http_error": r.status_code}
                 continue
+
             root           = ET.fromstring(r.content, parser=ET.XMLParser(recover=True))
             currency_rates = get_currency_rates(root)
             visible_rates  = {k: v for k, v in currency_rates.items() if k in ('UAH', 'USD', 'EUR')}
             print(f"[{domain}] Завантажено. Курси: {visible_rates}")
             feeds.append((prefix, url, domain, root, currency_rates))
+
         except Exception as e:
             print(f"[ПОМИЛКА ФІДУ] {domain}: {e}")
             report_stats[domain] = {"feed_error": str(e)}
 
     # --------------------------------------------------------------------------
     # КРОК 3: ПРОХІД 1 — збір всіх offer id для виявлення дублікатів
+    # XML вже в пам'яті — жодних додаткових запитів
     # --------------------------------------------------------------------------
-    id_registry = defaultdict(list)  # offer_id → [(domain, price_text), ...]
+    id_registry = defaultdict(list)
 
     for prefix, url, domain, root, currency_rates in feeds:
         for offer in root.xpath(".//offer"):
@@ -306,14 +444,12 @@ def process():
         if len(entries) > 1:
             domains = [e[0] for e in entries]
             if len(set(domains)) == 1:
-                # Дублікат всередині одного постачальника
                 inner_duplicates.append({
                     "offer_id": offer_id,
                     "domain":   domains[0],
                     "count":    len(entries)
                 })
             else:
-                # Колізія між різними постачальниками
                 cross_duplicates.append({
                     "offer_id": offer_id,
                     "entries":  entries
@@ -329,9 +465,11 @@ def process():
     for prefix, url, domain, root, currency_rates in feeds:
         for cat in root.xpath(".//category"):
             orig_id = cat.get('id')
-            new_id  = f"{prefix}{orig_id}" if prefix else orig_id
+            if not orig_id:
+                continue
+            new_id = f"{prefix}{orig_id}" if prefix else orig_id
 
-            # ВИПРАВЛЕНО: while замість if — обробляє будь-яку кількість колізій
+            # while замість if — обробляє будь-яку кількість колізій
             while new_id in category_id_map and category_id_map[new_id] != domain:
                 new_id = f"{new_id}9"
 
@@ -360,6 +498,8 @@ def process():
 
         for offer in root.xpath(".//offer"):
             offer_id = offer.get('id', '').strip()
+            if not offer_id:
+                continue
 
             # -- Перевірка 1: blacklist --
             if offer_id in blacklisted_ids:
@@ -373,10 +513,8 @@ def process():
                 continue
 
             # -- Перевірка 3: наявність --
-            # відсутній атрибут available = вважаємо недоступним (безпечніше для EVA)
-            avail_str = offer.get('available', 'false').lower().strip()
-            avail     = avail_str in ['true', 'yes', '1']
-            if not avail:
+            # Використовуємо get_availability() яка враховує available і in_stock
+            if not get_availability(offer):
                 count_no += 1
                 continue
 
@@ -386,14 +524,15 @@ def process():
                 count_default_qty += 1
 
             # -- Перевірка 4: ціна --
-            # offer.xpath('./price') — тільки прямий нащадок поточного offer (захист від Lugi)
+            # offer.xpath('./price') — тільки ПРЯМИЙ нащадок поточного offer
+            # Захист від Lugi де price стоїть після картинок
             price_nodes = offer.xpath('./price')
             if not price_nodes or not (price_nodes[0].text or '').strip():
                 count_price_err += 1
                 continue
             p_node = price_nodes[0]
 
-            # Перевірка price from="true" (ціна з діапазону)
+            # Перевірка price from="true" (ціна з діапазону — мінімальна)
             if p_node.get('from', 'false').lower() == 'true':
                 price_warnings.append(
                     f"[ЦІНА З ДІАПАЗОНУ] {domain} offer={offer_id} "
@@ -401,7 +540,7 @@ def process():
                 )
 
             try:
-                # Парсинг ціни
+                # Крок 1: парсинг рядка ціни
                 raw_p = parse_price(p_node.text)
                 if raw_p is None:
                     price_warnings.append(
@@ -411,7 +550,7 @@ def process():
                     count_price_err += 1
                     continue
 
-                # ВИПРАВЛЕНО: .strip().upper() при читанні currencyId
+                # Крок 2: конвертація в гривні
                 currency_id     = (offer.findtext('currencyId') or 'UAH').strip().upper()
                 price_uah, warn = convert_to_uah(raw_p, currency_id, currency_rates, domain, offer_id)
 
@@ -421,7 +560,7 @@ def process():
                     count_price_err += 1
                     continue
 
-                # Наценка — індивідуальна для kievopt і lugi, глобальна для решти
+                # Крок 3: наценка
                 cfg       = CUSTOM_MARKUP.get(domain, {})
                 m_percent = cfg.get("markup_percent", MARKUP_PERCENT)
                 m_fixed   = cfg.get("markup_fixed",   MARKUP_FIXED)
@@ -429,11 +568,13 @@ def process():
                 price     = round(price_uah * m_percent + m_fixed)
                 old_price = round(price * OLD_PRICE_MULT)
 
+                # Фільтр мінімальної ціни
                 if price < MIN_PRICE_THRESHOLD:
                     count_low += 1
                     continue
 
-                # Захист: наша ціна не може бути меншою за оригінальну ціну постачальника
+                # Захист: наша фінальна ціна не може бути меншою за оригінальну
+                # (якщо менша — щось пішло не так з наценкою або конвертацією)
                 if price < price_uah:
                     price_warnings.append(
                         f"[ЦІНА НИЖЧА ЗА ОРИГІНАЛ] {domain} offer={offer_id} "
@@ -442,45 +583,54 @@ def process():
                     count_price_err += 1
                     continue
 
-                # -- Збірка товару --
-                vendor  = offer.findtext('vendor') or "NoBrand"
-                name_ua = fix_text(offer.findtext('name_ua') or offer.findtext('name'))
-                if vendor.lower() not in name_ua.lower():
+                # -- Збірка полів товару через нормалізуючі функції --
+                vendor  = fix_text(offer.findtext('vendor') or '') or 'NoBrand'
+                name_ua = get_name(offer)
+
+                # Якщо назва порожня — пропускаємо товар
+                if not name_ua:
+                    count_price_err += 1
+                    continue
+
+                # Додаємо бренд в назву якщо його там нема
+                if vendor != 'NoBrand' and vendor.lower() not in name_ua.lower():
                     name_ua = f"{name_ua} {vendor}"
 
+                # Опис
+                desc_raw = get_description(offer)
+                desc     = clean_description(desc_raw, name_ua, vendor)
+
+                # Категорія
+                orig_cat = offer.findtext('categoryId') or ''
+                cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
+
+                # -- Збірка XML елемента товару --
                 new_off = ET.Element("offer", id=offer_id, available="true")
 
-                ET.SubElement(new_off, "name_ua").text    = name_ua[:250]
-                ET.SubElement(new_off, "price").text      = str(price)
-                ET.SubElement(new_off, "old_price").text  = str(old_price)
-                ET.SubElement(new_off, "currencyId").text = "UAH"
-
-                orig_cat = offer.findtext('categoryId')
-                cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
+                ET.SubElement(new_off, "name_ua").text        = name_ua[:250]
+                ET.SubElement(new_off, "price").text          = str(price)
+                ET.SubElement(new_off, "old_price").text      = str(old_price)
+                ET.SubElement(new_off, "currencyId").text     = "UAH"
                 ET.SubElement(new_off, "categoryId").text     = cat_id
-
                 ET.SubElement(new_off, "vendor").text         = vendor
                 ET.SubElement(new_off, "stock_quantity").text = str(qty)
-
-                desc = clean_description(
-                    offer.findtext('description_ua') or offer.findtext('description'),
-                    name_ua, vendor
-                )
                 ET.SubElement(new_off, "description_ua").text = ET.CDATA(desc)
 
+                # Картинки
                 for pic in offer.findall('picture'):
-                    if pic.text:
-                        ET.SubElement(new_off, "picture").text = pic.text
+                    if pic.text and pic.text.strip():
+                        ET.SubElement(new_off, "picture").text = pic.text.strip()
 
-                params = offer.findall('param')
+                # Параметри через нормалізуючу функцію
+                params = get_params(offer)
                 if not params:
-                    ET.SubElement(new_off, "param", name="Стан").text   = "Новий"
-                    ET.SubElement(new_off, "param", name="Колір").text  = "Комбінований"
-                    ET.SubElement(new_off, "param", name="Вага").text   = "-"
+                    # Якщо параметрів нема — додаємо базові
+                    ET.SubElement(new_off, "param", name="Стан").text  = "Новий"
+                    ET.SubElement(new_off, "param", name="Колір").text = "Комбінований"
+                    ET.SubElement(new_off, "param", name="Вага").text  = "-"
                 else:
-                    for p in params:
-                        p.text = fix_text(p.text)
-                        new_off.append(p)
+                    for p_name, p_val in params:
+                        ET.SubElement(new_off, "param", name=p_name).text = p_val[:500]
 
                 processed_offers.append(new_off)
                 count_ok += 1
@@ -488,7 +638,7 @@ def process():
             except Exception as e:
                 price_warnings.append(
                     f"[ВИНЯТОК] {domain} offer={offer_id} "
-                    f"price='{p_node.text}' err={e}"
+                    f"price='{p_node.text if p_node is not None else 'N/A'}' err={e}"
                 )
                 count_price_err += 1
                 continue
@@ -510,6 +660,7 @@ def process():
 
     # --------------------------------------------------------------------------
     # КРОК 6: Валідація categoryId перед записом XML
+    # Видаляємо товари що посилаються на неіснуючу категорію
     # --------------------------------------------------------------------------
     valid_offers = []
     for offer in processed_offers:
