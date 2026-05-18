@@ -19,7 +19,6 @@ SOURCES = [
 
 MARKUP_PERCENT      = 1.35
 MARKUP_FIXED        = 40
-PROMO_DISCOUNT      = 0.06     # -6% від ціни для всіх
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
 MIN_PRICE_THRESHOLD = 150
 DESC_LIMIT          = 2800
@@ -198,7 +197,7 @@ def get_qty(offer):
     Повертає (qty: int, used_default: bool).
     """
     # Числові теги кількості
-    qty_nodes = offer.xpath(".//quantity|.//stock_quantity|.//amount")
+    qty_nodes = offer.xpath(".//quantity|.//quantity_in_stock|.//stock_quantity|.//amount")
     if qty_nodes and (qty_nodes[0].text or '').strip():
         try:
             qty = int(re.sub(r'\D', '', qty_nodes[0].text))
@@ -427,12 +426,20 @@ def process():
                 m_percent = cfg.get("markup_percent", MARKUP_PERCENT)
                 m_fixed   = cfg.get("markup_fixed",   MARKUP_FIXED)
 
-                price       = round(price_uah * m_percent + m_fixed)
-                old_price   = round(price * OLD_PRICE_MULT)
-                price_promo = round(price * (1 - PROMO_DISCOUNT))
+                price     = round(price_uah * m_percent + m_fixed)
+                old_price = round(price * OLD_PRICE_MULT)
 
                 if price < MIN_PRICE_THRESHOLD:
                     count_low += 1
+                    continue
+
+                # Захист: наша ціна не може бути меншою за оригінальну ціну постачальника
+                if price < price_uah:
+                    price_warnings.append(
+                        f"[ЦІНА НИЖЧА ЗА ОРИГІНАЛ] {domain} offer={offer_id} "
+                        f"original={price_uah:.0f} UAH our_price={price} UAH — видаляємо"
+                    )
+                    count_price_err += 1
                     continue
 
                 # -- Збірка товару --
@@ -443,11 +450,10 @@ def process():
 
                 new_off = ET.Element("offer", id=offer_id, available="true")
 
-                ET.SubElement(new_off, "name_ua").text        = name_ua[:250]
-                ET.SubElement(new_off, "price").text          = str(price)
-                ET.SubElement(new_off, "old_price").text      = str(old_price)
-                ET.SubElement(new_off, "price_promo").text    = str(price_promo)
-                ET.SubElement(new_off, "currencyId").text     = "UAH"
+                ET.SubElement(new_off, "name_ua").text    = name_ua[:250]
+                ET.SubElement(new_off, "price").text      = str(price)
+                ET.SubElement(new_off, "old_price").text  = str(old_price)
+                ET.SubElement(new_off, "currencyId").text = "UAH"
 
                 orig_cat = offer.findtext('categoryId')
                 cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
