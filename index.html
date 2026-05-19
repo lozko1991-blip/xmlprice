@@ -72,7 +72,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 #toast.show{transform:translateX(-50%) translateY(0);}
 [data-theme=dark] #toast{background:#58a6ff;color:#000;}
 
-/* ── DESCRIPTION — beautiful formatting ── */
+/* DESCRIPTION */
 .desc-content{font-size:.83rem;line-height:1.78;color:var(--text2);}
 .desc-content p{margin-bottom:.85rem;}
 .desc-content p:last-child{margin-bottom:0;}
@@ -85,9 +85,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 .desc-content .kv-row:last-child{border-bottom:none;}
 .desc-content .kv-key{color:var(--text2);font-weight:700;min-width:40%;flex-shrink:0;}
 .desc-content .kv-val{color:var(--text);font-weight:600;}
-@media(max-width:767px){
-  .desc-content{font-size:.86rem;line-height:1.82;}
-}
+@media(max-width:767px){.desc-content{font-size:.86rem;line-height:1.82;}}
 
 /* Params table */
 .ptable tr:nth-child(even) td{background:var(--surface2);}
@@ -100,6 +98,9 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 /* Progress bar */
 #topProgress{position:fixed;top:0;left:0;width:100%;height:3px;background:var(--border);z-index:9998;}
 #topProgressBar{height:100%;background:var(--accent);transition:width .4s;width:0%;}
+
+/* Search highlight */
+.search-highlight{background:rgba(37,99,235,.18);border-radius:2px;color:var(--accent);font-weight:800;}
 
 /* Modals */
 #productModal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);}
@@ -123,24 +124,18 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 .gal-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);}
 .gal-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:1.5rem;cursor:zoom-in;}
 .gal-slide img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-multiply;}
-/* Buttons appear only on hover desktop, always on mobile */
 .gal-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.9);color:var(--text2);border:1px solid var(--border);}
 .gal-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
 .gal-btn.prev{left:8px;}
 .gal-btn.next{right:8px;}
-@media(min-width:768px){
-  .gal-btn{opacity:0;pointer-events:none;}
-  .gal-wrap:hover .gal-btn{opacity:1;pointer-events:auto;}
-}
+@media(min-width:768px){.gal-btn{opacity:0;pointer-events:none;}.gal-wrap:hover .gal-btn{opacity:1;pointer-events:auto;}}
 [data-theme=dark] .gal-btn{background:rgba(22,27,34,.9);}
-/* Dots */
 .gal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:10;}
 .gal-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;border:1px solid rgba(0,0,0,.15);}
 .gal-dot.active{background:var(--accent);width:16px;border-radius:3px;border-color:var(--accent);}
 
 /* Modal layout */
 .modal-box{background:var(--surface);border-radius:1.25rem;overflow:hidden;display:flex;flex-direction:column;width:100%;max-width:920px;max-height:92vh;}
-/* Desktop: side by side */
 .modal-body{display:flex;flex-direction:row;flex:1;overflow:hidden;min-height:0;}
 .modal-photo{width:42%;flex-shrink:0;position:relative;}
 .modal-info{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
@@ -151,7 +146,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 .tab-btn{flex:1;padding:.55rem .4rem;font-size:.72rem;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-align:center;white-space:nowrap;color:var(--text2);}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-/* MOBILE modal — stack vertically */
+/* MOBILE modal */
 @media(max-width:767px){
   #productModal{padding:.5rem;}
   .modal-box{max-height:96vh;border-radius:1rem;}
@@ -163,17 +158,20 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
 #sidePanel{background:var(--surface);}
 #cartSidebar{background:var(--surface);}
+
+/* Search badge */
+.search-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;}
+.badge-name{background:rgba(37,99,235,.1);color:var(--accent);}
+.badge-id{background:rgba(16,185,129,.1);color:#059669;}
+.badge-desc{background:rgba(245,158,11,.1);color:#b45309;}
 </style>
 </head>
 <body data-theme="light">
 
-<!-- Top progress bar (always visible) -->
 <div id="topProgress"><div id="topProgressBar"></div></div>
-
-<!-- Toast -->
 <div id="toast">✓ Додано до кошика</div>
 
-<!-- ═══ NAV ═══ -->
+<!-- NAV -->
 <nav class="sticky top-0 z-50 backdrop-blur-md" style="top:3px;">
   <div class="max-w-[1700px] mx-auto px-4 h-16 flex items-center gap-2">
     <a href="#" class="flex items-center gap-2.5 shrink-0">
@@ -185,10 +183,16 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <div class="sec-title" style="margin-top:1px;letter-spacing:.18em;">Дроп-платформа</div>
       </div>
     </a>
+
+    <!-- Search box -->
     <div class="flex-1 max-w-lg relative mx-2">
-      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color:var(--text2);"></i>
-      <input id="searchInput" type="text" oninput="performSearch()" placeholder="Пошук товару або ID..." class="w-full pl-9 pr-3 py-2.5 text-sm">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color:var(--text2);z-index:1;"></i>
+      <input id="searchInput" type="text" oninput="onSearchInput()" placeholder="Назва, ID, артикул, опис..." class="w-full pl-9 pr-9 py-2.5 text-sm">
+      <button id="searchClearBtn" onclick="clearSearch()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs hidden" style="color:var(--text2);background:none;border:none;cursor:pointer;padding:2px;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
+
     <div class="flex items-center gap-1.5 ml-auto">
       <button onclick="openContact()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black hover:opacity-85 shrink-0"
               style="background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 2px 10px rgba(37,99,235,.35);">
@@ -218,7 +222,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </nav>
 
-<!-- ═══ PAGE ═══ -->
+<!-- PAGE -->
 <div class="max-w-[1700px] mx-auto px-4 py-5">
   <div id="vendorBar" class="mb-5 flex gap-2 overflow-x-auto noscroll pb-1"></div>
   <div class="flex gap-5">
@@ -241,8 +245,8 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <div class="mb-4">
           <div class="sec-title mb-2">Ціна (₴)</div>
           <div class="flex gap-2">
-            <input id="minPrice" type="number" oninput="performSearch()" placeholder="Від" class="w-1/2 px-3 py-2 text-xs font-bold">
-            <input id="maxPrice" type="number" oninput="performSearch()" placeholder="До" class="w-1/2 px-3 py-2 text-xs font-bold">
+            <input id="minPrice" type="number" oninput="onPriceInput()" placeholder="Від" class="w-1/2 px-3 py-2 text-xs font-bold">
+            <input id="maxPrice" type="number" oninput="onPriceInput()" placeholder="До" class="w-1/2 px-3 py-2 text-xs font-bold">
           </div>
         </div>
         <div class="mb-4">
@@ -281,7 +285,6 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
     <!-- MAIN -->
     <main class="flex-1 min-w-0">
-      <!-- Loading status bar (shows during background load) -->
       <div id="loadBar" class="hidden mb-4 px-4 py-2.5 rounded-xl flex items-center gap-3" style="background:var(--surface);border:1px solid var(--border);">
         <div class="w-4 h-4 rounded-full animate-spin shrink-0" style="border:2px solid var(--border);border-top-color:var(--accent);"></div>
         <span id="loadBarMsg" class="text-xs font-bold" style="color:var(--text2);">Завантаження...</span>
@@ -290,6 +293,8 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
       <div id="skeletonGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-5"></div>
       <div id="infoBar" class="hidden flex items-center justify-between mb-4">
         <span id="resultsCount" class="sec-title"></span>
+        <!-- Search type badge -->
+        <span id="searchTypeBadge" class="hidden"></span>
       </div>
       <div id="featuredSection"></div>
       <div id="productGrid"></div>
@@ -298,7 +303,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </div>
 
-<!-- ═══ CART ═══ -->
+<!-- CART -->
 <div id="cartOverlay" onclick="toggleCart(false)" class="fixed inset-0 bg-black/50 z-[100] hidden backdrop-blur-sm"></div>
 <div id="cartSidebar" class="fixed top-0 right-0 h-full w-full z-[110] translate-x-full transition-transform duration-300 flex flex-col shadow-2xl" style="max-width:420px;">
   <div class="p-4 flex justify-between items-center shrink-0" style="border-bottom:1px solid var(--border);">
@@ -340,14 +345,13 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </div>
 
-<!-- ═══ PRODUCT MODAL ═══ -->
+<!-- PRODUCT MODAL -->
 <div id="productModal">
   <div class="modal-box">
     <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center z-30 shadow-lg" style="background:var(--surface);color:var(--text);position:absolute;">
       <i class="fa-solid fa-xmark text-sm"></i>
     </button>
     <div class="modal-body" style="position:relative;">
-      <!-- PHOTO (left on desktop, top on mobile) -->
       <div class="modal-photo gal-wrap">
         <div id="galTrack" class="gal-track"></div>
         <button class="gal-btn prev" id="galPrev" onclick="galMove(-1)"><i class="fa-solid fa-chevron-left"></i></button>
@@ -355,16 +359,15 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <div id="galDots" class="gal-dots"></div>
         <div id="galCount" class="pic-count" style="display:none;"></div>
       </div>
-      <!-- INFO (right on desktop, bottom on mobile) -->
       <div class="modal-info">
         <div class="modal-scroll cscroll">
           <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem;">
             <span id="modalVendorBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full" style="background:var(--surface2);color:var(--accent);"></span>
             <span id="modalIdBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full" style="background:var(--surface2);color:var(--text2);"></span>
+            <span id="modalVendorNameBadge" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full hidden" style="background:var(--surface2);color:var(--text2);"></span>
           </div>
           <h2 id="modalName" style="font-size:.9rem;font-weight:900;text-transform:uppercase;line-height:1.3;margin-bottom:.5rem;color:var(--text);"></h2>
           <div id="modalPrice" class="bebas" style="font-size:2rem;letter-spacing:.05em;color:var(--text);margin-bottom:.75rem;"></div>
-          <!-- Sticky tabs -->
           <div style="position:sticky;top:0;z-index:10;background:var(--surface);padding-bottom:.4rem;margin-bottom:.6rem;">
             <div style="display:flex;border-bottom:2px solid var(--border);">
               <button onclick="modalTab('desc')" id="tabDesc" class="tab-btn active">📄 Опис</button>
@@ -387,14 +390,14 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </div>
 
-<!-- ═══ FULLSCREEN PHOTO VIEWER ═══ -->
+<!-- FULLSCREEN PHOTO VIEWER -->
 <div id="photoViewer">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:rgba(0,0,0,.6);">
     <button onclick="closeViewer()" style="color:#fff;background:none;border:none;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;">
       <i class="fa-solid fa-arrow-left"></i><span style="font-size:.85rem;font-weight:700;">Назад</span>
     </button>
     <span id="pvCount" style="color:#fff;font-size:.8rem;font-weight:700;"></span>
-    <button onclick="closeViewer()" style="color:#fff;background:none;border:none;font-size:1.1rem;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.15);">
+    <button onclick="closeViewer()" style="color:#fff;background:rgba(255,255,255,.15);border:none;font-size:1.1rem;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;">
       <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
@@ -405,7 +408,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
   </div>
 </div>
 
-<!-- ═══ CONTACT MODAL ═══ -->
+<!-- CONTACT MODAL -->
 <div id="contactModal">
   <div style="width:100%;max-width:400px;border-radius:1.25rem;overflow:hidden;background:linear-gradient(135deg,#2563eb,#7c3aed);padding:2px;max-height:90vh;overflow-y:auto;" class="cscroll">
     <div style="border-radius:1.2rem;background:var(--surface);overflow:hidden;">
@@ -475,354 +478,376 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
 <script>
 // ═══ STATE ═══
-let allProducts=[], categories=[], catParentMap={};
-let cart=JSON.parse(localStorage.getItem('utrade_v9'))||[];
-let currentVendor='all', currentCategory='all', currentPage=1, itemsPerPage=20;
-let checkoutOpen=false, currentModalProduct=null;
-let galPics=[], galIdx=0, pvPics=[], pvIdx=0;
-const PLACEHOLDER="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E";
+let allProducts = [], categories = [], catParentMap = {};
+let cart = JSON.parse(localStorage.getItem('utrade_v9')) || [];
+let currentVendor = 'all', currentCategory = 'all', currentPage = 1, itemsPerPage = 20;
+let checkoutOpen = false, currentModalProduct = null;
+let galPics = [], galIdx = 0, pvPics = [], pvIdx = 0;
+let searchDebounce, priceDebounce;
+// Cached child IDs per category (cleared on allProducts change)
+const catChildCache = {};
+
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E";
 
 // ═══ VENDOR DETECTION ═══
-function getVendorName(url){
-  if(!url) return 'Невідомий';
-  const u=url.toLowerCase();
-  if(u.includes('prom.st')||u.includes('prom.ua')) return 'HUGO';
-  if(u.includes('opt-drop.com'))       return 'OPT-DROP';
-  if(u.includes('royaltoys.com.ua'))   return 'ROYALTOYS';
-  if(u.includes('kievopt.com.ua'))     return 'KIEVOPT';
-  if(u.includes('shkatulka.in.ua'))    return 'SHKATULKA';
-  if(u.includes('lugi.com.ua'))        return 'LUGI';
-  return 'Інші';
+// Matches against picture URLs AND vendor tag
+function getVendorFromUrl(url) {
+  if (!url) return '';
+  const u = url.toLowerCase();
+  if (u.includes('shkatulka.in.ua'))  return 'SHKATULKA';
+  if (u.includes('opt-drop.com'))     return 'OPT-DROP';
+  if (u.includes('lugi.com.ua'))      return 'LUGI';
+  if (u.includes('dropom.com.ua'))    return 'DROPOM';
+  if (u.includes('kievopt.com.ua'))   return 'KIEVOPT';
+  if (u.includes('royaltoys.com.ua')) return 'ROYALTOYS';
+  if (u.includes('prom.st') || u.includes('prom.ua')) return 'HUGO';
+  return '';
 }
 
 // ═══ THEME ═══
-function toggleTheme(){
-  const dark=document.body.getAttribute('data-theme')!=='dark';
-  document.body.setAttribute('data-theme',dark?'dark':'light');
-  document.getElementById('themeIcon').className=dark?'fa-solid fa-sun text-sm':'fa-solid fa-moon text-sm';
-  localStorage.setItem('utrade_theme',dark?'dark':'light');
+function toggleTheme() {
+  const dark = document.body.getAttribute('data-theme') !== 'dark';
+  document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeIcon').className = dark ? 'fa-solid fa-sun text-sm' : 'fa-solid fa-moon text-sm';
+  localStorage.setItem('utrade_theme', dark ? 'dark' : 'light');
 }
-(function(){
-  if(localStorage.getItem('utrade_theme')==='dark'){
-    document.body.setAttribute('data-theme','dark');
-    document.getElementById('themeIcon').className='fa-solid fa-sun text-sm';
+(function () {
+  if (localStorage.getItem('utrade_theme') === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+    document.getElementById('themeIcon').className = 'fa-solid fa-sun text-sm';
   }
 })();
 
 // ═══ TOAST ═══
-function showToast(msg='✓ Додано до кошика'){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
+function showToast(msg = '✓ Додано до кошика') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 // ═══ PROGRESS ═══
-function setProgress(pct){document.getElementById('topProgressBar').style.width=pct+'%';}
+function setProgress(pct) { document.getElementById('topProgressBar').style.width = pct + '%'; }
 
-// ═══ FORMAT DESCRIPTION — smart algorithm ═══
-function formatDesc(raw){
-  if(!raw||!raw.trim()) return '';
-
-  // If already has HTML block tags — clean up and style
-  if(/<(p|ul|ol|li|br|div|h[1-6])\b/i.test(raw)){
-    // Remove empty paragraphs
-    let h=raw.replace(/<p>\s*<\/p>/gi,'').replace(/<p><br\s*\/?>\s*<\/p>/gi,'');
-    // Fix missing spaces after periods before uppercase
-    h=h.replace(/\.([А-ЯІЇЄA-Z])/g,'. $1');
+// ═══ FORMAT DESCRIPTION ═══
+function formatDesc(raw) {
+  if (!raw || !raw.trim()) return '';
+  if (/<(p|ul|ol|li|br|div|h[1-6])\b/i.test(raw)) {
+    let h = raw.replace(/<p>\s*<\/p>/gi, '').replace(/<p><br\s*\/?>\s*<\/p>/gi, '');
+    h = h.replace(/\.([А-ЯІЇЄA-Z])/g, '. $1');
     return h;
   }
+  let text = raw
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  text = text.replace(/\.([А-ЯІЇЄA-Z])/g, '. $1');
+  text = text.replace(/([а-яіїєa-z]{4,})\.([а-яіїє])/g, '$1. $2');
 
-  // Plain text processing
-  let text=raw
-    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
-    .replace(/&nbsp;/g,' ').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  const lines = text.split('\n');
+  const bulletRe = /^[\s]*[•·\-–—*]\s+/;
+  const kvRe = /^([^:]{2,40}):\s*(.+)$/;
+  let html = '', bulletLines = [], kvLines = [], sentences = [];
 
-  // Fix "period+uppercase" with no space
-  text=text.replace(/\.([А-ЯІЇЄA-Z])/g,'. $1');
-  // Fix "period+lowercase" after very long words (likely missing space)
-  text=text.replace(/([а-яіїєa-z]{4,})\.([а-яіїє])/g,'$1. $2');
-
-  // Detect bullet lines
-  const lines=text.split('\n');
-  const bulletRe=/^[\s]*[•·\-–—*]\s+/;
-  const kvRe=/^([^:]{2,40}):\s*(.+)$/;
-
-  let html='';
-  let bulletLines=[];
-  let kvLines=[];
-  let sentences=[];
-
-  function flushSentences(){
-    if(!sentences.length) return;
-    // Group every 2-3 sentences into one <p>
-    const all=sentences.join(' ').replace(/\s+/g,' ').trim();
-    // Split into sentences
-    const parts=all.match(/[^.!?]+[.!?]+[\s]*/g)||[all];
-    let para='', count=0;
-    parts.forEach(s=>{
-      s=s.trim();
-      if(!s) return;
-      para+=(para?' ':'')+s;
-      count++;
-      if(count>=3){html+=`<p>${para}</p>`;para='';count=0;}
+  function flushSentences() {
+    if (!sentences.length) return;
+    const all = sentences.join(' ').replace(/\s+/g, ' ').trim();
+    const parts = all.match(/[^.!?]+[.!?]+[\s]*/g) || [all];
+    let para = '', count = 0;
+    parts.forEach(s => {
+      s = s.trim(); if (!s) return;
+      para += (para ? ' ' : '') + s; count++;
+      if (count >= 3) { html += `<p>${para}</p>`; para = ''; count = 0; }
     });
-    if(para) html+=`<p>${para}</p>`;
-    sentences=[];
+    if (para) html += `<p>${para}</p>`;
+    sentences = [];
+  }
+  function flushBullets() {
+    if (!bulletLines.length) return;
+    html += `<ul>${bulletLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
+    bulletLines = [];
+  }
+  function flushKV() {
+    if (!kvLines.length) return;
+    html += `<div class="kv-block">${kvLines.map(kv => `<div class="kv-row"><span class="kv-key">${kv.k}</span><span class="kv-val">${kv.v}</span></div>`).join('')}</div>`;
+    kvLines = [];
   }
 
-  function flushBullets(){
-    if(!bulletLines.length) return;
-    html+=`<ul>${bulletLines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
-    bulletLines=[];
-  }
-
-  function flushKV(){
-    if(!kvLines.length) return;
-    html+=`<div class="kv-block">${kvLines.map(kv=>`<div class="kv-row"><span class="kv-key">${kv.k}</span><span class="kv-val">${kv.v}</span></div>`).join('')}</div>`;
-    kvLines=[];
-  }
-
-  lines.forEach(line=>{
-    const t=line.trim();
-    if(!t){
-      // Empty line = paragraph break
-      if(sentences.length){flushSentences();}
-      return;
-    }
-    if(bulletRe.test(t)){
+  lines.forEach(line => {
+    const t = line.trim();
+    if (!t) { if (sentences.length) flushSentences(); return; }
+    if (bulletRe.test(t)) {
       flushSentences(); flushKV();
-      bulletLines.push(t.replace(bulletRe,''));
-      return;
+      bulletLines.push(t.replace(bulletRe, '')); return;
     }
-    const kvm=t.match(kvRe);
-    // Only treat as KV if value is short (not a sentence)
-    if(kvm&&kvm[2].length<80&&!kvm[2].includes('.')){
+    const kvm = t.match(kvRe);
+    if (kvm && kvm[2].length < 80 && !kvm[2].includes('.')) {
       flushSentences(); flushBullets();
-      kvLines.push({k:kvm[1].trim(),v:kvm[2].trim()});
-      return;
+      kvLines.push({ k: kvm[1].trim(), v: kvm[2].trim() }); return;
     }
     flushBullets(); flushKV();
     sentences.push(t);
   });
-
   flushSentences(); flushBullets(); flushKV();
-  return html||`<p>${text}</p>`;
+  return html || `<p>${text}</p>`;
 }
 
 // ═══ SKELETON ═══
-function buildSkeleton(){
-  const g=document.getElementById('skeletonGrid');
-  g.className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-5';
-  let h='';
-  for(let i=0;i<8;i++) h+=`
+function buildSkeleton() {
+  const g = document.getElementById('skeletonGrid');
+  g.className = 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-5';
+  let h = '';
+  for (let i = 0; i < 8; i++) h += `
     <div class="rounded-2xl p-3" style="background:var(--surface);border:1px solid var(--border);">
       <div class="sk aspect-square rounded-xl mb-3"></div>
       <div class="sk h-3 rounded mb-2" style="width:75%"></div>
       <div class="sk h-3 rounded mb-4" style="width:50%"></div>
       <div class="sk h-9 rounded-xl"></div>
     </div>`;
-  g.innerHTML=h;
+  g.innerHTML = h;
 }
 
 // ═══ INIT — streaming load ═══
-async function init(){
+async function init() {
   buildSkeleton();
   setProgress(10);
 
-  // Show load bar immediately
-  const loadBar=document.getElementById('loadBar');
-  const loadBarMsg=document.getElementById('loadBarMsg');
-  const loadBarCount=document.getElementById('loadBarCount');
+  const loadBar = document.getElementById('loadBar');
+  const loadBarMsg = document.getElementById('loadBarMsg');
+  const loadBarCount = document.getElementById('loadBarCount');
   loadBar.classList.remove('hidden');
-  loadBarMsg.textContent='📥 Завантаження бази товарів...';
+  loadBarMsg.textContent = '📥 Завантаження бази товарів...';
 
-  try{
-    const res=await fetch('Masterevanew.xml');
+  try {
+    const res = await fetch('Masterevanew.xml');
     setProgress(40);
-    loadBarMsg.textContent='⚙️ Парсинг XML...';
+    loadBarMsg.textContent = '⚙️ Парсинг XML...';
 
-    const text=await res.text();
+    const text = await res.text();
     setProgress(60);
 
-    const xml=new DOMParser().parseFromString(text,'text/xml');
+    const xml = new DOMParser().parseFromString(text, 'text/xml');
 
-    // Categories with parent map
-    Array.from(xml.getElementsByTagName('category')).forEach(c=>{
-      const id=c.getAttribute('id');
-      const parentId=c.getAttribute('parentId')||'';
-      categories.push({id,name:c.textContent.trim(),parentId});
-      catParentMap[id]=parentId;
+    // Parse categories with full parent map
+    Array.from(xml.getElementsByTagName('category')).forEach(c => {
+      const id = c.getAttribute('id');
+      const parentId = c.getAttribute('parentId') || '';
+      categories.push({ id, name: c.textContent.trim(), parentId });
+      catParentMap[id] = parentId;
     });
 
     setProgress(70);
-    const offers=Array.from(xml.getElementsByTagName('offer'));
-    const total=offers.length;
-    loadBarMsg.textContent='🔍 Формування каталогу...';
+    const offers = Array.from(xml.getElementsByTagName('offer'));
+    const total = offers.length;
+    loadBarMsg.textContent = '🔍 Формування каталогу...';
 
-    // Parse first batch immediately → show products fast
-    const BATCH=300;
-    const firstBatch=offers.slice(0,BATCH).map(parseOffer);
+    const BATCH = 300;
+    const firstBatch = offers.slice(0, BATCH).map(parseOffer);
     allProducts.push(...firstBatch);
 
     // Remove skeleton, show first products
-    document.getElementById('skeletonGrid').remove();
+    const skelEl = document.getElementById('skeletonGrid');
+    if (skelEl) skelEl.remove();
     renderVendorBar(); renderCatList(); renderFeatured(); performSearch(); updateCartUI();
-    loadBarCount.textContent=`${allProducts.length} / ${total}`;
+    loadBarCount.textContent = `${allProducts.length} / ${total}`;
     setProgress(80);
 
-    // Parse rest in background chunks
-    let i=BATCH;
-    function parseNextChunk(){
-      if(i>=total){
-        // Done
+    let i = BATCH;
+    function parseNextChunk() {
+      if (i >= total) {
         loadBar.classList.add('hidden');
         setProgress(100);
-        // Update UI with full data
         renderVendorBar(); renderCatList();
-        // Update contact count
-        const cc=document.getElementById('contactCount');
-        if(cc) cc.textContent=allProducts.length.toLocaleString('uk');
-        setTimeout(()=>setProgress(0),800);
+        const cc = document.getElementById('contactCount');
+        if (cc) cc.textContent = allProducts.length.toLocaleString('uk');
+        setTimeout(() => setProgress(0), 800);
         return;
       }
-      const chunk=offers.slice(i,i+BATCH).map(parseOffer);
+      const chunk = offers.slice(i, i + BATCH).map(parseOffer);
       allProducts.push(...chunk);
-      i+=BATCH;
-      loadBarCount.textContent=`${allProducts.length} / ${total}`;
-      loadBarMsg.textContent=`🔍 Завантажено ${allProducts.length} з ${total} товарів...`;
-      // If user is on page 1 with no filters — refresh grid silently
-      if(currentPage===1&&currentVendor==='all'&&currentCategory==='all'&&!document.getElementById('searchInput').value){
+      i += BATCH;
+      loadBarCount.textContent = `${allProducts.length} / ${total}`;
+      loadBarMsg.textContent = `🔍 Завантажено ${allProducts.length} з ${total} товарів...`;
+      if (currentPage === 1 && currentVendor === 'all' && currentCategory === 'all' && !document.getElementById('searchInput').value) {
         performSearch();
       }
-      setTimeout(parseNextChunk,30);
+      setTimeout(parseNextChunk, 30);
     }
-    setTimeout(parseNextChunk,50);
+    setTimeout(parseNextChunk, 50);
 
-  }catch(e){
-    loadBarMsg.textContent='⚠️ Помилка завантаження XML';
-    loadBarMsg.style.color='var(--red)';
+  } catch (e) {
+    loadBarMsg.textContent = '⚠️ Помилка завантаження XML';
+    loadBarMsg.style.color = 'var(--red)';
     console.error(e);
   }
 }
 
-function parseOffer(o){
-  const pics=Array.from(o.getElementsByTagName('picture')).map(p=>p.textContent.trim()).filter(Boolean);
-  const img=pics[0]||'';
-  const name=(
-    o.getElementsByTagName('name_ua')[0]?.textContent||
-    o.getElementsByTagName('name')[0]?.textContent||'Без назви'
-  ).trim();
+// ═══ PARSE OFFER — adapted to XML structure from Mastereva_parser.py ═══
+function parseOffer(o) {
+  // Pictures
+  const pics = Array.from(o.getElementsByTagName('picture'))
+    .map(p => p.textContent.trim()).filter(Boolean);
+  const img = pics[0] || '';
 
-  const params=Array.from(o.getElementsByTagName('param')).map(p=>{
-    const n=p.getAttribute('name')||p.getAttribute('paramname')||p.getAttribute('NAME')||'';
-    return{name:n.trim(),value:p.textContent.trim()};
-  }).filter(p=>p.name&&p.value);
+  // Name: name_ua first, fallback name
+  const name = (
+    o.getElementsByTagName('name_ua')[0]?.textContent ||
+    o.getElementsByTagName('name')[0]?.textContent || 'Без назви'
+  ).trim().toUpperCase();
 
-  let rawDesc='';
-  for(const tag of['description','description_ua','desc','full_description']){
-    const el=o.getElementsByTagName(tag)[0];
-    if(el&&el.textContent.trim()){rawDesc=el.textContent.trim();break;}
+  // Vendor from <vendor> tag first, then guess from picture URL
+  const vendorTag = (o.getElementsByTagName('vendor')[0]?.textContent || '').trim();
+  const vendorFromUrl = getVendorFromUrl(img);
+  const vendor = vendorFromUrl || (vendorTag && vendorTag !== 'NoBrand' ? vendorTag.toUpperCase() : 'Інші');
+
+  // Params
+  const params = Array.from(o.getElementsByTagName('param')).map(p => {
+    const n = (p.getAttribute('name') || '').trim();
+    const v = (p.textContent || '').trim();
+    return { name: n, value: v };
+  }).filter(p => p.name && p.value);
+
+  // Description: description_ua (CDATA), then description
+  let rawDesc = '';
+  for (const tag of ['description_ua', 'description']) {
+    const el = o.getElementsByTagName(tag)[0];
+    if (el && el.textContent.trim()) { rawDesc = el.textContent.trim(); break; }
   }
 
-  return{
-    id:o.getAttribute('id'),
-    name:name.toUpperCase(),
-    price:Math.round(parseFloat(o.getElementsByTagName('price')[0]?.textContent||0)),
+  // old_price
+  const oldPrice = Math.round(parseFloat(o.getElementsByTagName('old_price')[0]?.textContent || 0));
+
+  // Stock
+  const stock = parseInt(
+    o.getElementsByTagName('stock_quantity')[0]?.textContent ||
+    o.getElementsByTagName('quantity')[0]?.textContent ||
+    o.getElementsByTagName('quantity_in_stock')[0]?.textContent || '2'
+  ) || 2;
+
+  // Build searchText once — id + name + vendor + params values + first 400 chars of desc (plain text)
+  const descPlain = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 400);
+  const paramsText = params.map(p => p.name + ' ' + p.value).join(' ');
+  const searchText = [
+    o.getAttribute('id') || '',
+    name,
+    vendor,
+    vendorTag,
+    paramsText,
+    descPlain
+  ].join(' ').toLowerCase();
+
+  return {
+    id: o.getAttribute('id') || '',
+    name,
+    price: Math.round(parseFloat(o.getElementsByTagName('price')[0]?.textContent || 0)),
+    oldPrice,
     img, pics,
-    vendor:getVendorName(img),
-    catId:o.getElementsByTagName('categoryId')[0]?.textContent||'',
-    rawDesc,  // store raw, format on demand
-    params
+    vendor,
+    vendorTag,
+    catId: o.getElementsByTagName('categoryId')[0]?.textContent || '',
+    rawDesc,
+    params,
+    stock,
+    searchText  // pre-built for fast filtering
   };
 }
 
+// ═══ CATEGORY CHILD IDS — recursive, cached ═══
+function getAllChildCatIds(catId) {
+  if (catChildCache[catId]) return catChildCache[catId];
+  const result = new Set([catId]);
+  function collect(id) {
+    categories.forEach(c => {
+      if (!result.has(c.id) && c.parentId === id) {
+        result.add(c.id);
+        collect(c.id);
+      }
+    });
+  }
+  collect(catId);
+  catChildCache[catId] = result;
+  return result;
+}
+
 // ═══ VENDOR BAR ═══
-function renderVendorBar(){
-  const vendors=['all',...new Set(allProducts.map(p=>p.vendor))];
-  document.getElementById('vendorBar').innerHTML=vendors.map(v=>{
-    const cnt=v==='all'?allProducts.length:allProducts.filter(p=>p.vendor===v).length;
-    return`<button onclick="filterByVendor('${v}')" class="vbtn${currentVendor===v?' active':''}">
-      ${v==='all'?'Всі':v} <span style="opacity:.55">${cnt}</span>
+function renderVendorBar() {
+  const vendors = ['all', ...new Set(allProducts.map(p => p.vendor))];
+  document.getElementById('vendorBar').innerHTML = vendors.map(v => {
+    const cnt = v === 'all' ? allProducts.length : allProducts.filter(p => p.vendor === v).length;
+    return `<button onclick="filterByVendor('${v}')" class="vbtn${currentVendor === v ? ' active' : ''}">
+      ${v === 'all' ? 'Всі' : v} <span style="opacity:.55">${cnt}</span>
     </button>`;
   }).join('');
 }
 
-function filterByVendor(v){
-  currentVendor=v; currentCategory='all'; currentPage=1;
+function filterByVendor(v) {
+  currentPage = 1;          // ← reset first
+  currentVendor = v;
+  currentCategory = 'all';
   renderVendorBar(); renderCatList();
-  document.getElementById('featuredSection').innerHTML='';
+  document.getElementById('featuredSection').innerHTML = '';
   performSearch();
 }
 
-// ═══ CATEGORIES — with parent/child support ═══
-function getAllChildCatIds(catId){
-  // Returns catId + all descendant IDs
-  const result=new Set([catId]);
-  let changed=true;
-  while(changed){
-    changed=false;
-    categories.forEach(c=>{
-      if(!result.has(c.id)&&result.has(c.parentId)){
-        result.add(c.id); changed=true;
-      }
-    });
-  }
-  return result;
-}
+// ═══ CATEGORIES ═══
+function renderCatList() {
+  const vp = currentVendor === 'all' ? allProducts : allProducts.filter(p => p.vendor === currentVendor);
+  const activeCatIds = new Set(vp.map(p => p.catId));
+  const catIds = new Set(categories.map(c => c.id));
 
-function renderCatList(){
-  const vp=currentVendor==='all'?allProducts:allProducts.filter(p=>p.vendor===currentVendor);
-  const activeCatIds=new Set(vp.map(p=>p.catId));
-
-  // Show only top-level (parentId empty or parentId not in categories)
-  const catIds=new Set(categories.map(c=>c.id));
-  const topLevel=categories.filter(c=>{
-    if(!activeCatIds.has(c.id)) return false;
-    // Check if parent exists — if not, it's top level
-    return !c.parentId||!catIds.has(c.parentId);
+  // Top-level = no parentId or parentId not in categories list
+  const topLevel = categories.filter(c => {
+    if (!activeCatIds.has(c.id)) {
+      // Check if any child of this category has active products
+      const children = getAllChildCatIds(c.id);
+      let hasProducts = false;
+      children.forEach(cid => { if (activeCatIds.has(cid)) hasProducts = true; });
+      if (!hasProducts) return false;
+    }
+    return !c.parentId || !catIds.has(c.parentId);
   });
 
-  // For display: count includes children
-  document.getElementById('categoryList').innerHTML=
-    `<button onclick="selectCat('all')" class="cbtn${currentCategory==='all'?' active':''}">Всі категорії</button>`+
-    topLevel.map(c=>{
-      const childIds=getAllChildCatIds(c.id);
-      const cnt=vp.filter(p=>childIds.has(p.catId)).length;
-      return`<button onclick="selectCat('${c.id}')" class="cbtn${currentCategory===c.id?' active':''}" data-catname="${c.name.toLowerCase()}">
+  document.getElementById('categoryList').innerHTML =
+    `<button onclick="selectCat('all')" class="cbtn${currentCategory === 'all' ? ' active' : ''}">Всі категорії</button>` +
+    topLevel.map(c => {
+      const childIds = getAllChildCatIds(c.id);
+      const cnt = vp.filter(p => childIds.has(p.catId)).length;
+      if (cnt === 0) return '';
+      return `<button onclick="selectCat('${c.id}')" class="cbtn${currentCategory === c.id ? ' active' : ''}" data-catname="${c.name.toLowerCase()}">
         ${c.name} <span style="opacity:.5">${cnt}</span>
       </button>`;
     }).join('');
 }
 
-function selectCat(id){
-  currentCategory=id; currentPage=1;
-  renderCatList(); performSearch();
-  if(window.innerWidth<1024) toggleAside(false);
+function selectCat(id) {
+  currentPage = 1;          // ← reset FIRST, before anything else
+  currentCategory = id;
+  renderCatList();
+  performSearch();
+  if (window.innerWidth < 1024) toggleAside(false);
 }
 
-function filterCatList(){
-  const q=document.getElementById('catSearch').value.toLowerCase();
-  document.querySelectorAll('#categoryList .cbtn[data-catname]').forEach(b=>{
-    b.classList.toggle('hidden',!b.dataset.catname.includes(q));
+function filterCatList() {
+  const q = document.getElementById('catSearch').value.toLowerCase();
+  document.querySelectorAll('#categoryList .cbtn[data-catname]').forEach(b => {
+    b.classList.toggle('hidden', !b.dataset.catname.includes(q));
   });
 }
 
 // ═══ FEATURED ═══
-function renderFeatured(){
-  if(!allProducts.length) return;
-  const picks=allProducts.slice(0,10);
-  document.getElementById('featuredSection').innerHTML=`
+function renderFeatured() {
+  if (!allProducts.length) return;
+  const picks = allProducts.slice(0, 10);
+  document.getElementById('featuredSection').innerHTML = `
     <div class="mb-6">
       <div class="flex items-center gap-2 mb-4">
         <div class="w-1 h-5 rounded-full" style="background:var(--accent);"></div>
         <span class="bebas tracking-widest" style="font-size:1.3rem;">Нові надходження</span>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-        ${picks.map((p,i)=>`
-          <div class="feat-card fade-up" style="animation-delay:${i*35}ms" onclick="openModal('${p.id}')">
+        ${picks.map((p, i) => `
+          <div class="feat-card fade-up" style="animation-delay:${i * 35}ms" onclick="openModal('${p.id}')">
             <div class="aspect-square flex items-center justify-center p-3 relative" style="background:var(--surface2);">
               <img src="${p.img}" class="max-w-full max-h-full object-contain" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
-              ${p.pics&&p.pics.length>1?`<span class="pic-count">📷 ${p.pics.length}</span>`:''}
+              ${p.pics && p.pics.length > 1 ? `<span class="pic-count">📷 ${p.pics.length}</span>` : ''}
             </div>
             <div class="p-3">
               <div class="text-[8px] font-black uppercase mb-1" style="color:var(--accent);">${p.vendor}</div>
@@ -841,66 +866,116 @@ function renderFeatured(){
     </div>`;
 }
 
-// ═══ SEARCH — with child category support ═══
-function performSearch(){
-  const q=document.getElementById('searchInput').value.toLowerCase().trim();
-  const minP=parseFloat(document.getElementById('minPrice').value)||0;
-  const maxP=parseFloat(document.getElementById('maxPrice').value)||9999999;
-  const sort=document.getElementById('sortSelect').value;
+// ═══ DEBOUNCED INPUTS ═══
+function onSearchInput() {
+  clearTimeout(searchDebounce);
+  const val = document.getElementById('searchInput').value;
+  document.getElementById('searchClearBtn').classList.toggle('hidden', !val);
+  searchDebounce = setTimeout(() => {
+    currentPage = 1;
+    performSearch();
+  }, 200);
+}
 
-  // Pre-compute child IDs for selected category
-  const childCatIds=currentCategory!=='all'?getAllChildCatIds(currentCategory):null;
+function onPriceInput() {
+  clearTimeout(priceDebounce);
+  priceDebounce = setTimeout(() => {
+    currentPage = 1;
+    performSearch();
+  }, 300);
+}
 
-  let filtered=allProducts.filter(p=>{
-    if(currentVendor!=='all'&&p.vendor!==currentVendor) return false;
-    if(childCatIds&&!childCatIds.has(p.catId)) return false;
-    if(p.price<minP||p.price>maxP) return false;
-    if(q&&!p.name.toLowerCase().includes(q)&&!p.id.includes(q)) return false;
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClearBtn').classList.add('hidden');
+  currentPage = 1;
+  performSearch();
+}
+
+// ═══ SEARCH — searches name, id, vendor, params, description ═══
+function performSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const minP = parseFloat(document.getElementById('minPrice').value) || 0;
+  const maxP = parseFloat(document.getElementById('maxPrice').value) || 9999999;
+  const sort = document.getElementById('sortSelect').value;
+
+  // Pre-compute child IDs for selected category (cached)
+  const childCatIds = currentCategory !== 'all' ? getAllChildCatIds(currentCategory) : null;
+
+  let filtered = allProducts.filter(p => {
+    if (currentVendor !== 'all' && p.vendor !== currentVendor) return false;
+    if (childCatIds && !childCatIds.has(p.catId)) return false;
+    if (p.price < minP || p.price > maxP) return false;
+    // Single fast check against pre-built searchText
+    if (q && !p.searchText.includes(q)) return false;
     return true;
   });
 
-  if(sort==='price_asc')  filtered.sort((a,b)=>a.price-b.price);
-  if(sort==='price_desc') filtered.sort((a,b)=>b.price-a.price);
-  if(sort==='name_asc')   filtered.sort((a,b)=>a.name.localeCompare(b.name));
-  if(sort==='name_desc')  filtered.sort((a,b)=>b.name.localeCompare(a.name));
+  if (sort === 'price_asc')  filtered.sort((a, b) => a.price - b.price);
+  if (sort === 'price_desc') filtered.sort((a, b) => b.price - a.price);
+  if (sort === 'name_asc')   filtered.sort((a, b) => a.name.localeCompare(b.name));
+  if (sort === 'name_desc')  filtered.sort((a, b) => b.name.localeCompare(a.name));
 
-  const total=filtered.length;
-  const start=(currentPage-1)*itemsPerPage;
-  renderGrid(filtered.slice(start,start+itemsPerPage));
-  renderPagination(Math.ceil(total/itemsPerPage));
-  document.getElementById('resultsCount').textContent=`Знайдено: ${total} товарів`;
-  document.getElementById('infoBar').classList.toggle('hidden',total===0);
+  const total = filtered.length;
+  const maxPage = Math.ceil(total / itemsPerPage);
+
+  // Safety: if currentPage exceeds available pages, reset to 1
+  if (currentPage > maxPage && maxPage > 0) currentPage = 1;
+
+  const start = (currentPage - 1) * itemsPerPage;
+  renderGrid(filtered.slice(start, start + itemsPerPage), q);
+  renderPagination(maxPage);
+
+  // Results info
+  let countText = `Знайдено: ${total} товарів`;
+  if (q && total > 0) countText += ` за запитом «${q}»`;
+  document.getElementById('resultsCount').textContent = countText;
+  document.getElementById('infoBar').classList.toggle('hidden', total === 0 && !q);
 }
 
-function resetFilters(){
-  currentVendor='all'; currentCategory='all'; currentPage=1;
-  document.getElementById('searchInput').value='';
-  document.getElementById('minPrice').value='';
-  document.getElementById('maxPrice').value='';
-  document.getElementById('sortSelect').value='default';
+function resetFilters() {
+  currentPage = 1;
+  currentVendor = 'all'; currentCategory = 'all';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClearBtn').classList.add('hidden');
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  document.getElementById('sortSelect').value = 'default';
   renderVendorBar(); renderCatList(); performSearch();
 }
 
+// ═══ HIGHLIGHT helper ═══
+function highlightText(text, q) {
+  if (!q || q.length < 2) return text;
+  try {
+    const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return text.replace(re, '<mark class="search-highlight">$1</mark>');
+  } catch { return text; }
+}
+
 // ═══ GRID ═══
-function renderGrid(list){
-  const grid=document.getElementById('productGrid');
-  if(!list.length){
-    grid.innerHTML=`<div class="col-span-full text-center py-20 font-black uppercase" style="color:var(--text2);opacity:.3;">Товари не знайдено</div>`;
+function renderGrid(list, q = '') {
+  const grid = document.getElementById('productGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="col-span-full text-center py-20 font-black uppercase" style="color:var(--text2);opacity:.3;">
+      ${q ? `Нічого не знайдено за запитом «${q}»` : 'Товари не знайдено'}
+    </div>`;
     return;
   }
-  grid.className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4';
-  const margin=parseInt(document.getElementById('globalMargin').value)||20;
-  grid.innerHTML=list.map((p,i)=>{
-    const saleP=Math.round(p.price*(1+margin/100));
-    const prof=saleP-p.price;
-    const multi=p.pics&&p.pics.length>1;
-    return`<div class="pcard p-3 cursor-pointer flex flex-col fade-up" style="animation-delay:${Math.min(i,8)*30}ms" onclick="openModal('${p.id}')">
+  grid.className = 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4';
+  const margin = parseInt(document.getElementById('globalMargin').value) || 20;
+  grid.innerHTML = list.map((p, i) => {
+    const saleP = Math.round(p.price * (1 + margin / 100));
+    const prof = saleP - p.price;
+    const multi = p.pics && p.pics.length > 1;
+    const displayName = highlightText(p.name, q);
+    return `<div class="pcard p-3 cursor-pointer flex flex-col fade-up" style="animation-delay:${Math.min(i, 8) * 30}ms" onclick="openModal('${p.id}')">
       <div class="aspect-square rounded-xl mb-3 flex items-center justify-center p-3 relative overflow-hidden" style="background:var(--surface2);">
         <img src="${p.img}" class="max-w-full max-h-full object-contain mix-blend-multiply" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
         <span class="absolute top-2 left-2 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full" style="background:var(--surface);color:var(--accent);border:1px solid var(--border);">${p.vendor}</span>
-        ${multi?`<span class="pic-count">📷 ${p.pics.length}</span>`:''}
+        ${multi ? `<span class="pic-count">📷 ${p.pics.length}</span>` : ''}
       </div>
-      <h3 class="text-[10px] font-bold leading-tight mb-2 uppercase line-clamp-2" style="color:var(--text);min-height:2.2rem;">${p.name}</h3>
+      <h3 class="text-[10px] font-bold leading-tight mb-2 uppercase line-clamp-2" style="color:var(--text);min-height:2.2rem;">${displayName}</h3>
       <div class="mt-auto flex justify-between items-center pt-2" style="border-top:1px solid var(--border);" onclick="event.stopPropagation()">
         <div>
           <div class="bebas" style="font-size:1.1rem;color:var(--text);">${p.price} ₴</div>
@@ -915,188 +990,199 @@ function renderGrid(list){
 }
 
 // ═══ PAGINATION ═══
-function renderPagination(total){
-  const w=document.getElementById('pagination');
-  if(total<=1){w.innerHTML='';return;}
-  let h='';
-  for(let i=1;i<=total;i++){
-    if(i===1||i===total||(i>=currentPage-1&&i<=currentPage+1)){
-      h+=`<button onclick="currentPage=${i};performSearch();window.scrollTo({top:0,behavior:'smooth'})" class="pbtn${currentPage===i?' active':''}">${i}</button>`;
-    }else if(i===currentPage-2||i===currentPage+2){
-      h+=`<span style="color:var(--text2);font-weight:800;">…</span>`;
+function renderPagination(total) {
+  const w = document.getElementById('pagination');
+  if (total <= 1) { w.innerHTML = ''; return; }
+  let h = '';
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      h += `<button onclick="goToPage(${i})" class="pbtn${currentPage === i ? ' active' : ''}">${i}</button>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      h += `<span style="color:var(--text2);font-weight:800;">…</span>`;
     }
   }
-  w.innerHTML=h;
+  w.innerHTML = h;
+}
+
+function goToPage(n) {
+  currentPage = n;
+  performSearch();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ═══ GALLERY ═══
-function galInit(pics){
-  galPics=pics&&pics.length?pics:[];
-  galIdx=0;
-  const track=document.getElementById('galTrack');
-  track.style.transition='none';
-  track.innerHTML=galPics.map(src=>
-    `<div class="gal-slide" onclick="openViewer(${galIdx})">
+function galInit(pics) {
+  galPics = pics && pics.length ? pics : [];
+  galIdx = 0;
+  const track = document.getElementById('galTrack');
+  track.style.transition = 'none';
+  track.innerHTML = galPics.map((src, i) =>
+    `<div class="gal-slide" data-idx="${i}">
       <img src="${src}" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-multiply;" onerror="this.src='${PLACEHOLDER}'" loading="lazy">
     </div>`
   ).join('');
-  // Fix onclick to use correct index per slide
-  track.querySelectorAll('.gal-slide').forEach((slide,i)=>{
-    slide.onclick=()=>openViewer(i);
+  track.querySelectorAll('.gal-slide').forEach(slide => {
+    const idx = parseInt(slide.dataset.idx);
+    slide.onclick = () => openViewer(idx);
   });
-  setTimeout(()=>{track.style.transition='transform .35s cubic-bezier(.4,0,.2,1)';},50);
-  track.style.transform='translateX(0)';
+  setTimeout(() => { track.style.transition = 'transform .35s cubic-bezier(.4,0,.2,1)'; }, 50);
+  track.style.transform = 'translateX(0)';
 
-  const multi=galPics.length>1;
-  document.getElementById('galPrev').style.display=multi?'flex':'none';
-  document.getElementById('galNext').style.display=multi?'flex':'none';
+  const multi = galPics.length > 1;
+  document.getElementById('galPrev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('galNext').style.display = multi ? 'flex' : 'none';
 
-  const dots=document.getElementById('galDots');
-  dots.innerHTML=multi?galPics.map((_,i)=>`<div class="gal-dot${i===0?' active':''}" onclick="galGo(${i})"></div>`).join(''):'';
+  const dots = document.getElementById('galDots');
+  dots.innerHTML = multi ? galPics.map((_, i) => `<div class="gal-dot${i === 0 ? ' active' : ''}" onclick="galGo(${i})"></div>`).join('') : '';
 
-  const cnt=document.getElementById('galCount');
-  if(multi){cnt.style.display='block';cnt.textContent=`1 / ${galPics.length}`;}
-  else cnt.style.display='none';
+  const cnt = document.getElementById('galCount');
+  if (multi) { cnt.style.display = 'block'; cnt.textContent = `1 / ${galPics.length}`; }
+  else cnt.style.display = 'none';
 }
 
-function galMove(dir){galIdx=(galIdx+dir+galPics.length)%galPics.length;galGo(galIdx);}
-function galGo(idx){
-  galIdx=idx;
-  document.getElementById('galTrack').style.transform=`translateX(-${idx*100}%)`;
-  document.querySelectorAll('.gal-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
-  const cnt=document.getElementById('galCount');
-  if(cnt.style.display!=='none') cnt.textContent=`${idx+1} / ${galPics.length}`;
+function galMove(dir) { galIdx = (galIdx + dir + galPics.length) % galPics.length; galGo(galIdx); }
+function galGo(idx) {
+  galIdx = idx;
+  document.getElementById('galTrack').style.transform = `translateX(-${idx * 100}%)`;
+  document.querySelectorAll('.gal-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  const cnt = document.getElementById('galCount');
+  if (cnt.style.display !== 'none') cnt.textContent = `${idx + 1} / ${galPics.length}`;
 }
 
 // ═══ FULLSCREEN VIEWER ═══
-function openViewer(startIdx){
-  pvPics=galPics; pvIdx=startIdx||0;
-  const track=document.getElementById('pvTrack');
-  track.style.transition='none';
-  track.innerHTML=pvPics.map(src=>`
+function openViewer(startIdx) {
+  pvPics = galPics; pvIdx = startIdx || 0;
+  const track = document.getElementById('pvTrack');
+  track.style.transition = 'none';
+  track.innerHTML = pvPics.map(src => `
     <div class="pv-slide"><img src="${src}" onerror="this.src='${PLACEHOLDER}'"></div>`).join('');
-  setTimeout(()=>{track.style.transition='transform .35s cubic-bezier(.4,0,.2,1)';},50);
+  setTimeout(() => { track.style.transition = 'transform .35s cubic-bezier(.4,0,.2,1)'; }, 50);
   pvUpdate();
   document.getElementById('photoViewer').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
-function closeViewer(){
+function closeViewer() {
   document.getElementById('photoViewer').classList.remove('open');
-  // Keep modal open
 }
-function pvMove(dir){pvIdx=(pvIdx+dir+pvPics.length)%pvPics.length;pvUpdate();}
-function pvUpdate(){
-  document.getElementById('pvTrack').style.transform=`translateX(-${pvIdx*100}vw)`;
-  document.getElementById('pvCount').textContent=pvPics.length>1?`${pvIdx+1} / ${pvPics.length}`:'';
+function pvMove(dir) { pvIdx = (pvIdx + dir + pvPics.length) % pvPics.length; pvUpdate(); }
+function pvUpdate() {
+  document.getElementById('pvTrack').style.transform = `translateX(-${pvIdx * 100}vw)`;
+  document.getElementById('pvCount').textContent = pvPics.length > 1 ? `${pvIdx + 1} / ${pvPics.length}` : '';
 }
 
 // ═══ MODAL ═══
-function openModal(id){
-  const p=allProducts.find(x=>x.id===id);
-  if(!p) return;
-  currentModalProduct=p;
+function openModal(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  currentModalProduct = p;
 
-  const pics=p.pics&&p.pics.length?p.pics:(p.img?[p.img]:[]);
+  const pics = p.pics && p.pics.length ? p.pics : (p.img ? [p.img] : []);
   galInit(pics);
 
-  document.getElementById('modalName').textContent=p.name;
-  document.getElementById('modalPrice').textContent=p.price+' ₴';
-  document.getElementById('modalVendorBadge').textContent=p.vendor;
-  document.getElementById('modalIdBadge').textContent='ID: '+p.id;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalPrice').textContent = p.price + ' ₴';
+  document.getElementById('modalVendorBadge').textContent = p.vendor;
+  document.getElementById('modalIdBadge').textContent = 'ID: ' + p.id;
 
-  // Format description on demand
-  const descEl=document.getElementById('tabDescContent');
-  const formatted=formatDesc(p.rawDesc);
-  descEl.innerHTML=formatted||'<p style="opacity:.4;font-style:italic;">Опис відсутній</p>';
-
-  const tbl=document.getElementById('paramsTable');
-  if(p.params&&p.params.length){
-    tbl.innerHTML=p.params.map(pr=>`<tr><td>${pr.name}</td><td style="font-weight:700;">${pr.value}</td></tr>`).join('');
-  }else{
-    tbl.innerHTML='<tr><td colspan="2" style="opacity:.35;text-align:center;padding:16px;font-size:.75rem;">Характеристики відсутні</td></tr>';
+  // Show brand badge if vendorTag differs from vendor (source name)
+  const vNameBadge = document.getElementById('modalVendorNameBadge');
+  if (p.vendorTag && p.vendorTag !== 'NoBrand' && p.vendorTag.toUpperCase() !== p.vendor) {
+    vNameBadge.textContent = '🏷 ' + p.vendorTag;
+    vNameBadge.classList.remove('hidden');
+  } else {
+    vNameBadge.classList.add('hidden');
   }
 
-  const addBtn=document.getElementById('modalAddBtn');
-  addBtn.style.background=document.body.getAttribute('data-theme')==='dark'?'#e6edf3':'#0f172a';
-  addBtn.style.color=document.body.getAttribute('data-theme')==='dark'?'#0f172a':'#fff';
-  addBtn.onclick=()=>{addToCart(id);closeModal();};
+  const descEl = document.getElementById('tabDescContent');
+  const formatted = formatDesc(p.rawDesc);
+  descEl.innerHTML = formatted || '<p style="opacity:.4;font-style:italic;">Опис відсутній</p>';
+
+  const tbl = document.getElementById('paramsTable');
+  if (p.params && p.params.length) {
+    tbl.innerHTML = p.params.map(pr => `<tr><td>${pr.name}</td><td style="font-weight:700;">${pr.value}</td></tr>`).join('');
+  } else {
+    tbl.innerHTML = '<tr><td colspan="2" style="opacity:.35;text-align:center;padding:16px;font-size:.75rem;">Характеристики відсутні</td></tr>';
+  }
+
+  const addBtn = document.getElementById('modalAddBtn');
+  addBtn.style.background = document.body.getAttribute('data-theme') === 'dark' ? '#e6edf3' : '#0f172a';
+  addBtn.style.color = document.body.getAttribute('data-theme') === 'dark' ? '#0f172a' : '#fff';
+  addBtn.onclick = () => { addToCart(id); closeModal(); };
 
   modalTab('desc');
-  // Scroll info to top
-  const scroll=document.querySelector('.modal-scroll');
-  if(scroll) scroll.scrollTop=0;
+  const scroll = document.querySelector('.modal-scroll');
+  if (scroll) scroll.scrollTop = 0;
 
   document.getElementById('productModal').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
 
-function closeModal(){
+function closeModal() {
   document.getElementById('productModal').classList.remove('open');
   document.getElementById('photoViewer').classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 
-function modalTab(tab){
-  const isDesc=tab==='desc';
-  document.getElementById('tabDescContent').classList.toggle('hidden',!isDesc);
-  document.getElementById('tabParamsContent').classList.toggle('hidden',isDesc);
-  document.getElementById('tabDesc').classList.toggle('active',isDesc);
-  document.getElementById('tabParams').classList.toggle('active',!isDesc);
-  // Scroll to top when switching tabs
-  const scroll=document.querySelector('.modal-scroll');
-  if(scroll) scroll.scrollTop=0;
+function modalTab(tab) {
+  const isDesc = tab === 'desc';
+  document.getElementById('tabDescContent').classList.toggle('hidden', !isDesc);
+  document.getElementById('tabParamsContent').classList.toggle('hidden', isDesc);
+  document.getElementById('tabDesc').classList.toggle('active', isDesc);
+  document.getElementById('tabParams').classList.toggle('active', !isDesc);
+  const scroll = document.querySelector('.modal-scroll');
+  if (scroll) scroll.scrollTop = 0;
 }
 
-function copyModalDesc(){
-  const p=currentModalProduct; if(!p) return;
-  const tmp=document.createElement('div');
-  tmp.innerHTML=formatDesc(p.rawDesc)||'';
-  let text=p.name+'\n\nЦіна: '+p.price+' ₴\n\n'+(tmp.textContent||tmp.innerText||'Опис відсутній');
-  if(p.params&&p.params.length){
-    text+='\n\nХарактеристики:\n';
-    p.params.forEach(pr=>{text+=pr.name+': '+pr.value+'\n';});
+function copyModalDesc() {
+  const p = currentModalProduct; if (!p) return;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = formatDesc(p.rawDesc) || '';
+  let text = p.name + '\n\nЦіна: ' + p.price + ' ₴\n\n' + (tmp.textContent || tmp.innerText || 'Опис відсутній');
+  if (p.params && p.params.length) {
+    text += '\n\nХарактеристики:\n';
+    p.params.forEach(pr => { text += pr.name + ': ' + pr.value + '\n'; });
   }
-  navigator.clipboard.writeText(text).then(()=>showToast('📋 Опис скопійовано!'));
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Опис скопійовано!'));
 }
 
 // ═══ CONTACT ═══
-function openContact(){document.getElementById('contactModal').classList.add('open');document.body.style.overflow='hidden';}
-function closeContact(){document.getElementById('contactModal').classList.remove('open');document.body.style.overflow='';}
+function openContact() { document.getElementById('contactModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeContact() { document.getElementById('contactModal').classList.remove('open'); document.body.style.overflow = ''; }
 
 // ═══ CART ═══
-function addToCart(id){
-  const existing=cart.find(i=>i.id===id);
-  if(existing){existing.count++;}
-  else{
-    const p=allProducts.find(x=>x.id===id); if(!p) return;
-    const margin=parseInt(document.getElementById('globalMargin').value)||20;
-    cart.push({id:p.id,name:p.name,price:p.price,img:p.img,vendor:p.vendor,salePrice:Math.round(p.price*(1+margin/100)),count:1});
+function addToCart(id) {
+  const existing = cart.find(i => i.id === id);
+  if (existing) { existing.count++; }
+  else {
+    const p = allProducts.find(x => x.id === id); if (!p) return;
+    const margin = parseInt(document.getElementById('globalMargin').value) || 20;
+    cart.push({ id: p.id, name: p.name, price: p.price, img: p.img, vendor: p.vendor, salePrice: Math.round(p.price * (1 + margin / 100)), count: 1 });
   }
   saveCart(); updateCartUI(); showToast();
 }
 
-function applyGlobalMargin(){
-  const margin=parseInt(document.getElementById('globalMargin').value)||20;
-  cart.forEach(item=>{item.salePrice=Math.round(item.price*(1+margin/100));});
+function applyGlobalMargin() {
+  const margin = parseInt(document.getElementById('globalMargin').value) || 20;
+  cart.forEach(item => { item.salePrice = Math.round(item.price * (1 + margin / 100)); });
   saveCart(); updateCartUI();
 }
 
-function inlineUpdate(id,val){const item=cart.find(i=>i.id===id);if(item){item.salePrice=parseInt(val)||0;saveCart();updateCartUI();}}
-function updateCount(id,delta){const item=cart.find(i=>i.id===id);if(item){item.count=Math.max(1,item.count+delta);saveCart();updateCartUI();}}
-function removeFromCart(id){cart=cart.filter(i=>i.id!==id);saveCart();updateCartUI();}
-function saveCart(){localStorage.setItem('utrade_v9',JSON.stringify(cart));}
+function inlineUpdate(id, val) { const item = cart.find(i => i.id === id); if (item) { item.salePrice = parseInt(val) || 0; saveCart(); updateCartUI(); } }
+function updateCount(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.count = Math.max(1, item.count + delta); saveCart(); updateCartUI(); } }
+function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); updateCartUI(); }
+function saveCart() { localStorage.setItem('utrade_v9', JSON.stringify(cart)); }
 
-function updateCartUI(){
-  const el=document.getElementById('cartItems');
-  let cost=0,total=0,profit=0;
-  if(!cart.length){
-    el.innerHTML=`<div class="py-20 text-center font-black uppercase" style="color:var(--text2);opacity:.25;">Кошик порожній</div>`;
-  }else{
-    el.innerHTML=cart.map(p=>{
-      const pP=(p.salePrice-p.price)*p.count, pT=p.salePrice*p.count;
-      cost+=p.price*p.count; total+=pT; profit+=pP;
-      const pc=pP>=0?'var(--green)':'var(--red)';
-      return`<div class="rounded-xl p-3 relative" style="background:var(--surface);border:1px solid var(--border);">
+function updateCartUI() {
+  const el = document.getElementById('cartItems');
+  let cost = 0, total = 0, profit = 0;
+  if (!cart.length) {
+    el.innerHTML = `<div class="py-20 text-center font-black uppercase" style="color:var(--text2);opacity:.25;">Кошик порожній</div>`;
+  } else {
+    el.innerHTML = cart.map(p => {
+      const pP = (p.salePrice - p.price) * p.count, pT = p.salePrice * p.count;
+      cost += p.price * p.count; total += pT; profit += pP;
+      const pc = pP >= 0 ? 'var(--green)' : 'var(--red)';
+      return `<div class="rounded-xl p-3 relative" style="background:var(--surface);border:1px solid var(--border);">
         <button onclick="removeFromCart('${p.id}')" class="absolute top-2.5 right-2.5 w-6 h-6 rounded-lg flex items-center justify-center text-xs hover:text-red-500" style="background:var(--surface2);color:var(--text2);">✕</button>
         <div class="flex gap-2.5 items-center mb-2.5 pr-7">
           <img src="${p.img}" class="w-10 h-10 object-contain rounded-lg shrink-0" style="background:var(--surface2);" onerror="this.src='${PLACEHOLDER}'">
@@ -1119,141 +1205,134 @@ function updateCartUI(){
             </div>
           </div>
         </div>
-        <div class="mt-1.5 text-right text-[9px] font-black" style="color:${pc};">${pP>=0?'+':''}${pP} ₴ прибуток · разом ${pT} ₴</div>
+        <div class="mt-1.5 text-right text-[9px] font-black" style="color:${pc};">${pP >= 0 ? '+' : ''}${pP} ₴ прибуток · разом ${pT} ₴</div>
       </div>`;
     }).join('');
   }
-  const cnt=cart.reduce((s,i)=>s+i.count,0);
-  const cc=document.getElementById('cartCount');
-  cc.textContent=cnt; cc.classList.toggle('hidden',cnt===0); cc.classList.toggle('flex',cnt>0);
-  document.getElementById('cartCost').textContent=cost+' ₴';
-  document.getElementById('cartTotal').textContent=total+' ₴';
-  document.getElementById('cartProfit').textContent=(profit>=0?'+':'')+profit+' ₴';
+  const cnt = cart.reduce((s, i) => s + i.count, 0);
+  const cc = document.getElementById('cartCount');
+  cc.textContent = cnt; cc.classList.toggle('hidden', cnt === 0); cc.classList.toggle('flex', cnt > 0);
+  document.getElementById('cartCost').textContent = cost + ' ₴';
+  document.getElementById('cartTotal').textContent = total + ' ₴';
+  document.getElementById('cartProfit').textContent = (profit >= 0 ? '+' : '') + profit + ' ₴';
 }
 
 // ═══ CHECKOUT ═══
-function toggleCheckout(){
-  checkoutOpen=!checkoutOpen;
-  document.getElementById('checkoutForm').classList.toggle('open',checkoutOpen);
-  document.getElementById('checkoutToggleBtn').innerHTML=checkoutOpen
-    ?'<i class="fa-solid fa-xmark mr-1"></i> Закрити форму'
-    :'<i class="fa-solid fa-clipboard-list mr-1"></i> Оформити замовлення';
+function toggleCheckout() {
+  checkoutOpen = !checkoutOpen;
+  document.getElementById('checkoutForm').classList.toggle('open', checkoutOpen);
+  document.getElementById('checkoutToggleBtn').innerHTML = checkoutOpen
+    ? '<i class="fa-solid fa-xmark mr-1"></i> Закрити форму'
+    : '<i class="fa-solid fa-clipboard-list mr-1"></i> Оформити замовлення';
 }
 
-// ═══ ORDER — fixed for long messages ═══
-function buildOrderText(short=false){
-  const name=document.getElementById('clientName').value.trim()||'Не вказано';
-  const phone=document.getElementById('clientPhone').value.trim()||'Не вказано';
-  const city=document.getElementById('clientCity').value.trim()||'Не вказано';
-  const payment=document.getElementById('paymentType').value;
-  const comment=document.getElementById('clientComment').value.trim();
-  let cost=0,total=0,profit=0,lines='';
-  cart.forEach((p,i)=>{
-    const t=p.salePrice*p.count;
-    cost+=p.price*p.count; total+=t; profit+=(p.salePrice-p.price)*p.count;
-    // For short version truncate name to 35 chars
-    const nm=short&&p.name.length>35?p.name.slice(0,33)+'…':p.name;
-    lines+=`${i+1}. ${nm}\n   ${p.count} шт. × ${p.salePrice} ₴ = ${t} ₴\n`;
+function buildOrderText(short = false) {
+  const name = document.getElementById('clientName').value.trim() || 'Не вказано';
+  const phone = document.getElementById('clientPhone').value.trim() || 'Не вказано';
+  const city = document.getElementById('clientCity').value.trim() || 'Не вказано';
+  const payment = document.getElementById('paymentType').value;
+  const comment = document.getElementById('clientComment').value.trim();
+  let cost = 0, total = 0, profit = 0, lines = '';
+  cart.forEach((p, i) => {
+    const t = p.salePrice * p.count;
+    cost += p.price * p.count; total += t; profit += (p.salePrice - p.price) * p.count;
+    const nm = short && p.name.length > 35 ? p.name.slice(0, 33) + '…' : p.name;
+    lines += `${i + 1}. ${nm}\n   ${p.count} шт. × ${p.salePrice} ₴ = ${t} ₴\n`;
   });
-  let msg=`🚀 ЗАМОВЛЕННЯ UTRADE\n━━━━━━━━━━━━━━━━━━━━\n`;
-  msg+=`👤 ${name}\n📞 ${phone}\n📦 ${city}\n💳 ${payment}\n`;
-  if(comment) msg+=`💬 ${comment}\n`;
-  msg+=`━━━━━━━━━━━━━━━━━━━━\n${lines}━━━━━━━━━━━━━━━━━━━━\n`;
-  msg+=`🛒 Закуп: ${cost} ₴  |  💰 Продаж: ${total} ₴  |  📈 +${profit} ₴`;
+  let msg = `🚀 ЗАМОВЛЕННЯ UTRADE\n━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `👤 ${name}\n📞 ${phone}\n📦 ${city}\n💳 ${payment}\n`;
+  if (comment) msg += `💬 ${comment}\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━\n${lines}━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `🛒 Закуп: ${cost} ₴  |  💰 Продаж: ${total} ₴  |  📈 +${profit} ₴`;
   return msg;
 }
 
-function sendOrder(channel){
-  if(!cart.length){showToast('⚠️ Кошик порожній!');return;}
-  if(channel==='copy'){
-    // Full text always
-    navigator.clipboard.writeText(buildOrderText(false)).then(()=>showToast('📋 Замовлення скопійовано!'));
+function sendOrder(channel) {
+  if (!cart.length) { showToast('⚠️ Кошик порожній!'); return; }
+  if (channel === 'copy') {
+    navigator.clipboard.writeText(buildOrderText(false)).then(() => showToast('📋 Замовлення скопійовано!'));
     return;
   }
-  // For Viber/Telegram — use short names, check length
-  const shortMsg=buildOrderText(true);
-  const encoded=encodeURIComponent(shortMsg);
-
-  if(encoded.length>2000){
-    // Too long — auto copy full and warn
+  const shortMsg = buildOrderText(true);
+  const encoded = encodeURIComponent(shortMsg);
+  if (encoded.length > 2000) {
     navigator.clipboard.writeText(buildOrderText(false));
     showToast('📋 Замовлення велике — скопійовано! Вставте вручну');
     return;
   }
-
-  if(channel==='viber') window.open(`viber://chat?number=%2B380666172764&draft=${encoded}`);
-  else if(channel==='telegram') window.open(`https://t.me/your_bot?text=${encoded}`);
+  if (channel === 'viber') window.open(`viber://chat?number=%2B380666172764&draft=${encoded}`);
+  else if (channel === 'telegram') window.open(`https://t.me/your_bot?text=${encoded}`);
 }
 
 // ═══ CSV ═══
-function exportCSV(){
-  const margin=parseInt(document.getElementById('globalMargin').value)||20;
-  const q=document.getElementById('searchInput').value.toLowerCase();
-  const minP=parseFloat(document.getElementById('minPrice').value)||0;
-  const maxP=parseFloat(document.getElementById('maxPrice').value)||9999999;
-  const childCatIds=currentCategory!=='all'?getAllChildCatIds(currentCategory):null;
-  const filtered=allProducts.filter(p=>{
-    if(currentVendor!=='all'&&p.vendor!==currentVendor) return false;
-    if(childCatIds&&!childCatIds.has(p.catId)) return false;
-    if(p.price<minP||p.price>maxP) return false;
-    if(q&&!p.name.toLowerCase().includes(q)) return false;
+function exportCSV() {
+  const margin = parseInt(document.getElementById('globalMargin').value) || 20;
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const minP = parseFloat(document.getElementById('minPrice').value) || 0;
+  const maxP = parseFloat(document.getElementById('maxPrice').value) || 9999999;
+  const childCatIds = currentCategory !== 'all' ? getAllChildCatIds(currentCategory) : null;
+  const filtered = allProducts.filter(p => {
+    if (currentVendor !== 'all' && p.vendor !== currentVendor) return false;
+    if (childCatIds && !childCatIds.has(p.catId)) return false;
+    if (p.price < minP || p.price > maxP) return false;
+    if (q && !p.searchText.includes(q)) return false;
     return true;
   });
-  const rows=[['ID','Назва','Постачальник','Категорія','Закуп (₴)','Продаж (₴)','Прибуток (₴)']];
-  filtered.forEach(p=>{
-    const cat=categories.find(c=>c.id===p.catId)?.name||'';
-    const saleP=Math.round(p.price*(1+margin/100));
-    rows.push([p.id,p.name,p.vendor,cat,p.price,saleP,saleP-p.price]);
+  const rows = [['ID', 'Назва', 'Постачальник', 'Бренд', 'Категорія', 'Наявність', 'Закуп (₴)', 'Продаж (₴)', 'Прибуток (₴)']];
+  filtered.forEach(p => {
+    const cat = categories.find(c => c.id === p.catId)?.name || '';
+    const saleP = Math.round(p.price * (1 + margin / 100));
+    rows.push([p.id, p.name, p.vendor, p.vendorTag, cat, p.stock, p.price, saleP, saleP - p.price]);
   });
-  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`utrade_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `utrade_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
   showToast('📊 CSV завантажено!');
 }
 
 // ═══ UI HELPERS ═══
-function toggleAside(show){
-  document.getElementById('sidePanel').classList.toggle('aside-open',show);
-  document.getElementById('asideOverlay').classList.toggle('hidden',!show);
+function toggleAside(show) {
+  document.getElementById('sidePanel').classList.toggle('aside-open', show);
+  document.getElementById('asideOverlay').classList.toggle('hidden', !show);
 }
-function toggleCart(show){
-  document.getElementById('cartSidebar').classList.toggle('cart-open',show);
-  document.getElementById('cartOverlay').classList.toggle('hidden',!show);
+function toggleCart(show) {
+  document.getElementById('cartSidebar').classList.toggle('cart-open', show);
+  document.getElementById('cartOverlay').classList.toggle('hidden', !show);
 }
 
 // Backdrop clicks
-document.getElementById('productModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.getElementById('contactModal').addEventListener('click',function(e){if(e.target===this)closeContact();});
+document.getElementById('productModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+document.getElementById('contactModal').addEventListener('click', function (e) { if (e.target === this) closeContact(); });
 
 // Keyboard
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    if(document.getElementById('photoViewer').classList.contains('open')) closeViewer();
-    else{closeModal();closeContact();}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('photoViewer').classList.contains('open')) closeViewer();
+    else { closeModal(); closeContact(); }
   }
-  const modalOpen=document.getElementById('productModal').classList.contains('open');
-  const viewerOpen=document.getElementById('photoViewer').classList.contains('open');
-  if(e.key==='ArrowLeft'){if(viewerOpen)pvMove(-1);else if(modalOpen)galMove(-1);}
-  if(e.key==='ArrowRight'){if(viewerOpen)pvMove(1);else if(modalOpen)galMove(1);}
+  const modalOpen = document.getElementById('productModal').classList.contains('open');
+  const viewerOpen = document.getElementById('photoViewer').classList.contains('open');
+  if (e.key === 'ArrowLeft') { if (viewerOpen) pvMove(-1); else if (modalOpen) galMove(-1); }
+  if (e.key === 'ArrowRight') { if (viewerOpen) pvMove(1); else if (modalOpen) galMove(1); }
 });
 
 // Touch swipe — gallery
-let tsX=0,tsY=0;
-document.getElementById('galTrack').addEventListener('touchstart',e=>{tsX=e.changedTouches[0].clientX;tsY=e.changedTouches[0].clientY;},{passive:true});
-document.getElementById('galTrack').addEventListener('touchend',e=>{
-  const dx=e.changedTouches[0].clientX-tsX;
-  const dy=e.changedTouches[0].clientY-tsY;
-  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40) galMove(dx<0?1:-1);
-},{passive:true});
+let tsX = 0, tsY = 0;
+document.getElementById('galTrack').addEventListener('touchstart', e => { tsX = e.changedTouches[0].clientX; tsY = e.changedTouches[0].clientY; }, { passive: true });
+document.getElementById('galTrack').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tsX;
+  const dy = e.changedTouches[0].clientY - tsY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) galMove(dx < 0 ? 1 : -1);
+}, { passive: true });
 
 // Touch swipe — fullscreen viewer
-let pvTsX=0;
-document.getElementById('pvTrack').addEventListener('touchstart',e=>{pvTsX=e.changedTouches[0].clientX;},{passive:true});
-document.getElementById('pvTrack').addEventListener('touchend',e=>{
-  const dx=e.changedTouches[0].clientX-pvTsX;
-  if(Math.abs(dx)>40) pvMove(dx<0?1:-1);
-},{passive:true});
+let pvTsX = 0;
+document.getElementById('pvTrack').addEventListener('touchstart', e => { pvTsX = e.changedTouches[0].clientX; }, { passive: true });
+document.getElementById('pvTrack').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - pvTsX;
+  if (Math.abs(dx) > 40) pvMove(dx < 0 ? 1 : -1);
+}, { passive: true });
 
 init();
 </script>
