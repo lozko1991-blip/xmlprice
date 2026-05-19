@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTRADE | Адмін-панель</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- SheetJS для Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#f0f4f8;--surface:#fff;--surface2:#f7f9fc;--border:#e2e8f0;--text:#0f172a;--text2:#64748b;--accent:#2563eb;--green:#10b981;--red:#ef4444;}
+[data-theme=dark]{--bg:#0d1117;--surface:#161b22;--surface2:#0d1117;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);}
+.bebas{font-family:'Bebas Neue',sans-serif;}
+.sec-title{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);}
+input,select,textarea{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:.65rem;font-family:'Manrope',sans-serif;transition:border-color .15s;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+input::placeholder{color:var(--text2);}
+nav{background:var(--surface);border-bottom:1px solid var(--border);}
+
+/* Статуси */
+.st{display:inline-block;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:999px;white-space:nowrap;}
+.st-new    {background:#eff6ff;color:#2563eb;}
+.st-proc   {background:#f0fdf4;color:#16a34a;}
+.st-pack   {background:#fefce8;color:#ca8a04;}
+.st-sent   {background:#fff7ed;color:#ea580c;}
+.st-done   {background:#f0fdf4;color:#15803d;font-weight:900;}
+.st-refused{background:#fef2f2;color:#dc2626;}
+.st-return {background:#f5f3ff;color:#7c3aed;}
+
+/* Table */
+.orders-table{width:100%;border-collapse:collapse;font-size:.72rem;}
+.orders-table th{text-align:left;padding:.5rem .6rem;color:var(--text2);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--border);white-space:nowrap;background:var(--surface);}
+.orders-table td{padding:.55rem .6rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text);}
+.orders-table tr:hover td{background:var(--surface2);}
+
+/* Editable cell */
+.editable{cursor:pointer;border-bottom:1px dashed var(--border);padding:1px 2px;}
+.editable:hover{border-color:var(--accent);color:var(--accent);}
+.edit-input{width:100%;min-width:80px;padding:2px 6px;font-size:.72rem;font-weight:700;border-radius:.4rem;}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#0f172a;color:#fff;padding:10px 22px;border-radius:999px;font-size:12px;font-weight:800;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* Login */
+#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;}
+
+/* Tab buttons */
+.tab-btn{padding:.5rem 1rem;font-size:.72rem;font-weight:800;border-radius:.65rem;cursor:pointer;transition:all .15s;}
+.tab-btn.active{background:var(--accent);color:#fff;}
+.tab-btn:not(.active){background:var(--surface);border:1px solid var(--border);color:var(--text2);}
+.tab-btn:not(.active):hover{border-color:var(--accent);color:var(--accent);}
+</style>
+</head>
+<body data-theme="light">
+
+<div id="toast"></div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div style="width:100%;max-width:360px;padding:1rem;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1.5rem;padding:2rem;">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="bebas tracking-widest" style="font-size:1.5rem;color:var(--text);">UTRADE</div>
+          <div class="sec-title">Адмін-панель</div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="sec-title mb-1.5">Пароль</div>
+        <input id="loginPass" type="password" placeholder="Введіть пароль" class="w-full px-4 py-3 text-sm" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      </div>
+      <button onclick="doAdminLogin()" class="w-full py-3 rounded-xl text-sm font-black text-white mt-2" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+        <i class="fa-solid fa-unlock mr-2"></i>Увійти
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50">
+  <div class="max-w-[1600px] mx-auto px-4 h-16 flex items-center gap-3">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+        <i class="fa-solid fa-shield-halved text-sm"></i>
+      </div>
+      <div class="hidden sm:block">
+        <div class="bebas tracking-widest" style="font-size:1.3rem;color:var(--text);">UTRADE</div>
+        <div class="sec-title">Адміністратор</div>
+      </div>
+    </a>
+    <div class="ml-auto flex items-center gap-2">
+      <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+      </button>
+      <button onclick="exportExcel()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:#16a34a;color:#fff;">
+        <i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Excel</span>
+      </button>
+      <button onclick="exportCSV()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i class="fa-solid fa-file-arrow-down"></i><span class="hidden sm:inline">CSV</span>
+      </button>
+      <button onclick="doAdminLogout()" class="w-9 h-9 rounded-xl flex items-center justify-center hover:text-red-500" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="max-w-[1600px] mx-auto px-4 py-5">
+
+  <!-- SUMMARY CARDS -->
+  <div id="summarySection" class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+      <div class="sec-title mb-1">Всього замовлень</div>
+      <div class="bebas" style="font-size:1.8rem;" id="sumTotal">0</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+      <div class="sec-title mb-1">Виконано</div>
+      <div class="bebas" style="font-size:1.8rem;color:var(--green);" id="sumDone">0</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+      <div class="sec-title mb-1">Нових сьогодні</div>
+      <div class="bebas" style="font-size:1.8rem;color:var(--accent);" id="sumToday">0</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+      <div class="sec-title mb-1">Відмов</div>
+      <div class="bebas" style="font-size:1.8rem;color:var(--red);" id="sumRefused">0</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div id="tabsSection" class="hidden flex gap-2 mb-4">
+    <button class="tab-btn active" onclick="switchTab('orders')" id="tabOrders">
+      <i class="fa-solid fa-list mr-1"></i>Замовлення
+    </button>
+    <button class="tab-btn" onclick="switchTab('dropers')" id="tabDropers">
+      <i class="fa-solid fa-users mr-1"></i>Дропери
+    </button>
+  </div>
+
+  <!-- ФІЛЬТРИ ЗАМОВЛЕНЬ -->
+  <div id="ordersFilters" class="hidden flex flex-wrap gap-2 items-center mb-4">
+    <input type="text" id="searchQ" placeholder="Пошук по товару, дроперу, ТТН..." class="px-3 py-2 text-xs" style="min-width:220px;" oninput="renderOrders()">
+    <select id="filterDroper" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold"></select>
+    <select id="filterStatus" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
+      <option value="all">Всі статуси</option>
+      <option>Новий</option>
+      <option>Оброблено</option>
+      <option>Комплектація</option>
+      <option>Відправлено</option>
+      <option>Виконано</option>
+      <option>Відмова клієнта</option>
+      <option>Повернення</option>
+    </select>
+    <input type="date" id="filterFrom" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
+    <input type="date" id="filterTo"   onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
+    <button onclick="resetFilters()" class="px-3 py-2 rounded-xl text-xs font-bold hover:text-red-500" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);">
+      <i class="fa-solid fa-rotate-left mr-1"></i>Скинути
+    </button>
+    <button onclick="refreshOrders()" class="px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:var(--accent);color:#fff;">
+      <i class="fa-solid fa-arrows-rotate mr-1"></i>Оновити
+    </button>
+    <span id="ordersCount" class="sec-title ml-auto"></span>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loadingBlock" class="hidden py-16 text-center">
+    <div class="w-8 h-8 rounded-full animate-spin mx-auto mb-3" style="border:3px solid var(--border);border-top-color:var(--accent);"></div>
+    <div class="text-sm font-bold" style="color:var(--text2);">Завантаження...</div>
+  </div>
+
+  <!-- ТАБЛИЦЯ ЗАМОВЛЕНЬ -->
+  <div id="ordersSection" class="hidden">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Дата</th>
+              <th>Дропер</th>
+              <th>Товар</th>
+              <th>Склад</th>
+              <th>К-сть</th>
+              <th>Закупка ✏️</th>
+              <th>Продаж ✏️</th>
+              <th>Прибуток</th>
+              <th>Телефон</th>
+              <th>Місто</th>
+              <th>ТТН ✏️</th>
+              <th>Статус НП</th>
+              <th>Статус ✏️</th>
+              <th>Дії</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ТАБЛИЦЯ ДРОПЕРІВ -->
+  <div id="dropersSection" class="hidden">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Код</th>
+              <th>Ім'я</th>
+              <th>Телефон</th>
+              <th>Сайт</th>
+              <th>Картка</th>
+              <th>Коментар</th>
+              <th>Замовлень</th>
+              <th>Прибуток</th>
+              <th>Штрафи</th>
+              <th>Баланс</th>
+            </tr>
+          </thead>
+          <tbody id="dropersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const APPS_URL   = 'https://script.google.com/macros/s/AKfycbwtrobjWi_oODtol9Dnw89ZpcUfhAUHro6avBK8884fcPWkNI27uwgMayB0RGNv6_BzPg/exec';
+let adminToken   = '';
+let allOrders    = [];
+let allDropers   = [];
+let allBalances  = {};
+let currentTab   = 'orders';
+// Тимчасові зміни до збереження
+const pendingEdits = {};
+
+// ── THEME ────────────────────────────────────────────────
+function toggleTheme() {
+  const dark = document.body.getAttribute('data-theme') !== 'dark';
+  document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeIcon').className = dark ? 'fa-solid fa-sun text-sm' : 'fa-solid fa-moon text-sm';
+  localStorage.setItem('utrade_theme', dark ? 'dark' : 'light');
+}
+(function(){
+  if (localStorage.getItem('utrade_theme') === 'dark') {
+    document.body.setAttribute('data-theme','dark');
+    document.getElementById('themeIcon').className = 'fa-solid fa-sun text-sm';
+  }
+})();
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── LOGIN ────────────────────────────────────────────────
+async function doAdminLogin() {
+  const pass = document.getElementById('loginPass').value.trim();
+  if (!pass) return;
+  try {
+    const res  = await fetch(APPS_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'adminLogin', password: pass }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      adminToken = data.token;
+      sessionStorage.setItem('utrade_admin', adminToken);
+      document.getElementById('loginScreen').style.display = 'none';
+      initAdmin();
+    } else {
+      showToast('❌ ' + (data.error || 'Невірний пароль'));
+    }
+  } catch(e) { showToast('⚠️ Помилка з\'єднання'); }
+}
+
+function doAdminLogout() {
+  adminToken = '';
+  sessionStorage.removeItem('utrade_admin');
+  location.reload();
+}
+
+// Авто-вхід якщо є сесія
+(function(){
+  const saved = sessionStorage.getItem('utrade_admin');
+  if (saved) {
+    adminToken = saved;
+    document.getElementById('loginScreen').style.display = 'none';
+    initAdmin();
+  }
+})();
+
+// ── INIT ─────────────────────────────────────────────────
+async function initAdmin() {
+  document.getElementById('tabsSection').classList.remove('hidden');
+  document.getElementById('summarySection').classList.remove('hidden');
+  document.getElementById('ordersFilters').classList.remove('hidden');
+  document.getElementById('loadingBlock').classList.remove('hidden');
+  await Promise.all([loadOrders(), loadDropers(), loadBalances()]);
+  document.getElementById('loadingBlock').classList.add('hidden');
+  renderOrders();
+  updateSummary();
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabOrders').classList.toggle('active', tab === 'orders');
+  document.getElementById('tabDropers').classList.toggle('active', tab === 'dropers');
+  document.getElementById('ordersSection').classList.toggle('hidden', tab !== 'orders');
+  document.getElementById('dropersSection').classList.toggle('hidden', tab !== 'dropers');
+  document.getElementById('ordersFilters').classList.toggle('hidden', tab !== 'orders');
+  if (tab === 'dropers') renderDropers();
+}
+
+// ── LOAD ORDERS ──────────────────────────────────────────
+async function loadOrders() {
+  const res  = await fetch(APPS_URL, {
+    method:'POST',
+    body: JSON.stringify({ action:'getOrders', adminToken }),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    allOrders = data.orders || [];
+    // Заповнити фільтр дроперів
+    const dropers = [...new Set(allOrders.map(o => o.droper))].filter(Boolean).sort();
+    const sel = document.getElementById('filterDroper');
+    sel.innerHTML = '<option value="all">Всі дропери</option>' +
+      dropers.map(d => `<option value="${d}">${d}</option>`).join('');
+  }
+}
+
+async function refreshOrders() {
+  document.getElementById('loadingBlock').classList.remove('hidden');
+  document.getElementById('ordersSection').classList.add('hidden');
+  await loadOrders();
+  document.getElementById('loadingBlock').classList.add('hidden');
+  renderOrders();
+  updateSummary();
+  showToast('🔄 Оновлено!');
+}
+
+// ── LOAD DROPERS ─────────────────────────────────────────
+async function loadDropers() {
+  const res  = await fetch(APPS_URL, {
+    method:'POST',
+    body: JSON.stringify({ action:'getDropers', adminToken }),
+  });
+  const data = await res.json();
+  if (data.ok) allDropers = data.dropers || [];
+}
+
+// ── LOAD BALANCES ─────────────────────────────────────────
+async function loadBalances() {
+  const res  = await fetch(APPS_URL, {
+    method:'POST',
+    body: JSON.stringify({ action:'getBalance', adminToken }),
+  });
+  const data = await res.json();
+  if (data.ok) allBalances = data.balances || {};
+}
+
+// ── SUMMARY ──────────────────────────────────────────────
+function updateSummary() {
+  const today = new Date().toLocaleDateString('uk-UA');
+  document.getElementById('sumTotal').textContent   = allOrders.length;
+  document.getElementById('sumDone').textContent    = allOrders.filter(o => o.status === 'Виконано').length;
+  document.getElementById('sumRefused').textContent = allOrders.filter(o => o.status === 'Відмова клієнта').length;
+  document.getElementById('sumToday').textContent   = allOrders.filter(o => {
+    const d = new Date(o.date);
+    return isNaN(d) ? false : d.toLocaleDateString('uk-UA') === today;
+  }).length;
+}
+
+// ── RENDER ORDERS ─────────────────────────────────────────
+function renderOrders() {
+  const q       = (document.getElementById('searchQ')?.value || '').toLowerCase().trim();
+  const droper  = document.getElementById('filterDroper')?.value || 'all';
+  const status  = document.getElementById('filterStatus')?.value || 'all';
+  const from    = document.getElementById('filterFrom')?.value;
+  const to      = document.getElementById('filterTo')?.value;
+
+  let filtered = allOrders.filter(o => {
+    if (droper !== 'all' && o.droper !== droper) return false;
+    if (status !== 'all' && o.status !== status) return false;
+    if (q && !`${o.product} ${o.droper} ${o.ttn} ${o.productId}`.toLowerCase().includes(q)) return false;
+    if (from || to) {
+      const d = new Date(o.date);
+      if (from && d < new Date(from)) return false;
+      if (to   && d > new Date(to + 'T23:59:59')) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('ordersCount').textContent = `Знайдено: ${filtered.length}`;
+  document.getElementById('ordersSection').classList.remove('hidden');
+
+  const tbody = document.getElementById('ordersBody');
+  tbody.innerHTML = filtered.map(o => {
+    const profit = (parseFloat(o.sellPrice||0) - parseFloat(o.buyPrice||0)) * (parseInt(o.qty)||1);
+    const pc     = profit >= 0 ? 'var(--green)' : 'var(--red)';
+    const rid    = o.rowIndex;
+
+    return `<tr id="row-${rid}">
+      <td class="font-bold" style="color:var(--text2);">#${o.id}</td>
+      <td style="white-space:nowrap;font-size:.65rem;color:var(--text2);">${formatDate(o.date)}</td>
+      <td><span style="font-size:.7rem;font-weight:800;color:var(--accent);">${o.droper}</span></td>
+      <td>
+        <div style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;" title="${o.product}">${o.product}</div>
+        <div style="font-size:.6rem;color:var(--text2);">ID: ${o.productId||'—'}</div>
+      </td>
+      <td style="font-size:.65rem;color:var(--text2);">${o.warehouse||'—'}</td>
+      <td class="text-center font-bold">${o.qty||1}</td>
+      <td>
+        <span class="editable" onclick="editCell(this, ${rid}, 'buyPrice', '${o.buyPrice}')">${o.buyPrice} ₴</span>
+      </td>
+      <td>
+        <span class="editable" onclick="editCell(this, ${rid}, 'sellPrice', '${o.sellPrice}')">${o.sellPrice} ₴</span>
+      </td>
+      <td class="font-bold" style="color:${pc};">${profit>=0?'+':''}${profit} ₴</td>
+      <td style="font-size:.65rem;">${o.phone||'—'}</td>
+      <td style="font-size:.65rem;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.city||''}">${o.city||'—'}</td>
+      <td>
+        <span class="editable" onclick="editCell(this, ${rid}, 'ttn', '${o.ttn||''}')">${o.ttn||'—'}</span>
+      </td>
+      <td style="font-size:.62rem;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);" title="${o.npStatus||''}">${o.npStatus||'—'}</td>
+      <td>
+        <select class="text-xs font-bold py-0.5 px-1" style="border-radius:.4rem;"
+          onchange="quickSave(${rid}, 'status', this.value)">
+          ${['Новий','Оброблено','Комплектація','Відправлено','Виконано','Відмова клієнта','Повернення']
+            .map(s => `<option${s===o.status?' selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <button onclick="saveRow(${rid})" class="px-2 py-1 rounded-lg text-xs font-bold text-white hover:opacity-80" style="background:var(--accent);" title="Зберегти зміни">
+          <i class="fa-solid fa-floppy-disk"></i>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── EDIT CELL ─────────────────────────────────────────────
+function editCell(el, rowIndex, field, currentVal) {
+  if (el.querySelector('input')) return; // вже в режимі редагування
+  const val = currentVal || '';
+  el.innerHTML = `<input class="edit-input" value="${val}" 
+    onblur="finishEdit(this, ${rowIndex}, '${field}')"
+    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape')cancelEdit(this,'${val} ₴')"
+    autofocus>`;
+  el.querySelector('input').select();
+}
+
+function finishEdit(input, rowIndex, field) {
+  const val = input.value.trim();
+  const display = (field === 'buyPrice' || field === 'sellPrice') ? val + ' ₴' : (val || '—');
+  input.parentElement.innerHTML = `<span class="editable" onclick="editCell(this, ${rowIndex}, '${field}', '${val}')">${display}</span>`;
+  if (!pendingEdits[rowIndex]) pendingEdits[rowIndex] = {};
+  pendingEdits[rowIndex][field] = val;
+}
+
+function cancelEdit(input, originalHtml) {
+  input.parentElement.innerHTML = `<span class="editable">${originalHtml}</span>`;
+}
+
+// ── QUICK SAVE (статус з select) ──────────────────────────
+function quickSave(rowIndex, field, value) {
+  if (!pendingEdits[rowIndex]) pendingEdits[rowIndex] = {};
+  pendingEdits[rowIndex][field] = value;
+}
+
+// ── SAVE ROW ──────────────────────────────────────────────
+async function saveRow(rowIndex) {
+  const edits = pendingEdits[rowIndex];
+  if (!edits || !Object.keys(edits).length) {
+    showToast('ℹ️ Нема змін для збереження');
+    return;
+  }
+  try {
+    const res  = await fetch(APPS_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'updateOrder', adminToken, rowIndex, ...edits }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      delete pendingEdits[rowIndex];
+      showToast('✅ Збережено!');
+    } else {
+      showToast('⚠️ ' + (data.error || 'Помилка збереження'));
+    }
+  } catch(e) { showToast('⚠️ Помилка з\'єднання'); }
+}
+
+// ── RENDER DROPERS ─────────────────────────────────────────
+function renderDropers() {
+  const tbody = document.getElementById('dropersBody');
+  tbody.innerHTML = allDropers.map(d => {
+    const b = allBalances[d.code.toUpperCase()] || {};
+    const balance = (b.profit || 0);
+    const balColor = balance >= 0 ? 'var(--green)' : 'var(--red)';
+    return `<tr>
+      <td><span style="font-weight:800;color:var(--accent);">${d.code}</span></td>
+      <td class="font-bold">${d.name||'—'}</td>
+      <td style="font-size:.7rem;">${d.phone||'—'}</td>
+      <td style="font-size:.7rem;"><a href="${d.site||'#'}" target="_blank" style="color:var(--accent);">${d.site||'—'}</a></td>
+      <td style="font-size:.7rem;font-family:monospace;">${d.card||'—'}</td>
+      <td style="font-size:.7rem;color:var(--text2);">${d.comment||'—'}</td>
+      <td class="font-bold text-center">${b.orders||0}</td>
+      <td class="font-bold" style="color:var(--green);">+${b.profit||0} ₴</td>
+      <td class="font-bold" style="color:var(--red);">-${b.penalties||0} ₴</td>
+      <td class="font-bold" style="color:${balColor};">${balance>=0?'+':''}${balance} ₴</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('dropersSection').classList.remove('hidden');
+}
+
+// ── RESET FILTERS ─────────────────────────────────────────
+function resetFilters() {
+  document.getElementById('searchQ').value        = '';
+  document.getElementById('filterDroper').value   = 'all';
+  document.getElementById('filterStatus').value   = 'all';
+  document.getElementById('filterFrom').value     = '';
+  document.getElementById('filterTo').value       = '';
+  renderOrders();
+}
+
+// ── FORMAT DATE ───────────────────────────────────────────
+function formatDate(d) {
+  if (!d) return '—';
+  const date = new Date(d);
+  if (isNaN(date)) return String(d).slice(0,10);
+  return date.toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────
+function exportCSV() {
+  if (!allOrders.length) { showToast('⚠️ Немає даних'); return; }
+  const rows = [['№','Дата','Дропер','Товар','ID товару','Склад','К-сть','Закупка','Продаж','Прибуток','Телефон','Місто','ТТН','Статус НП','Статус']];
+  getFilteredOrders().forEach(o => {
+    const profit = (parseFloat(o.sellPrice||0)-parseFloat(o.buyPrice||0))*(parseInt(o.qty)||1);
+    rows.push([o.id,o.date,o.droper,o.product,o.productId,o.warehouse,o.qty,o.buyPrice,o.sellPrice,profit,o.phone,o.city,o.ttn,o.npStatus,o.status]);
+  });
+  const csv = rows.map(r => r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `utrade_admin_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('📊 CSV завантажено!');
+}
+
+// ── EXPORT EXCEL ──────────────────────────────────────────
+function exportExcel() {
+  if (!allOrders.length) { showToast('⚠️ Немає даних'); return; }
+  const orders = getFilteredOrders();
+  const wsData = [['№','Дата','Дропер','Товар','ID товару','Склад','К-сть','Закупка','Продаж','Прибуток','Телефон','Місто','ТТН','Статус НП','Статус']];
+  orders.forEach(o => {
+    const profit = (parseFloat(o.sellPrice||0)-parseFloat(o.buyPrice||0))*(parseInt(o.qty)||1);
+    wsData.push([o.id,o.date,o.droper,o.product,o.productId,o.warehouse,parseInt(o.qty)||1,parseFloat(o.buyPrice)||0,parseFloat(o.sellPrice)||0,profit,o.phone,o.city,o.ttn,o.npStatus,o.status]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Ширина колонок
+  ws['!cols'] = [5,14,10,30,10,10,6,8,8,8,14,20,16,20,14].map(w=>({wch:w}));
+
+  // Аркуш балансів дроперів
+  const balData = [['Код','Ім\'я','Замовлень','Виконано','Відмов','Прибуток','Штрафи','Баланс']];
+  allDropers.forEach(d => {
+    const b = allBalances[d.code.toUpperCase()] || {};
+    balData.push([d.code,d.name||'',b.orders||0,b.done||0,b.refused||0,b.profit||0,b.penalties||0,(b.profit||0)]);
+  });
+  const wsBal = XLSX.utils.aoa_to_sheet(balData);
+  wsBal['!cols'] = [10,20,12,12,12,12,12,12].map(w=>({wch:w}));
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Замовлення');
+  XLSX.utils.book_append_sheet(wb, wsBal, 'Баланси дроперів');
+  XLSX.writeFile(wb, `utrade_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast('📗 Excel завантажено!');
+}
+
+function getFilteredOrders() {
+  const q      = (document.getElementById('searchQ')?.value||'').toLowerCase().trim();
+  const droper = document.getElementById('filterDroper')?.value||'all';
+  const status = document.getElementById('filterStatus')?.value||'all';
+  const from   = document.getElementById('filterFrom')?.value;
+  const to     = document.getElementById('filterTo')?.value;
+  return allOrders.filter(o => {
+    if (droper!=='all' && o.droper!==droper) return false;
+    if (status!=='all' && o.status!==status) return false;
+    if (q && !`${o.product} ${o.droper} ${o.ttn}`.toLowerCase().includes(q)) return false;
+    if (from||to){const d=new Date(o.date);if(from&&d<new Date(from))return false;if(to&&d>new Date(to+'T23:59:59'))return false;}
+    return true;
+  });
+}
+</script>
+</body>
+</html>

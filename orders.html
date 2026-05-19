@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTRADE | Мої замовлення</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f4f8;--surface:#fff;--surface2:#f7f9fc;--border:#e2e8f0;--text:#0f172a;--text2:#64748b;--accent:#2563eb;--green:#10b981;--red:#ef4444;}
+[data-theme=dark]{--bg:#0d1117;--surface:#161b22;--surface2:#0d1117;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);}
+.bebas{font-family:'Bebas Neue',sans-serif;}
+.sec-title{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);}
+input,select{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:.65rem;font-family:'Manrope',sans-serif;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+input::placeholder{color:var(--text2);}
+nav{background:var(--surface);border-bottom:1px solid var(--border);}
+
+/* Статуси */
+.st{display:inline-block;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:999px;white-space:nowrap;}
+.st-new    {background:#eff6ff;color:#2563eb;}
+.st-proc   {background:#f0fdf4;color:#16a34a;}
+.st-pack   {background:#fefce8;color:#ca8a04;}
+.st-sent   {background:#fff7ed;color:#ea580c;}
+.st-done   {background:#f0fdf4;color:#15803d;font-weight:900;}
+.st-refused{background:#fef2f2;color:#dc2626;}
+.st-return {background:#f5f3ff;color:#7c3aed;}
+
+/* Table */
+.orders-table{width:100%;border-collapse:collapse;font-size:.75rem;}
+.orders-table th{text-align:left;padding:.5rem .75rem;color:var(--text2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--border);white-space:nowrap;}
+.orders-table td{padding:.6rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text);}
+.orders-table tr:hover td{background:var(--surface2);}
+.orders-table tr:last-child td{border-bottom:none;}
+
+/* Balance cards */
+.bal-card{background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem 1.25rem;text-align:center;}
+.bal-val{font-size:1.5rem;font-weight:900;}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#0f172a;color:#fff;padding:10px 22px;border-radius:999px;font-size:12px;font-weight:800;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+[data-theme=dark] #toast{background:#58a6ff;color:#000;}
+
+/* Login overlay */
+#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;}
+</style>
+</head>
+<body data-theme="light">
+
+<div id="toast"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div style="width:100%;max-width:380px;padding:1rem;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1.5rem;padding:2rem;">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <div class="bebas tracking-widest" style="font-size:1.5rem;color:var(--text);">UTRADE</div>
+          <div class="sec-title">Кабінет дропера</div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="sec-title mb-1.5">Ваш код дропера</div>
+        <input id="loginCode" type="text" placeholder="Наприклад: DROP001" class="w-full px-4 py-3 text-sm font-bold" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button onclick="doLogin()" class="w-full py-3 rounded-xl text-sm font-black text-white mt-2" style="background:var(--accent);">
+        <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>Увійти
+      </button>
+      <p style="font-size:.7rem;color:var(--text2);text-align:center;margin-top:1rem;">Код видає адміністратор UTRADE</p>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center gap-3">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+        <i class="fa-solid fa-bolt text-sm"></i>
+      </div>
+      <div class="hidden sm:block">
+        <div class="bebas tracking-widest" style="font-size:1.3rem;color:var(--text);">UTRADE</div>
+        <div class="sec-title">Мої замовлення</div>
+      </div>
+    </a>
+    <div id="droperNameBadge" class="hidden px-3 py-1 rounded-full text-xs font-bold" style="background:var(--surface2);color:var(--accent);border:1px solid var(--border);"></div>
+    <div class="ml-auto flex items-center gap-2">
+      <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+      </button>
+      <button onclick="exportMyCSV()" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);" title="Завантажити CSV">
+        <i class="fa-solid fa-file-arrow-down"></i><span>CSV</span>
+      </button>
+      <a href="index.html" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:var(--text);color:#fff;">
+        <i class="fa-solid fa-store text-sm"></i><span class="hidden sm:inline">Каталог</span>
+      </a>
+      <button onclick="doLogout()" class="w-9 h-9 rounded-xl flex items-center justify-center hover:text-red-500" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);" title="Вийти">
+        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="max-w-6xl mx-auto px-4 py-6">
+
+  <!-- БАЛАНС -->
+  <div id="balanceSection" class="hidden mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      <div class="bal-card">
+        <div class="sec-title mb-1">Загальний прибуток</div>
+        <div class="bal-val" id="balProfit" style="color:var(--green);">0 ₴</div>
+      </div>
+      <div class="bal-card">
+        <div class="sec-title mb-1">Всього замовлень</div>
+        <div class="bal-val" id="balOrders">0</div>
+      </div>
+      <div class="bal-card">
+        <div class="sec-title mb-1">Виконано</div>
+        <div class="bal-val" id="balDone" style="color:var(--green);">0</div>
+      </div>
+      <div class="bal-card">
+        <div class="sec-title mb-1">Штрафи (відмови)</div>
+        <div class="bal-val" id="balPenalties" style="color:var(--red);">0 ₴</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ФІЛЬТРИ -->
+  <div id="filtersSection" class="hidden mb-4 flex flex-wrap gap-2 items-center">
+    <input type="date" id="filterFrom" onchange="loadOrders()" class="px-3 py-2 text-xs font-bold">
+    <input type="date" id="filterTo"   onchange="loadOrders()" class="px-3 py-2 text-xs font-bold">
+    <select id="filterStatus" onchange="loadOrders()" class="px-3 py-2 text-xs font-bold">
+      <option value="all">Всі статуси</option>
+      <option>Новий</option>
+      <option>Оброблено</option>
+      <option>Комплектація</option>
+      <option>Відправлено</option>
+      <option>Виконано</option>
+      <option>Відмова клієнта</option>
+      <option>Повернення</option>
+    </select>
+    <button onclick="resetFilters()" class="px-3 py-2 rounded-xl text-xs font-bold hover:text-red-500" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);">
+      <i class="fa-solid fa-rotate-left mr-1"></i>Скинути
+    </button>
+    <span id="ordersCount" class="sec-title ml-auto"></span>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loadingBlock" class="hidden py-16 text-center">
+    <div class="w-8 h-8 rounded-full animate-spin mx-auto mb-3" style="border:3px solid var(--border);border-top-color:var(--accent);"></div>
+    <div class="text-sm font-bold" style="color:var(--text2);">Завантаження замовлень...</div>
+  </div>
+
+  <!-- EMPTY -->
+  <div id="emptyBlock" class="hidden py-16 text-center">
+    <i class="fa-solid fa-box-open text-4xl mb-3" style="color:var(--border);"></i>
+    <div class="text-sm font-bold" style="color:var(--text2);">Замовлень не знайдено</div>
+  </div>
+
+  <!-- ТАБЛИЦЯ -->
+  <div id="ordersSection" class="hidden">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Дата</th>
+              <th>Товар</th>
+              <th>Склад</th>
+              <th>К-сть</th>
+              <th>Закупка</th>
+              <th>Продаж</th>
+              <th>Прибуток</th>
+              <th>ТТН</th>
+              <th>Статус НП</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const APPS_URL = 'https://script.google.com/macros/s/AKfycbwtrobjWi_oODtol9Dnw89ZpcUfhAUHro6avBK8884fcPWkNI27uwgMayB0RGNv6_BzPg/exec';
+let currentCode = '', allOrders = [];
+
+// ── СТАТУС → CSS ────────────────────────────────────────
+function statusClass(s) {
+  const map = {
+    'Новий':          'st-new',
+    'Оброблено':      'st-proc',
+    'Комплектація':   'st-pack',
+    'Відправлено':    'st-sent',
+    'Виконано':       'st-done',
+    'Відмова клієнта':'st-refused',
+    'Повернення':     'st-return',
+  };
+  return map[s] || 'st-new';
+}
+
+// ── THEME ────────────────────────────────────────────────
+function toggleTheme() {
+  const dark = document.body.getAttribute('data-theme') !== 'dark';
+  document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeIcon').className = dark ? 'fa-solid fa-sun text-sm' : 'fa-solid fa-moon text-sm';
+  localStorage.setItem('utrade_theme', dark ? 'dark' : 'light');
+}
+(function(){
+  if (localStorage.getItem('utrade_theme') === 'dark') {
+    document.body.setAttribute('data-theme','dark');
+    document.getElementById('themeIcon').className = 'fa-solid fa-sun text-sm';
+  }
+})();
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── LOGIN ────────────────────────────────────────────────
+function doLogin() {
+  const code = document.getElementById('loginCode').value.trim().toUpperCase();
+  if (!code) { showToast('⚠️ Введіть код дропера'); return; }
+  currentCode = code;
+  localStorage.setItem('utrade_droper_code', code);
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('droperNameBadge').textContent = code;
+  document.getElementById('droperNameBadge').classList.remove('hidden');
+  loadOrders();
+  loadBalance();
+}
+
+function doLogout() {
+  currentCode = '';
+  localStorage.removeItem('utrade_droper_code');
+  location.reload();
+}
+
+// ── АВТО-ВХІД ────────────────────────────────────────────
+(function(){
+  const saved = localStorage.getItem('utrade_droper_code');
+  if (saved) {
+    document.getElementById('loginCode').value = saved;
+    document.getElementById('loginScreen').style.display = 'none';
+    currentCode = saved;
+    document.getElementById('droperNameBadge').textContent = saved;
+    document.getElementById('droperNameBadge').classList.remove('hidden');
+    loadOrders();
+    loadBalance();
+  }
+})();
+
+// ── БАЛАНС ───────────────────────────────────────────────
+async function loadBalance() {
+  try {
+    const res = await fetch(APPS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'getBalance', droperCode: currentCode }),
+    });
+    const data = await res.json();
+    if (!data.ok) return;
+    const b = data.balance || {};
+    document.getElementById('balProfit').textContent    = (b.profit   || 0) + ' ₴';
+    document.getElementById('balOrders').textContent    = b.orders    || 0;
+    document.getElementById('balDone').textContent      = b.done      || 0;
+    document.getElementById('balPenalties').textContent = '-' + (b.penalties || 0) + ' ₴';
+    document.getElementById('balanceSection').classList.remove('hidden');
+  } catch(e) { console.error(e); }
+}
+
+// ── ЗАМОВЛЕННЯ ───────────────────────────────────────────
+async function loadOrders() {
+  document.getElementById('loadingBlock').classList.remove('hidden');
+  document.getElementById('ordersSection').classList.add('hidden');
+  document.getElementById('emptyBlock').classList.add('hidden');
+  document.getElementById('filtersSection').classList.remove('hidden');
+
+  const dateFrom = document.getElementById('filterFrom').value;
+  const dateTo   = document.getElementById('filterTo').value;
+  const status   = document.getElementById('filterStatus').value;
+
+  try {
+    const res = await fetch(APPS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:     'getOrders',
+        droperCode: currentCode,
+        dateFrom:   dateFrom || undefined,
+        dateTo:     dateTo   || undefined,
+        status:     status   || 'all',
+      }),
+    });
+    const data = await res.json();
+    document.getElementById('loadingBlock').classList.add('hidden');
+
+    if (!data.ok) { showToast('⚠️ ' + (data.error || 'Помилка')); return; }
+
+    allOrders = data.orders || [];
+    renderOrders(allOrders);
+  } catch(e) {
+    document.getElementById('loadingBlock').classList.add('hidden');
+    showToast('⚠️ Помилка з\'єднання');
+  }
+}
+
+function renderOrders(orders) {
+  const count = document.getElementById('ordersCount');
+  if (!orders.length) {
+    count.textContent = 'Замовлень не знайдено';
+    document.getElementById('emptyBlock').classList.remove('hidden');
+    document.getElementById('ordersSection').classList.add('hidden');
+    return;
+  }
+
+  count.textContent = `Знайдено: ${orders.length} замовлень`;
+  document.getElementById('ordersSection').classList.remove('hidden');
+  document.getElementById('emptyBlock').classList.add('hidden');
+
+  const tbody = document.getElementById('ordersBody');
+  tbody.innerHTML = orders.map(o => {
+    const profit = (parseFloat(o.sellPrice) - parseFloat(o.buyPrice)) * (parseInt(o.qty) || 1);
+    const profitColor = profit >= 0 ? 'var(--green)' : 'var(--red)';
+    const ttnLink = o.ttn
+      ? `<a href="https://novaposhta.ua/tracking/?cargo_number=${o.ttn}" target="_blank"
+            class="font-bold hover:underline" style="color:var(--accent);">${o.ttn}</a>`
+      : '<span style="color:var(--text2);">—</span>';
+
+    // Статус НП — скорочено
+    const npShort = o.npStatus
+      ? `<span title="${o.npStatus}" style="color:var(--text2);font-size:.65rem;max-width:120px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.npStatus}</span>`
+      : '<span style="color:var(--text2);">—</span>';
+
+    return `<tr>
+      <td class="font-bold" style="color:var(--text2);">#${o.id}</td>
+      <td style="color:var(--text2);white-space:nowrap;">${formatDate(o.date)}</td>
+      <td>
+        <div class="font-bold" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.product}">${o.product}</div>
+        <div style="font-size:.65rem;color:var(--text2);">ID: ${o.productId || '—'}</div>
+      </td>
+      <td><span style="font-size:.65rem;font-weight:800;color:var(--accent);">${o.warehouse || '—'}</span></td>
+      <td class="font-bold text-center">${o.qty || 1}</td>
+      <td class="font-bold">${o.buyPrice} ₴</td>
+      <td class="font-bold">${o.sellPrice} ₴</td>
+      <td class="font-bold" style="color:${profitColor};">${profit >= 0 ? '+' : ''}${profit} ₴</td>
+      <td>${ttnLink}</td>
+      <td>${npShort}</td>
+      <td><span class="st ${statusClass(o.status)}">${o.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const date = new Date(d);
+  if (isNaN(date)) return d;
+  return date.toLocaleDateString('uk-UA', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function resetFilters() {
+  document.getElementById('filterFrom').value   = '';
+  document.getElementById('filterTo').value     = '';
+  document.getElementById('filterStatus').value = 'all';
+  loadOrders();
+}
+
+// ── CSV ──────────────────────────────────────────────────
+function exportMyCSV() {
+  if (!allOrders.length) { showToast('⚠️ Немає замовлень для вивантаження'); return; }
+  const rows = [['№','Дата','Товар','ID товару','Склад','К-сть','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
+  allOrders.forEach(o => {
+    const profit = (parseFloat(o.sellPrice) - parseFloat(o.buyPrice)) * (parseInt(o.qty) || 1);
+    rows.push([o.id, o.date, o.product, o.productId, o.warehouse, o.qty, o.buyPrice, o.sellPrice, profit, o.ttn, o.npStatus, o.status]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `utrade_замовлення_${currentCode}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('📊 CSV завантажено!');
+}
+</script>
+</body>
+</html>

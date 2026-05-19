@@ -334,6 +334,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <select id="paymentType" class="w-full px-3 py-2.5 text-sm font-bold">
           <option>Накладений платіж</option><option>Передоплата</option><option>Карткою при отриманні</option>
         </select>
+        <input id="droperCode" type="text" placeholder="Ваш код дропера (напр. DROP001)" class="w-full px-3 py-2.5 text-sm" style="border-color:var(--accent);">
         <textarea id="clientComment" placeholder="Коментар (необов'язково)" rows="2" class="w-full px-3 py-2.5 text-sm resize-none"></textarea>
       </div>
       <div class="grid grid-cols-3 gap-2">
@@ -1281,10 +1282,13 @@ function toggleCheckout() {
     : '<i class="fa-solid fa-clipboard-list mr-1"></i> Оформити замовлення';
 }
 
+// ═══ APPS SCRIPT URL ═══
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtrobjWi_oODtol9Dnw89ZpcUfhAUHro6avBK8884fcPWkNI27uwgMayB0RGNv6_BzPg/exec';
+
 function buildOrderText(short = false) {
-  const name = document.getElementById('clientName').value.trim() || 'Не вказано';
-  const phone = document.getElementById('clientPhone').value.trim() || 'Не вказано';
-  const city = document.getElementById('clientCity').value.trim() || 'Не вказано';
+  const name    = document.getElementById('clientName').value.trim() || 'Не вказано';
+  const phone   = document.getElementById('clientPhone').value.trim() || 'Не вказано';
+  const city    = document.getElementById('clientCity').value.trim() || 'Не вказано';
   const payment = document.getElementById('paymentType').value;
   const comment = document.getElementById('clientComment').value.trim();
   let cost = 0, total = 0, profit = 0, lines = '';
@@ -1302,20 +1306,61 @@ function buildOrderText(short = false) {
   return msg;
 }
 
+// Відправка замовлення в Google Sheets (без await щоб не блокувати)
+function saveOrderToSheets() {
+  const droperCode = document.getElementById('droperCode').value.trim();
+  if (!droperCode) return; // якщо не вказаний код — просто пропускаємо
+
+  const orderData = {
+    action:     'addOrder',
+    droperCode,
+    clientName: document.getElementById('clientName').value.trim(),
+    phone:      document.getElementById('clientPhone').value.trim(),
+    city:       document.getElementById('clientCity').value.trim(),
+    payment:    document.getElementById('paymentType').value,
+    comment:    document.getElementById('clientComment').value.trim(),
+    items: cart.map(p => ({
+      id:        p.id,
+      name:      p.name,
+      vendor:    p.vendor,
+      count:     p.count,
+      price:     p.price,
+      salePrice: p.salePrice,
+    })),
+  };
+
+  // Зберегти код дропера в localStorage
+  localStorage.setItem('utrade_droper_code', droperCode);
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body:   JSON.stringify(orderData),
+  }).then(r => r.json()).then(res => {
+    if (res.ok) showToast('✅ Замовлення збережено в системі!');
+    else showToast('⚠️ Sheets: ' + (res.error || 'помилка'));
+  }).catch(() => {
+    // Мовчки — основна відправка через Viber/Telegram вже пройшла
+  });
+}
+
 function sendOrder(channel) {
   if (!cart.length) { showToast('⚠️ Кошик порожній!'); return; }
+
+  // Паралельно зберігаємо в Google Sheets
+  saveOrderToSheets();
+
   if (channel === 'copy') {
     navigator.clipboard.writeText(buildOrderText(false)).then(() => showToast('📋 Замовлення скопійовано!'));
     return;
   }
   const shortMsg = buildOrderText(true);
-  const encoded = encodeURIComponent(shortMsg);
+  const encoded  = encodeURIComponent(shortMsg);
   if (encoded.length > 2000) {
     navigator.clipboard.writeText(buildOrderText(false));
     showToast('📋 Замовлення велике — скопійовано! Вставте вручну');
     return;
   }
-  if (channel === 'viber') window.open(`viber://chat?number=%2B380666172764&draft=${encoded}`);
+  if (channel === 'viber')    window.open(`viber://chat?number=%2B380666172764&draft=${encoded}`);
   else if (channel === 'telegram') window.open(`https://t.me/your_bot?text=${encoded}`);
 }
 
@@ -1389,6 +1434,14 @@ document.getElementById('pvTrack').addEventListener('touchend', e => {
   if (Math.abs(dx) > 40) pvMove(dx < 0 ? 1 : -1);
 }, { passive: true });
 
+// Підставити збережений код дропера
+(function(){
+  const saved = localStorage.getItem('utrade_droper_code');
+  if (saved) {
+    const el = document.getElementById('droperCode');
+    if (el) el.value = saved;
+  }
+})();
 init();
 </script>
 </body>
