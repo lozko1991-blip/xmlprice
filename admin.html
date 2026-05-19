@@ -184,12 +184,11 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <table class="orders-table">
           <thead>
             <tr>
-              <th>№</th>
+              <th>Замовлення</th>
               <th>Дата</th>
               <th>Дропер</th>
-              <th>Товар</th>
-              <th>Склад</th>
-              <th>К-сть</th>
+              <th>Клієнт</th>
+              <th>Товари</th>
               <th>Закупка ✏️</th>
               <th>Продаж ✏️</th>
               <th>Прибуток</th>
@@ -409,28 +408,31 @@ function renderOrders() {
 
   const tbody = document.getElementById('ordersBody');
   tbody.innerHTML = filtered.map(o => {
-    const profit = (parseFloat(o.sellPrice||0) - parseFloat(o.buyPrice||0)) * (parseInt(o.qty)||1);
+    const profit = parseFloat(o.profit) || 0;
     const pc     = profit >= 0 ? 'var(--green)' : 'var(--red)';
     const rid    = o.rowIndex;
 
+    const items = Array.isArray(o.items) ? o.items : [];
+    const itemsList = items.map(it =>
+      `<div style="font-size:.65rem;white-space:nowrap;">${it.name.slice(0,25)}${it.name.length>25?'…':''} — ${it.count}шт.</div>`
+    ).join('');
+
     return `<tr id="row-${rid}">
-      <td class="font-bold" style="color:var(--text2);">#${o.id}</td>
+      <td style="font-weight:900;color:var(--accent);font-size:.72rem;white-space:nowrap;">${o.orderNum||'—'}</td>
       <td style="white-space:nowrap;font-size:.65rem;color:var(--text2);">${formatDate(o.date)}</td>
       <td><span style="font-size:.7rem;font-weight:800;color:var(--accent);">${o.droper}</span></td>
       <td>
-        <div style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;" title="${o.product}">${o.product}</div>
-        <div style="font-size:.6rem;color:var(--text2);">ID: ${o.productId||'—'}</div>
+        <div style="font-size:.7rem;font-weight:700;">${o.client||'—'}</div>
       </td>
-      <td style="font-size:.65rem;color:var(--text2);">${o.warehouse||'—'}</td>
-      <td class="text-center font-bold">${o.qty||1}</td>
+      <td style="min-width:160px;">${itemsList||'—'}</td>
       <td>
-        <span class="editable" onclick="editCell(this, ${rid}, 'buyPrice', '${o.buyPrice}')">${o.buyPrice} ₴</span>
+        <span class="editable" onclick="editCell(this, ${rid}, 'totalBuy', '${o.totalBuy||0}')">${parseFloat(o.totalBuy)||0} ₴</span>
       </td>
       <td>
-        <span class="editable" onclick="editCell(this, ${rid}, 'sellPrice', '${o.sellPrice}')">${o.sellPrice} ₴</span>
+        <span class="editable" onclick="editCell(this, ${rid}, 'totalSell', '${o.totalSell||0}')">${parseFloat(o.totalSell)||0} ₴</span>
       </td>
-      <td class="font-bold" style="color:${pc};">${profit>=0?'+':''}${profit} ₴</td>
-      <td style="font-size:.65rem;">${o.phone||'—'}</td>
+      <td class="font-bold" style="color:${pc};white-space:nowrap;">${profit>=0?'+':''}${profit} ₴</td>
+      <td style="font-size:.65rem;white-space:nowrap;">${o.phone||'—'}</td>
       <td style="font-size:.65rem;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.city||''}">${o.city||'—'}</td>
       <td>
         <span class="editable" onclick="editCell(this, ${rid}, 'ttn', '${o.ttn||''}')">${o.ttn||'—'}</span>
@@ -547,10 +549,10 @@ function formatDate(d) {
 // ── EXPORT CSV ────────────────────────────────────────────
 function exportCSV() {
   if (!allOrders.length) { showToast('⚠️ Немає даних'); return; }
-  const rows = [['№','Дата','Дропер','Товар','ID товару','Склад','К-сть','Закупка','Продаж','Прибуток','Телефон','Місто','ТТН','Статус НП','Статус']];
+  const rows = [['Замовлення','Дата','Дропер','Клієнт','Телефон','Місто','Оплата','Товари','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
   getFilteredOrders().forEach(o => {
-    const profit = (parseFloat(o.sellPrice||0)-parseFloat(o.buyPrice||0))*(parseInt(o.qty)||1);
-    rows.push([o.id,o.date,o.droper,o.product,o.productId,o.warehouse,o.qty,o.buyPrice,o.sellPrice,profit,o.phone,o.city,o.ttn,o.npStatus,o.status]);
+    const itemsStr = (o.items||[]).map(it=>`${it.name} (${it.count}шт)`).join('; ');
+    rows.push([o.orderNum,o.date,o.droper,o.client,o.phone,o.city,o.payment,itemsStr,o.totalBuy,o.totalSell,o.profit,o.ttn,o.npStatus,o.status]);
   });
   const csv = rows.map(r => r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
@@ -565,17 +567,17 @@ function exportCSV() {
 function exportExcel() {
   if (!allOrders.length) { showToast('⚠️ Немає даних'); return; }
   const orders = getFilteredOrders();
-  const wsData = [['№','Дата','Дропер','Товар','ID товару','Склад','К-сть','Закупка','Продаж','Прибуток','Телефон','Місто','ТТН','Статус НП','Статус']];
+  const wsData = [['Замовлення','Дата','Дропер','Клієнт','Телефон','Місто','Оплата','Товари','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
   orders.forEach(o => {
-    const profit = (parseFloat(o.sellPrice||0)-parseFloat(o.buyPrice||0))*(parseInt(o.qty)||1);
-    wsData.push([o.id,o.date,o.droper,o.product,o.productId,o.warehouse,parseInt(o.qty)||1,parseFloat(o.buyPrice)||0,parseFloat(o.sellPrice)||0,profit,o.phone,o.city,o.ttn,o.npStatus,o.status]);
+    const itemsStr = (o.items||[]).map(it=>`${it.name} (${it.count}шт)`).join('; ');
+    wsData.push([o.orderNum,o.date,o.droper,o.client||'',o.phone||'',o.city||'',o.payment||'',itemsStr,parseFloat(o.totalBuy)||0,parseFloat(o.totalSell)||0,parseFloat(o.profit)||0,o.ttn||'',o.npStatus||'',o.status||'']);
   });
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(wsData);
 
   // Ширина колонок
-  ws['!cols'] = [5,14,10,30,10,10,6,8,8,8,14,20,16,20,14].map(w=>({wch:w}));
+  ws['!cols'] = [18,14,10,18,14,22,12,40,9,9,9,16,22,14].map(w=>({wch:w}));
 
   // Аркуш балансів дроперів
   const balData = [['Код','Ім\'я','Замовлень','Виконано','Відмов','Прибуток','Штрафи','Баланс']];
@@ -601,7 +603,7 @@ function getFilteredOrders() {
   return allOrders.filter(o => {
     if (droper!=='all' && o.droper!==droper) return false;
     if (status!=='all' && o.status!==status) return false;
-    if (q && !`${o.product} ${o.droper} ${o.ttn}`.toLowerCase().includes(q)) return false;
+    if (q && !`${o.orderNum} ${o.droper} ${o.client} ${o.ttn} ${(o.items||[]).map(i=>i.name).join(' ')}`.toLowerCase().includes(q)) return false;
     if (from||to){const d=new Date(o.date);if(from&&d<new Date(from))return false;if(to&&d>new Date(to+'T23:59:59'))return false;}
     return true;
   });

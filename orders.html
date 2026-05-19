@@ -172,11 +172,10 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <table class="orders-table">
           <thead>
             <tr>
-              <th>№</th>
+              <th>Замовлення</th>
               <th>Дата</th>
-              <th>Товар</th>
-              <th>Склад</th>
-              <th>К-сть</th>
+              <th>Товари</th>
+              <th>Клієнт</th>
               <th>Закупка</th>
               <th>Продаж</th>
               <th>Прибуток</th>
@@ -333,33 +332,48 @@ function renderOrders(orders) {
 
   const tbody = document.getElementById('ordersBody');
   tbody.innerHTML = orders.map(o => {
-    const profit = (parseFloat(o.sellPrice) - parseFloat(o.buyPrice)) * (parseInt(o.qty) || 1);
+    const profit     = parseFloat(o.profit) || 0;
     const profitColor = profit >= 0 ? 'var(--green)' : 'var(--red)';
+
+    // ТТН з посиланням
     const ttnLink = o.ttn
       ? `<a href="https://novaposhta.ua/tracking/?cargo_number=${o.ttn}" target="_blank"
-            class="font-bold hover:underline" style="color:var(--accent);">${o.ttn}</a>`
+            style="color:var(--accent);font-weight:800;">${o.ttn} ↗</a>`
       : '<span style="color:var(--text2);">—</span>';
 
-    // Статус НП — скорочено
+    // Список товарів
+    const items = Array.isArray(o.items) ? o.items : [];
+    const itemsHtml = items.length
+      ? items.map(it => `
+          <div style="display:flex;justify-content:space-between;gap:8px;padding:2px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:.7rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${it.name}">${it.name}</span>
+            <span style="font-size:.65rem;color:var(--text2);white-space:nowrap;">${it.count} шт. × ${it.salePrice} ₴</span>
+          </div>`).join('')
+      : '<span style="color:var(--text2);font-size:.7rem;">—</span>';
+
+    // Клієнт
+    const clientHtml = `
+      <div style="font-size:.72rem;font-weight:700;">${o.client || '—'}</div>
+      <div style="font-size:.65rem;color:var(--text2);">${o.phone || ''}</div>
+      <div style="font-size:.62rem;color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.city||''}">${o.city || ''}</div>`;
+
     const npShort = o.npStatus
-      ? `<span title="${o.npStatus}" style="color:var(--text2);font-size:.65rem;max-width:120px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.npStatus}</span>`
+      ? `<span title="${o.npStatus}" style="color:var(--text2);font-size:.65rem;">${o.npStatus.slice(0,22)}${o.npStatus.length>22?'…':''}</span>`
       : '<span style="color:var(--text2);">—</span>';
 
     return `<tr>
-      <td class="font-bold" style="color:var(--text2);">#${o.id}</td>
-      <td style="color:var(--text2);white-space:nowrap;">${formatDate(o.date)}</td>
       <td>
-        <div class="font-bold" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.product}">${o.product}</div>
-        <div style="font-size:.65rem;color:var(--text2);">ID: ${o.productId || '—'}</div>
+        <div style="font-weight:900;color:var(--accent);font-size:.75rem;">${o.orderNum||'—'}</div>
       </td>
-      <td><span style="font-size:.65rem;font-weight:800;color:var(--accent);">${o.warehouse || '—'}</span></td>
-      <td class="font-bold text-center">${o.qty || 1}</td>
-      <td class="font-bold">${o.buyPrice} ₴</td>
-      <td class="font-bold">${o.sellPrice} ₴</td>
-      <td class="font-bold" style="color:${profitColor};">${profit >= 0 ? '+' : ''}${profit} ₴</td>
+      <td style="color:var(--text2);white-space:nowrap;font-size:.68rem;">${formatDate(o.date)}</td>
+      <td style="min-width:200px;">${itemsHtml}</td>
+      <td>${clientHtml}</td>
+      <td style="font-weight:700;white-space:nowrap;">${parseFloat(o.totalBuy)||0} ₴</td>
+      <td style="font-weight:700;white-space:nowrap;">${parseFloat(o.totalSell)||0} ₴</td>
+      <td style="font-weight:900;color:${profitColor};white-space:nowrap;">${profit>=0?'+':''}${profit} ₴</td>
       <td>${ttnLink}</td>
       <td>${npShort}</td>
-      <td><span class="st ${statusClass(o.status)}">${o.status}</span></td>
+      <td><span class="st ${statusClass(o.status)}">${o.status||'—'}</span></td>
     </tr>`;
   }).join('');
 }
@@ -381,10 +395,10 @@ function resetFilters() {
 // ── CSV ──────────────────────────────────────────────────
 function exportMyCSV() {
   if (!allOrders.length) { showToast('⚠️ Немає замовлень для вивантаження'); return; }
-  const rows = [['№','Дата','Товар','ID товару','Склад','К-сть','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
+  const rows = [['Замовлення','Дата','Клієнт','Телефон','Місто','Оплата','Товари','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
   allOrders.forEach(o => {
-    const profit = (parseFloat(o.sellPrice) - parseFloat(o.buyPrice)) * (parseInt(o.qty) || 1);
-    rows.push([o.id, o.date, o.product, o.productId, o.warehouse, o.qty, o.buyPrice, o.sellPrice, profit, o.ttn, o.npStatus, o.status]);
+    const itemsStr = (o.items||[]).map(it=>`${it.name} (${it.count}шт)`).join('; ');
+    rows.push([o.orderNum, o.date, o.client, o.phone, o.city, o.payment, itemsStr, o.totalBuy, o.totalSell, o.profit, o.ttn, o.npStatus, o.status]);
   });
   const csv = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
