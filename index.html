@@ -490,7 +490,40 @@ const catChildCache = {};
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E";
 
 // ═══ VENDOR DETECTION ═══
-// Matches against picture URLs AND vendor tag
+// Priority 1: offer ID prefix set by Mastereva_parser.py (most reliable)
+// Priority 2: picture URL domain
+// Priority 3: <vendor> XML tag (brand name — NOT supplier name, used as fallback label)
+// Prefix map matches SOURCES in Mastereva_parser.py:
+//   "1111" → shkatulka.in.ua  → SHKATULKA
+//   "2222" → opt-drop.com     → OPT-DROP
+//   "3333" → lugi.com.ua      → LUGI
+//   "4444" → dropom.com.ua    → DROPOM
+//   ""     → kievopt.com.ua   → KIEVOPT  (no prefix — raw ID)
+//   "5555" → royaltoys        → ROYALTOYS
+const VENDOR_PREFIX_MAP = {
+  '1111': 'SHKATULKA',
+  '2222': 'OPT-DROP',
+  '3333': 'LUGI',
+  '4444': 'DROPOM',
+  '5555': 'ROYALTOYS',
+};
+
+function getVendorFromId(offerId) {
+  if (!offerId) return '';
+  // Prefixes are 4-digit strings (1111, 2222...).
+  // After stripping prefix, the remainder must be non-empty digits only —
+  // that's what the parser produces (prefix + original numeric id).
+  for (const [prefix, name] of Object.entries(VENDOR_PREFIX_MAP)) {
+    if (offerId.startsWith(prefix)) {
+      const remainder = offerId.slice(prefix.length);
+      // Valid if remainder is non-empty and all digits
+      if (remainder.length > 0 && /^\d+$/.test(remainder)) return name;
+    }
+  }
+  // No prefix match → kievopt (empty prefix in parser) detected by picture URL
+  return '';
+}
+
 function getVendorFromUrl(url) {
   if (!url) return '';
   const u = url.toLowerCase();
@@ -655,6 +688,7 @@ async function init() {
       if (i >= total) {
         loadBar.classList.add('hidden');
         setProgress(100);
+        clearCatCache(); // clear stale category cache after full load
         renderVendorBar(); renderCatList();
         const cc = document.getElementById('contactCount');
         if (cc) cc.textContent = allProducts.length.toLocaleString('uk');
@@ -693,10 +727,13 @@ function parseOffer(o) {
     o.getElementsByTagName('name')[0]?.textContent || 'Без назви'
   ).trim().toUpperCase();
 
-  // Vendor from <vendor> tag first, then guess from picture URL
+  // vendorTag = brand from <vendor> tag (e.g. "Mozer", "NoBrand")
   const vendorTag = (o.getElementsByTagName('vendor')[0]?.textContent || '').trim();
+  const offerId = o.getAttribute('id') || '';
+  // Supplier: ID prefix (most reliable) → picture URL → fallback
+  const vendorFromId  = getVendorFromId(offerId);
   const vendorFromUrl = getVendorFromUrl(img);
-  const vendor = vendorFromUrl || (vendorTag && vendorTag !== 'NoBrand' ? vendorTag.toUpperCase() : 'Інші');
+  const vendor = vendorFromId || vendorFromUrl || 'Інші';
 
   // Params
   const params = Array.from(o.getElementsByTagName('param')).map(p => {
@@ -726,7 +763,7 @@ function parseOffer(o) {
   const descPlain = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 400);
   const paramsText = params.map(p => p.name + ' ' + p.value).join(' ');
   const searchText = [
-    o.getAttribute('id') || '',
+    offerId,
     name,
     vendor,
     vendorTag,
@@ -735,14 +772,14 @@ function parseOffer(o) {
   ].join(' ').toLowerCase();
 
   return {
-    id: o.getAttribute('id') || '',
+    id: offerId,
     name,
     price: Math.round(parseFloat(o.getElementsByTagName('price')[0]?.textContent || 0)),
     oldPrice,
     img, pics,
     vendor,
     vendorTag,
-    catId: o.getElementsByTagName('categoryId')[0]?.textContent || '',
+    catId: (o.getElementsByTagName('categoryId')[0]?.textContent || '').trim(),
     rawDesc,
     params,
     stock,
@@ -751,6 +788,10 @@ function parseOffer(o) {
 }
 
 // ═══ CATEGORY CHILD IDS — recursive, cached ═══
+// Cache is invalidated after full XML load to avoid stale results from partial loads
+function clearCatCache() {
+  Object.keys(catChildCache).forEach(k => delete catChildCache[k]);
+}
 function getAllChildCatIds(catId) {
   if (catChildCache[catId]) return catChildCache[catId];
   const result = new Set([catId]);
@@ -790,20 +831,26 @@ function filterByVendor(v) {
 // ═══ CATEGORIES ═══
 function renderCatList() {
   const vp = currentVendor === 'all' ? allProducts : allProducts.filter(p => p.vendor === currentVendor);
-  const activeCatIds = new Set(vp.map(p => p.catId));
+  // Direct catIds used by products
+  const directCatIds = new Set(vp.map(p => p.catId));
   const catIds = new Set(categories.map(c => c.id));
 
-  // Top-level = no parentId or parentId not in categories list
-  const topLevel = categories.filter(c => {
-    if (!activeCatIds.has(c.id)) {
-      // Check if any child of this category has active products
-      const children = getAllChildCatIds(c.id);
-      let hasProducts = false;
-      children.forEach(cid => { if (activeCatIds.has(cid)) hasProducts = true; });
-      if (!hasProducts) return false;
+  // Build "reachable" set: every catId that has products, plus all its ancestors.
+  // This ensures parent categories show up even if no product has them directly.
+  const reachable = new Set(directCatIds);
+  function addAncestors(id) {
+    const cat = categories.find(c => c.id === id);
+    if (cat && cat.parentId && !reachable.has(cat.parentId)) {
+      reachable.add(cat.parentId);
+      addAncestors(cat.parentId);
     }
-    return !c.parentId || !catIds.has(c.parentId);
-  });
+  }
+  directCatIds.forEach(id => addAncestors(id));
+
+  // Top-level = no parentId or parentId not in categories list
+  const topLevel = categories.filter(c =>
+    reachable.has(c.id) && (!c.parentId || !catIds.has(c.parentId))
+  );
 
   document.getElementById('categoryList').innerHTML =
     `<button onclick="selectCat('all')" class="cbtn${currentCategory === 'all' ? ' active' : ''}">Всі категорії</button>` +
@@ -844,7 +891,7 @@ function renderFeatured() {
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         ${picks.map((p, i) => `
-          <div class="feat-card fade-up" style="animation-delay:${i * 35}ms" onclick="openModal('${p.id}')">
+          <div class="feat-card fade-up" style="animation-delay:${i * 35}ms" onclick="openModal('${safeId(p.id)}')">
             <div class="aspect-square flex items-center justify-center p-3 relative" style="background:var(--surface2);">
               <img src="${p.img}" class="max-w-full max-h-full object-contain" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
               ${p.pics && p.pics.length > 1 ? `<span class="pic-count">📷 ${p.pics.length}</span>` : ''}
@@ -854,7 +901,7 @@ function renderFeatured() {
               <div class="text-[10px] font-bold uppercase leading-tight mb-2 line-clamp-2" style="color:var(--text);">${p.name}</div>
               <div class="flex justify-between items-center">
                 <span class="bebas" style="font-size:1rem;color:var(--text);">${p.price} ₴</span>
-                <button onclick="event.stopPropagation();addToCart('${p.id}')" class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs hover:opacity-80" style="background:var(--text);">+</button>
+                <button onclick="event.stopPropagation();addToCart('${safeId(p.id)}')" class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs hover:opacity-80" style="background:var(--text);">+</button>
               </div>
             </div>
           </div>`).join('')}
@@ -930,7 +977,10 @@ function performSearch() {
   let countText = `Знайдено: ${total} товарів`;
   if (q && total > 0) countText += ` за запитом «${q}»`;
   document.getElementById('resultsCount').textContent = countText;
-  document.getElementById('infoBar').classList.toggle('hidden', total === 0 && !q);
+  // Show infoBar whenever there is a filter active OR when results > 0
+  const hasFilter = q || currentVendor !== 'all' || currentCategory !== 'all'
+    || document.getElementById('minPrice').value || document.getElementById('maxPrice').value;
+  document.getElementById('infoBar').classList.toggle('hidden', !hasFilter && total === 0);
 }
 
 function resetFilters() {
@@ -942,6 +992,11 @@ function resetFilters() {
   document.getElementById('maxPrice').value = '';
   document.getElementById('sortSelect').value = 'default';
   renderVendorBar(); renderCatList(); performSearch();
+}
+
+// ═══ SAFE ID — escapes single quotes in product IDs for use in onclick attrs ═══
+function safeId(id) {
+  return String(id).replace(/'/g, "\'");
 }
 
 // ═══ HIGHLIGHT helper ═══
@@ -969,7 +1024,7 @@ function renderGrid(list, q = '') {
     const prof = saleP - p.price;
     const multi = p.pics && p.pics.length > 1;
     const displayName = highlightText(p.name, q);
-    return `<div class="pcard p-3 cursor-pointer flex flex-col fade-up" style="animation-delay:${Math.min(i, 8) * 30}ms" onclick="openModal('${p.id}')">
+    return `<div class="pcard p-3 cursor-pointer flex flex-col fade-up" style="animation-delay:${Math.min(i, 8) * 30}ms" onclick="openModal('${safeId(p.id)}')">
       <div class="aspect-square rounded-xl mb-3 flex items-center justify-center p-3 relative overflow-hidden" style="background:var(--surface2);">
         <img src="${p.img}" class="max-w-full max-h-full object-contain mix-blend-multiply" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
         <span class="absolute top-2 left-2 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full" style="background:var(--surface);color:var(--accent);border:1px solid var(--border);">${p.vendor}</span>
@@ -981,7 +1036,7 @@ function renderGrid(list, q = '') {
           <div class="bebas" style="font-size:1.1rem;color:var(--text);">${p.price} ₴</div>
           <div class="text-[9px] font-bold" style="color:var(--green);">+${prof} ₴</div>
         </div>
-        <button onclick="addToCart('${p.id}')" class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm hover:opacity-80 active:scale-90" style="background:var(--text);">
+        <button onclick="addToCart('${safeId(p.id)}')" class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm hover:opacity-80 active:scale-90" style="background:var(--text);">
           <i class="fa-solid fa-plus"></i>
         </button>
       </div>
