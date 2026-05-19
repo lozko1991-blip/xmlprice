@@ -431,7 +431,7 @@ def process():
 
     for prefix, url, domain, root, currency_rates in feeds:
         for offer in root.xpath(".//offer"):
-            offer_id = offer.get('id', '').strip()
+            offer_id = offer.get('id', '').strip().upper()
             if not offer_id:
                 continue
             price_nodes = offer.xpath('./price')
@@ -497,7 +497,7 @@ def process():
         count_default_qty = 0
 
         for offer in root.xpath(".//offer"):
-            offer_id = offer.get('id', '').strip()
+            offer_id = offer.get('id', '').strip().upper()
             if not offer_id:
                 continue
 
@@ -681,6 +681,8 @@ def process():
     # --------------------------------------------------------------------------
     yml  = ET.Element("yml_catalog", date=datetime.now().strftime("%Y-%m-%d %H:%M"))
     shop = ET.SubElement(yml, "shop")
+    ET.SubElement(shop, "name").text = "AVI"
+    ET.SubElement(shop, "url").text  = "https://avi.in.ua"
 
     currencies = ET.SubElement(shop, "currencies")
     ET.SubElement(currencies, "currency", id="UAH", rate="1")
