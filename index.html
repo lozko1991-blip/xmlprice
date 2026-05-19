@@ -158,6 +158,9 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 
 #sidePanel{background:var(--surface);}
 #cartSidebar{background:var(--surface);}
+/* Orders button pulse */
+@keyframes orderpulse{0%,100%{box-shadow:0 4px 14px rgba(16,185,129,.4)}50%{box-shadow:0 4px 22px rgba(16,185,129,.75)}}
+.orders-pulse{animation:orderpulse 2.5s ease-in-out infinite;}
 
 /* Search badge */
 .search-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;}
@@ -199,6 +202,11 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <i class="fa-solid fa-store text-sm"></i>
         <span class="hidden sm:inline">Про нас</span>
       </button>
+      <a href="orders.html" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black hover:opacity-90 shrink-0 orders-pulse"
+         style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 4px 14px rgba(16,185,129,.4);position:relative;">
+        <i class="fa-solid fa-box-open text-sm"></i>
+        <span>Замовлення</span>
+      </a>
       <a href="viber://chat?number=%2B380666172764" class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:#7360f2;color:#fff;">
         <i class="fa-brands fa-viber text-sm"></i><span class="hidden lg:inline">Viber</span>
       </a>
@@ -1283,7 +1291,7 @@ function toggleCheckout() {
 }
 
 // ═══ APPS SCRIPT URL ═══
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtrobjWi_oODtol9Dnw89ZpcUfhAUHro6avBK8884fcPWkNI27uwgMayB0RGNv6_BzPg/exec';
+const APPS_SCRIPT_URL = 'https://utrade-orders.lozko1991.workers.dev';
 
 function buildOrderText(short = false) {
   const name    = document.getElementById('clientName').value.trim() || 'Не вказано';
@@ -1334,12 +1342,18 @@ function saveOrderToSheets() {
 
   fetch(APPS_SCRIPT_URL, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body:   JSON.stringify(orderData),
   }).then(r => r.json()).then(res => {
-    if (res.ok) showToast('✅ Замовлення збережено в системі!');
-    else showToast('⚠️ Sheets: ' + (res.error || 'помилка'));
+    if (res.ok) {
+      showToast('✅ ' + (res.orderNum || 'Замовлення прийнято!'));
+      // Очистити кошик після успішного збереження
+      setTimeout(() => { cart = []; saveCart(); updateCartUI(); }, 1500);
+    } else {
+      showToast('⚠️ ' + (res.error || 'Помилка збереження'));
+    }
   }).catch(() => {
-    // Мовчки — основна відправка через Viber/Telegram вже пройшла
+    // Мовчки якщо Worker недоступний
   });
 }
 

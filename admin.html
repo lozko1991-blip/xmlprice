@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UTRADE | Адмін-панель</title>
+<title>UTRADE | Адмін</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<!-- SheetJS для Excel -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--bg:#f0f4f8;--surface:#fff;--surface2:#f7f9fc;--border:#e2e8f0;--text:#0f172a;--text2:#64748b;--accent:#2563eb;--green:#10b981;--red:#ef4444;}
@@ -17,212 +16,251 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);}
 .bebas{font-family:'Bebas Neue',sans-serif;}
 .sec-title{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);}
 input,select,textarea{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:.65rem;font-family:'Manrope',sans-serif;transition:border-color .15s;}
-input:focus,select:focus{outline:none;border-color:var(--accent);}
-input::placeholder{color:var(--text2);}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);}
+input::placeholder,textarea::placeholder{color:var(--text2);}
 nav{background:var(--surface);border-bottom:1px solid var(--border);}
+.cscroll::-webkit-scrollbar{width:4px;}
+.cscroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
 
 /* Статуси */
-.st{display:inline-block;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:999px;white-space:nowrap;}
+.st{display:inline-flex;align-items:center;gap:3px;font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:999px;white-space:nowrap;}
 .st-new    {background:#eff6ff;color:#2563eb;}
 .st-proc   {background:#f0fdf4;color:#16a34a;}
 .st-pack   {background:#fefce8;color:#ca8a04;}
 .st-sent   {background:#fff7ed;color:#ea580c;}
-.st-done   {background:#f0fdf4;color:#15803d;font-weight:900;}
+.st-done   {background:#dcfce7;color:#15803d;}
 .st-refused{background:#fef2f2;color:#dc2626;}
 .st-return {background:#f5f3ff;color:#7c3aed;}
 
-/* Table */
-.orders-table{width:100%;border-collapse:collapse;font-size:.72rem;}
-.orders-table th{text-align:left;padding:.5rem .6rem;color:var(--text2);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--border);white-space:nowrap;background:var(--surface);}
-.orders-table td{padding:.55rem .6rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text);}
-.orders-table tr:hover td{background:var(--surface2);}
+/* Таблиця */
+.tbl{width:100%;border-collapse:collapse;font-size:.72rem;}
+.tbl th{text-align:left;padding:.5rem .65rem;background:var(--surface);border-bottom:2px solid var(--border);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);white-space:nowrap;position:sticky;top:0;z-index:5;}
+.tbl td{padding:.55rem .65rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:hover td{background:var(--surface2);}
 
-/* Editable cell */
-.editable{cursor:pointer;border-bottom:1px dashed var(--border);padding:1px 2px;}
+/* Editable */
+.editable{cursor:pointer;border-bottom:1px dashed var(--border);padding:1px 2px;border-radius:2px;transition:all .15s;}
 .editable:hover{border-color:var(--accent);color:var(--accent);}
-.edit-input{width:100%;min-width:80px;padding:2px 6px;font-size:.72rem;font-weight:700;border-radius:.4rem;}
+
+/* Tabs */
+.tab{padding:.5rem 1rem;font-size:.72rem;font-weight:800;border-radius:.65rem;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tab.active{background:var(--accent);color:#fff;}
+.tab:not(.active){background:var(--surface);border:1px solid var(--border);color:var(--text2);}
+.tab:not(.active):hover{border-color:var(--accent);color:var(--accent);}
 
 /* Toast */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#0f172a;color:#fff;padding:10px 22px;border-radius:999px;font-size:12px;font-weight:800;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
+[data-theme=dark] #toast{background:#58a6ff;color:#000;}
 
 /* Login */
-#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;}
+#loginScreen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;}
+#loginScreen::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#1a0a00,#3d1800);z-index:-1;}
 
-/* Tab buttons */
-.tab-btn{padding:.5rem 1rem;font-size:.72rem;font-weight:800;border-radius:.65rem;cursor:pointer;transition:all .15s;}
-.tab-btn.active{background:var(--accent);color:#fff;}
-.tab-btn:not(.active){background:var(--surface);border:1px solid var(--border);color:var(--text2);}
-.tab-btn:not(.active):hover{border-color:var(--accent);color:var(--accent);}
+/* Spinner */
+.spin{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body data-theme="light">
-
 <div id="toast"></div>
 
-<!-- LOGIN -->
+<!-- ═══ ЛОГІН ═══ -->
 <div id="loginScreen">
-  <div style="width:100%;max-width:360px;padding:1rem;">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1.5rem;padding:2rem;">
+  <div style="width:100%;max-width:360px;">
+    <div style="background:var(--surface);border-radius:1.5rem;padding:2rem;box-shadow:0 25px 60px rgba(0,0,0,.5);">
       <div class="flex items-center gap-3 mb-6">
-        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
-          <i class="fa-solid fa-shield-halved"></i>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white flex-shrink-0"
+             style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+          <i class="fa-solid fa-shield-halved text-lg"></i>
         </div>
         <div>
-          <div class="bebas tracking-widest" style="font-size:1.5rem;color:var(--text);">UTRADE</div>
-          <div class="sec-title">Адмін-панель</div>
+          <div class="bebas tracking-widest" style="font-size:1.5rem;color:var(--text);">АДМІН-ПАНЕЛЬ</div>
+          <div class="sec-title">UTRADE</div>
         </div>
       </div>
-      <div class="mb-3">
-        <div class="sec-title mb-1.5">Пароль</div>
-        <input id="loginPass" type="password" placeholder="Введіть пароль" class="w-full px-4 py-3 text-sm" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      <div class="mb-4">
+        <label class="sec-title block mb-2">Пароль</label>
+        <input id="loginPass" type="password" placeholder="Введіть пароль"
+               class="w-full px-4 py-3.5 text-sm" onkeydown="if(event.key==='Enter')doAdminLogin()">
       </div>
-      <button onclick="doAdminLogin()" class="w-full py-3 rounded-xl text-sm font-black text-white mt-2" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
-        <i class="fa-solid fa-unlock mr-2"></i>Увійти
+      <button onclick="doAdminLogin()" id="loginBtn"
+              class="w-full py-3 rounded-xl text-sm font-black text-white hover:opacity-90 flex items-center justify-center gap-2"
+              style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+        <i class="fa-solid fa-unlock"></i> Увійти
       </button>
     </div>
   </div>
 </div>
 
-<!-- NAV -->
+<!-- ═══ НАВБАР ═══ -->
 <nav class="sticky top-0 z-50">
-  <div class="max-w-[1600px] mx-auto px-4 h-16 flex items-center gap-3">
-    <a href="index.html" class="flex items-center gap-2.5">
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
-        <i class="fa-solid fa-shield-halved text-sm"></i>
+  <div class="max-w-[1700px] mx-auto px-4 h-14 flex items-center gap-3">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white"
+           style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+        <i class="fa-solid fa-shield-halved text-xs"></i>
       </div>
       <div class="hidden sm:block">
-        <div class="bebas tracking-widest" style="font-size:1.3rem;color:var(--text);">UTRADE</div>
-        <div class="sec-title">Адміністратор</div>
+        <div class="bebas tracking-widest" style="font-size:1.1rem;color:var(--text);">АДМІН UTRADE</div>
       </div>
-    </a>
-    <div class="ml-auto flex items-center gap-2">
-      <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
-        <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+    </div>
+    <div class="ml-auto flex items-center gap-1.5">
+      <button onclick="toggleTheme()" class="w-8 h-8 rounded-xl flex items-center justify-center"
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i id="themeIcon" class="fa-solid fa-moon text-xs"></i>
       </button>
-      <button onclick="exportExcel()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:#16a34a;color:#fff;">
-        <i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Excel</span>
+      <button onclick="exportExcel()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white hover:opacity-80"
+              style="background:#16a34a;">
+        <i class="fa-solid fa-file-excel text-xs"></i><span class="hidden sm:inline">Excel</span>
       </button>
-      <button onclick="exportCSV()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
-        <i class="fa-solid fa-file-arrow-down"></i><span class="hidden sm:inline">CSV</span>
+      <button onclick="exportAdminCSV()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold hover:opacity-80"
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i class="fa-solid fa-file-arrow-down text-xs"></i><span class="hidden sm:inline">CSV</span>
       </button>
-      <button onclick="doAdminLogout()" class="w-9 h-9 rounded-xl flex items-center justify-center hover:text-red-500" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
-        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+      <button onclick="doAdminLogout()" class="w-8 h-8 rounded-xl flex items-center justify-center hover:text-red-500"
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+        <i class="fa-solid fa-right-from-bracket text-xs"></i>
       </button>
     </div>
   </div>
 </nav>
 
-<!-- MAIN -->
-<div class="max-w-[1600px] mx-auto px-4 py-5">
+<!-- ═══ КОНТЕНТ ═══ -->
+<div class="max-w-[1700px] mx-auto px-4 py-4">
 
-  <!-- SUMMARY CARDS -->
-  <div id="summarySection" class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+  <!-- Статистика -->
+  <div id="statsSection" class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:.85rem;padding:.85rem;text-align:center;">
       <div class="sec-title mb-1">Всього замовлень</div>
-      <div class="bebas" style="font-size:1.8rem;" id="sumTotal">0</div>
+      <div class="bebas" style="font-size:1.8rem;" id="stTotal">0</div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
-      <div class="sec-title mb-1">Виконано</div>
-      <div class="bebas" style="font-size:1.8rem;color:var(--green);" id="sumDone">0</div>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:.85rem;padding:.85rem;text-align:center;">
       <div class="sec-title mb-1">Нових сьогодні</div>
-      <div class="bebas" style="font-size:1.8rem;color:var(--accent);" id="sumToday">0</div>
+      <div class="bebas" style="font-size:1.8rem;color:var(--accent);" id="stToday">0</div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:.85rem;padding:.85rem;text-align:center;">
+      <div class="sec-title mb-1">Виконано</div>
+      <div class="bebas" style="font-size:1.8rem;color:var(--green);" id="stDone">0</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:.85rem;padding:.85rem;text-align:center;">
       <div class="sec-title mb-1">Відмов</div>
-      <div class="bebas" style="font-size:1.8rem;color:var(--red);" id="sumRefused">0</div>
+      <div class="bebas" style="font-size:1.8rem;color:var(--red);" id="stRefused">0</div>
     </div>
   </div>
 
-  <!-- TABS -->
-  <div id="tabsSection" class="hidden flex gap-2 mb-4">
-    <button class="tab-btn active" onclick="switchTab('orders')" id="tabOrders">
+  <!-- Таби -->
+  <div id="tabsRow" class="hidden flex gap-2 mb-4 flex-wrap">
+    <button class="tab active" onclick="switchTab('orders')" id="tabOrders">
       <i class="fa-solid fa-list mr-1"></i>Замовлення
     </button>
-    <button class="tab-btn" onclick="switchTab('dropers')" id="tabDropers">
+    <button class="tab" onclick="switchTab('dropers')" id="tabDropers">
       <i class="fa-solid fa-users mr-1"></i>Дропери
     </button>
   </div>
 
-  <!-- ФІЛЬТРИ ЗАМОВЛЕНЬ -->
+  <!-- Фільтри замовлень -->
   <div id="ordersFilters" class="hidden flex flex-wrap gap-2 items-center mb-4">
-    <input type="text" id="searchQ" placeholder="Пошук по товару, дроперу, ТТН..." class="px-3 py-2 text-xs" style="min-width:220px;" oninput="renderOrders()">
-    <select id="filterDroper" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold"></select>
-    <select id="filterStatus" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
+    <input type="text" id="searchQ" placeholder="Пошук по товару, дроперу, ТТН, клієнту..."
+           class="px-3 py-2 text-xs" style="min-width:220px;" oninput="renderOrders()">
+    <select id="fDroper" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold"></select>
+    <select id="fStatus" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
       <option value="all">Всі статуси</option>
-      <option>Новий</option>
-      <option>Оброблено</option>
-      <option>Комплектація</option>
-      <option>Відправлено</option>
-      <option>Виконано</option>
-      <option>Відмова клієнта</option>
-      <option>Повернення</option>
+      <option>Новий</option><option>Оброблено</option><option>Комплектація</option>
+      <option>Відправлено</option><option>Виконано</option>
+      <option>Відмова клієнта</option><option>Повернення</option>
     </select>
-    <input type="date" id="filterFrom" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
-    <input type="date" id="filterTo"   onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
-    <button onclick="resetFilters()" class="px-3 py-2 rounded-xl text-xs font-bold hover:text-red-500" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);">
+    <input type="date" id="fFrom" onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
+    <input type="date" id="fTo"   onchange="renderOrders()" class="px-3 py-2 text-xs font-bold">
+    <button onclick="resetFilters()" class="px-3 py-2 rounded-xl text-xs font-bold hover:text-red-500"
+            style="background:var(--surface);border:1px solid var(--border);color:var(--text2);">
       <i class="fa-solid fa-rotate-left mr-1"></i>Скинути
     </button>
-    <button onclick="refreshOrders()" class="px-3 py-2 rounded-xl text-xs font-bold hover:opacity-80" style="background:var(--accent);color:#fff;">
+    <button onclick="refreshAll()" class="px-3 py-2 rounded-xl text-xs font-black text-white hover:opacity-80"
+            style="background:var(--accent);">
       <i class="fa-solid fa-arrows-rotate mr-1"></i>Оновити
     </button>
     <span id="ordersCount" class="sec-title ml-auto"></span>
   </div>
 
-  <!-- LOADING -->
-  <div id="loadingBlock" class="hidden py-16 text-center">
-    <div class="w-8 h-8 rounded-full animate-spin mx-auto mb-3" style="border:3px solid var(--border);border-top-color:var(--accent);"></div>
-    <div class="text-sm font-bold" style="color:var(--text2);">Завантаження...</div>
+  <!-- Спіннер -->
+  <div id="loadingBlock" class="hidden py-16 flex items-center justify-center gap-3">
+    <div class="spin"></div>
+    <span class="text-sm font-bold" style="color:var(--text2);">Завантаження...</span>
   </div>
 
-  <!-- ТАБЛИЦЯ ЗАМОВЛЕНЬ -->
-  <div id="ordersSection" class="hidden">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;">
-      <div style="overflow-x:auto;">
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th>Замовлення</th>
-              <th>Дата</th>
-              <th>Дропер</th>
-              <th>Клієнт</th>
-              <th>Товари</th>
-              <th>Закупка ✏️</th>
-              <th>Продаж ✏️</th>
-              <th>Прибуток</th>
-              <th>Телефон</th>
-              <th>Місто</th>
-              <th>ТТН ✏️</th>
-              <th>Статус НП</th>
-              <th>Статус ✏️</th>
-              <th>Дії</th>
-            </tr>
-          </thead>
-          <tbody id="ordersBody"></tbody>
-        </table>
-      </div>
+  <!-- Таблиця замовлень -->
+  <div id="ordersSection" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;">
+    <div style="overflow-x:auto;" class="cscroll">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Замовлення</th>
+            <th>Дата</th>
+            <th>Дропер</th>
+            <th>Клієнт</th>
+            <th>Товари</th>
+            <th>Закупка ✏</th>
+            <th>Продаж ✏</th>
+            <th>Прибуток</th>
+            <th>Телефон</th>
+            <th>Місто</th>
+            <th>ТТН ✏</th>
+            <th>Статус НП</th>
+            <th>Статус ✏</th>
+            <th>Примітка ✏</th>
+            <th>Дії</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- ТАБЛИЦЯ ДРОПЕРІВ -->
+  <!-- Секція дроперів -->
   <div id="dropersSection" class="hidden">
+    <!-- Форма додавання -->
+    <div id="addForm" class="hidden mb-4 p-4 rounded-xl" style="background:var(--surface);border:1px solid var(--border);">
+      <div class="sec-title mb-3">Новий дропер</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+        <input id="dnName"    type="text" placeholder="Ім'я *"             class="px-3 py-2 text-xs">
+        <input id="dnPhone"   type="tel"  placeholder="Телефон"            class="px-3 py-2 text-xs">
+        <input id="dnCode"    type="text" placeholder="Код (або авто)"     class="px-3 py-2 text-xs" style="text-transform:uppercase;">
+        <input id="dnSite"    type="text" placeholder="Сайт"               class="px-3 py-2 text-xs">
+        <input id="dnCard"    type="text" placeholder="Картка для виплат"  class="px-3 py-2 text-xs">
+        <input id="dnComment" type="text" placeholder="Коментар"           class="px-3 py-2 text-xs">
+      </div>
+      <div class="flex gap-2">
+        <button onclick="submitAddDroper()" class="px-4 py-2 rounded-xl text-xs font-black text-white hover:opacity-80"
+                style="background:var(--accent);">
+          <i class="fa-solid fa-plus mr-1"></i>Додати
+        </button>
+        <button onclick="document.getElementById('addForm').classList.add('hidden')"
+                class="px-4 py-2 rounded-xl text-xs font-bold hover:opacity-80"
+                style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+          Скасувати
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mb-3">
+      <span class="sec-title" id="dropersCountLabel"></span>
+      <button onclick="document.getElementById('addForm').classList.toggle('hidden')"
+              class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black text-white hover:opacity-80"
+              style="background:var(--accent);">
+        <i class="fa-solid fa-user-plus"></i> Новий дропер
+      </button>
+    </div>
+
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;overflow:hidden;">
-      <div style="overflow-x:auto;">
-        <table class="orders-table">
+      <div style="overflow-x:auto;" class="cscroll">
+        <table class="tbl">
           <thead>
             <tr>
-              <th>Код</th>
-              <th>Ім'я</th>
-              <th>Телефон</th>
-              <th>Сайт</th>
-              <th>Картка</th>
-              <th>Коментар</th>
-              <th>Замовлень</th>
-              <th>Прибуток</th>
-              <th>Штрафи</th>
-              <th>Баланс</th>
+              <th>Код</th><th>Ім'я</th><th>Телефон</th><th>Сайт</th>
+              <th>Картка</th><th>Коментар</th><th>Статус</th>
+              <th>Замовлень</th><th>Прибуток</th><th>Штрафи</th><th>Баланс</th>
+              <th>Дії</th>
             </tr>
           </thead>
           <tbody id="dropersBody"></tbody>
@@ -234,379 +272,422 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 </div>
 
 <script>
-const APPS_URL   = 'https://script.google.com/macros/s/AKfycbwtrobjWi_oODtol9Dnw89ZpcUfhAUHro6avBK8884fcPWkNI27uwgMayB0RGNv6_BzPg/exec';
-let adminToken   = '';
-let allOrders    = [];
-let allDropers   = [];
-let allBalances  = {};
-let currentTab   = 'orders';
-// Тимчасові зміни до збереження
-const pendingEdits = {};
+const WORKER = 'https://utrade-orders.lozko1991.workers.dev';
+let adminToken = '', allOrders = [], allDropers = [], allBalances = {};
+const pendingEdits = {}; // {orderNum: {field: value}}
 
-// ── THEME ────────────────────────────────────────────────
+// ── THEME ──────────────────────────────────────────────
 function toggleTheme() {
   const dark = document.body.getAttribute('data-theme') !== 'dark';
   document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
-  document.getElementById('themeIcon').className = dark ? 'fa-solid fa-sun text-sm' : 'fa-solid fa-moon text-sm';
+  document.getElementById('themeIcon').className = dark ? 'fa-solid fa-sun text-xs' : 'fa-solid fa-moon text-xs';
   localStorage.setItem('utrade_theme', dark ? 'dark' : 'light');
 }
 (function(){
   if (localStorage.getItem('utrade_theme') === 'dark') {
     document.body.setAttribute('data-theme','dark');
-    document.getElementById('themeIcon').className = 'fa-solid fa-sun text-sm';
+    document.getElementById('themeIcon').className = 'fa-solid fa-sun text-xs';
   }
 })();
 
-// ── TOAST ────────────────────────────────────────────────
-function showToast(msg) {
+// ── TOAST ──────────────────────────────────────────────
+function toast(msg, dur=2500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), dur);
 }
 
-// ── LOGIN ────────────────────────────────────────────────
+// ── API ────────────────────────────────────────────────
+async function api(action, body={}) {
+  const res = await fetch(WORKER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, adminToken, ...body }),
+  });
+  return res.json();
+}
+
+// ── LOGIN ──────────────────────────────────────────────
 async function doAdminLogin() {
   const pass = document.getElementById('loginPass').value.trim();
   if (!pass) return;
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+  btn.disabled = true;
   try {
-    const res  = await fetch(APPS_URL, {
-      method:'POST',
-      body: JSON.stringify({ action:'adminLogin', password: pass }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      adminToken = data.token;
-      sessionStorage.setItem('utrade_admin', adminToken);
-      document.getElementById('loginScreen').style.display = 'none';
-      initAdmin();
-    } else {
-      showToast('❌ ' + (data.error || 'Невірний пароль'));
-    }
-  } catch(e) { showToast('⚠️ Помилка з\'єднання'); }
-}
-
-function doAdminLogout() {
-  adminToken = '';
-  sessionStorage.removeItem('utrade_admin');
-  location.reload();
-}
-
-// Авто-вхід якщо є сесія
-(function(){
-  const saved = sessionStorage.getItem('utrade_admin');
-  if (saved) {
-    adminToken = saved;
+    const res = await api('adminLogin', { password: pass });
+    if (!res.ok) throw new Error(res.error || 'Невірний пароль');
+    adminToken = res.token;
+    sessionStorage.setItem('utrade_admin', adminToken);
     document.getElementById('loginScreen').style.display = 'none';
     initAdmin();
+  } catch(e) {
+    toast('❌ ' + e.message);
+    btn.innerHTML = '<i class="fa-solid fa-unlock"></i> Увійти';
+    btn.disabled = false;
   }
+}
+function doAdminLogout() { adminToken=''; sessionStorage.removeItem('utrade_admin'); location.reload(); }
+
+// Авто-вхід
+(function(){
+  const s = sessionStorage.getItem('utrade_admin');
+  if (s) { adminToken = s; document.getElementById('loginScreen').style.display='none'; initAdmin(); }
 })();
 
-// ── INIT ─────────────────────────────────────────────────
+// ── INIT ───────────────────────────────────────────────
 async function initAdmin() {
-  document.getElementById('tabsSection').classList.remove('hidden');
-  document.getElementById('summarySection').classList.remove('hidden');
+  document.getElementById('statsSection').classList.remove('hidden');
+  document.getElementById('tabsRow').classList.remove('hidden');
   document.getElementById('ordersFilters').classList.remove('hidden');
   document.getElementById('loadingBlock').classList.remove('hidden');
   await Promise.all([loadOrders(), loadDropers(), loadBalances()]);
   document.getElementById('loadingBlock').classList.add('hidden');
   renderOrders();
-  updateSummary();
+  updateStats();
 }
 
-// ── TABS ─────────────────────────────────────────────────
+// ── TABS ───────────────────────────────────────────────
 function switchTab(tab) {
-  currentTab = tab;
-  document.getElementById('tabOrders').classList.toggle('active', tab === 'orders');
-  document.getElementById('tabDropers').classList.toggle('active', tab === 'dropers');
-  document.getElementById('ordersSection').classList.toggle('hidden', tab !== 'orders');
-  document.getElementById('dropersSection').classList.toggle('hidden', tab !== 'dropers');
-  document.getElementById('ordersFilters').classList.toggle('hidden', tab !== 'orders');
-  if (tab === 'dropers') renderDropers();
+  ['orders','dropers'].forEach(t => {
+    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
+    document.getElementById(t+'Section').classList.toggle('hidden', t!==tab);
+    document.getElementById(t+'Filters')?.classList.toggle('hidden', t!==tab);
+  });
+  if (tab==='dropers') renderDropers();
 }
 
-// ── LOAD ORDERS ──────────────────────────────────────────
+// ── LOAD ───────────────────────────────────────────────
 async function loadOrders() {
-  const res  = await fetch(APPS_URL, {
-    method:'POST',
-    body: JSON.stringify({ action:'getOrders', adminToken }),
-  });
-  const data = await res.json();
-  if (data.ok) {
-    allOrders = data.orders || [];
-    // Заповнити фільтр дроперів
-    const dropers = [...new Set(allOrders.map(o => o.droper))].filter(Boolean).sort();
-    const sel = document.getElementById('filterDroper');
+  const res = await api('getAllOrders');
+  if (res.ok) {
+    allOrders = res.orders || [];
+    const dropers = [...new Set(allOrders.map(o=>o.droperCode))].sort();
+    const sel = document.getElementById('fDroper');
     sel.innerHTML = '<option value="all">Всі дропери</option>' +
-      dropers.map(d => `<option value="${d}">${d}</option>`).join('');
+      dropers.map(d=>`<option value="${d}">${d}</option>`).join('');
   }
 }
-
-async function refreshOrders() {
+async function loadDropers() {
+  const res = await api('getDropers');
+  if (res.ok) allDropers = res.dropers || [];
+}
+async function loadBalances() {
+  const res = await api('getAllBalances');
+  if (res.ok) allBalances = res.balances || {};
+}
+async function refreshAll() {
   document.getElementById('loadingBlock').classList.remove('hidden');
   document.getElementById('ordersSection').classList.add('hidden');
-  await loadOrders();
+  await Promise.all([loadOrders(), loadDropers(), loadBalances()]);
   document.getElementById('loadingBlock').classList.add('hidden');
-  renderOrders();
-  updateSummary();
-  showToast('🔄 Оновлено!');
+  renderOrders(); updateStats(); toast('🔄 Оновлено!');
 }
 
-// ── LOAD DROPERS ─────────────────────────────────────────
-async function loadDropers() {
-  const res  = await fetch(APPS_URL, {
-    method:'POST',
-    body: JSON.stringify({ action:'getDropers', adminToken }),
-  });
-  const data = await res.json();
-  if (data.ok) allDropers = data.dropers || [];
-}
-
-// ── LOAD BALANCES ─────────────────────────────────────────
-async function loadBalances() {
-  const res  = await fetch(APPS_URL, {
-    method:'POST',
-    body: JSON.stringify({ action:'getBalance', adminToken }),
-  });
-  const data = await res.json();
-  if (data.ok) allBalances = data.balances || {};
-}
-
-// ── SUMMARY ──────────────────────────────────────────────
-function updateSummary() {
+// ── СТАТИСТИКА ─────────────────────────────────────────
+function updateStats() {
   const today = new Date().toLocaleDateString('uk-UA');
-  document.getElementById('sumTotal').textContent   = allOrders.length;
-  document.getElementById('sumDone').textContent    = allOrders.filter(o => o.status === 'Виконано').length;
-  document.getElementById('sumRefused').textContent = allOrders.filter(o => o.status === 'Відмова клієнта').length;
-  document.getElementById('sumToday').textContent   = allOrders.filter(o => {
-    const d = new Date(o.date);
-    return isNaN(d) ? false : d.toLocaleDateString('uk-UA') === today;
+  document.getElementById('stTotal').textContent  = allOrders.length;
+  document.getElementById('stDone').textContent   = allOrders.filter(o=>o.status==='Виконано').length;
+  document.getElementById('stRefused').textContent= allOrders.filter(o=>o.status==='Відмова клієнта').length;
+  document.getElementById('stToday').textContent  = allOrders.filter(o=>{
+    try { return new Date(o.date).toLocaleDateString('uk-UA')===today; } catch{ return false; }
   }).length;
 }
 
-// ── RENDER ORDERS ─────────────────────────────────────────
+// ── RENDER ЗАМОВЛЕНЬ ────────────────────────────────────
 function renderOrders() {
-  const q       = (document.getElementById('searchQ')?.value || '').toLowerCase().trim();
-  const droper  = document.getElementById('filterDroper')?.value || 'all';
-  const status  = document.getElementById('filterStatus')?.value || 'all';
-  const from    = document.getElementById('filterFrom')?.value;
-  const to      = document.getElementById('filterTo')?.value;
+  const q      = (document.getElementById('searchQ')?.value||'').toLowerCase().trim();
+  const droper = document.getElementById('fDroper')?.value||'all';
+  const status = document.getElementById('fStatus')?.value||'all';
+  const from   = document.getElementById('fFrom')?.value;
+  const to     = document.getElementById('fTo')?.value;
 
-  let filtered = allOrders.filter(o => {
-    if (droper !== 'all' && o.droper !== droper) return false;
-    if (status !== 'all' && o.status !== status) return false;
-    if (q && !`${o.product} ${o.droper} ${o.ttn} ${o.productId}`.toLowerCase().includes(q)) return false;
-    if (from || to) {
+  let f = allOrders.filter(o => {
+    if (droper!=='all' && o.droperCode!==droper) return false;
+    if (status!=='all' && o.status!==status)     return false;
+    if (q) {
+      const hay = [o.orderNum,o.droperCode,o.clientName,o.phone,o.ttn,
+                   (o.items||[]).map(i=>i.name).join(' ')].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (from||to) {
       const d = new Date(o.date);
-      if (from && d < new Date(from)) return false;
-      if (to   && d > new Date(to + 'T23:59:59')) return false;
+      if (from && d < new Date(from))               return false;
+      if (to   && d > new Date(to+'T23:59:59'))     return false;
     }
     return true;
   });
 
-  document.getElementById('ordersCount').textContent = `Знайдено: ${filtered.length}`;
+  document.getElementById('ordersCount').textContent = `Знайдено: ${f.length}`;
   document.getElementById('ordersSection').classList.remove('hidden');
 
-  const tbody = document.getElementById('ordersBody');
-  tbody.innerHTML = filtered.map(o => {
-    const profit = parseFloat(o.profit) || 0;
-    const pc     = profit >= 0 ? 'var(--green)' : 'var(--red)';
-    const rid    = o.rowIndex;
+  const STATUS_CSS = {'Новий':'st-new','Оброблено':'st-proc','Комплектація':'st-pack',
+    'Відправлено':'st-sent','Виконано':'st-done','Відмова клієнта':'st-refused','Повернення':'st-return'};
 
-    const items = Array.isArray(o.items) ? o.items : [];
-    const itemsList = items.map(it =>
-      `<div style="font-size:.65rem;white-space:nowrap;">${it.name.slice(0,25)}${it.name.length>25?'…':''} — ${it.count}шт.</div>`
-    ).join('');
+  document.getElementById('ordersBody').innerHTML = f.map(o => {
+    const profit  = parseFloat(o.profit)||0;
+    const pColor  = profit>=0?'var(--green)':'var(--red)';
+    const items   = (o.items||[]);
+    const itemsHtml = items.map(it =>
+      `<div style="font-size:.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;" title="${esc(it.name)}">
+        ${esc(it.name.slice(0,28)+(it.name.length>28?'…':''))} — ${it.count}шт
+      </div>`).join('');
+    const on = o.orderNum;
 
-    return `<tr id="row-${rid}">
-      <td style="font-weight:900;color:var(--accent);font-size:.72rem;white-space:nowrap;">${o.orderNum||'—'}</td>
-      <td style="white-space:nowrap;font-size:.65rem;color:var(--text2);">${formatDate(o.date)}</td>
-      <td><span style="font-size:.7rem;font-weight:800;color:var(--accent);">${o.droper}</span></td>
+    return `<tr id="tr-${on}">
+      <td style="font-weight:900;color:var(--accent);white-space:nowrap;font-size:.72rem;">${on||'—'}</td>
+      <td style="white-space:nowrap;font-size:.65rem;color:var(--text2);">${fmtDate(o.date)}</td>
+      <td style="font-size:.7rem;font-weight:800;color:var(--accent);">${esc(o.droperCode)}</td>
       <td>
-        <div style="font-size:.7rem;font-weight:700;">${o.client||'—'}</div>
+        <div style="font-size:.72rem;font-weight:700;">${esc(o.clientName||'—')}</div>
       </td>
-      <td style="min-width:160px;">${itemsList||'—'}</td>
+      <td style="min-width:160px;">${itemsHtml}</td>
       <td>
-        <span class="editable" onclick="editCell(this, ${rid}, 'totalBuy', '${o.totalBuy||0}')">${parseFloat(o.totalBuy)||0} ₴</span>
+        <span class="editable" onclick="editCell(this,'${on}','totalBuy','${o.totalBuy||0}')">${parseFloat(o.totalBuy)||0} ₴</span>
       </td>
       <td>
-        <span class="editable" onclick="editCell(this, ${rid}, 'totalSell', '${o.totalSell||0}')">${parseFloat(o.totalSell)||0} ₴</span>
+        <span class="editable" onclick="editCell(this,'${on}','totalSell','${o.totalSell||0}')">${parseFloat(o.totalSell)||0} ₴</span>
       </td>
-      <td class="font-bold" style="color:${pc};white-space:nowrap;">${profit>=0?'+':''}${profit} ₴</td>
-      <td style="font-size:.65rem;white-space:nowrap;">${o.phone||'—'}</td>
-      <td style="font-size:.65rem;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.city||''}">${o.city||'—'}</td>
+      <td style="font-weight:900;color:${pColor};white-space:nowrap;">${profit>=0?'+':''}${profit} ₴</td>
+      <td style="font-size:.68rem;white-space:nowrap;">${esc(o.phone||'—')}</td>
+      <td style="font-size:.65rem;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.city||'')}">${esc(o.city||'—')}</td>
       <td>
-        <span class="editable" onclick="editCell(this, ${rid}, 'ttn', '${o.ttn||''}')">${o.ttn||'—'}</span>
+        <span class="editable" onclick="editCell(this,'${on}','ttn','${esc(o.ttn||'')}')">${esc(o.ttn||'—')}</span>
       </td>
-      <td style="font-size:.62rem;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);" title="${o.npStatus||''}">${o.npStatus||'—'}</td>
+      <td style="font-size:.62rem;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);"
+          title="${esc(o.npStatus||'')}">${esc(o.npStatus||'—')}</td>
       <td>
-        <select class="text-xs font-bold py-0.5 px-1" style="border-radius:.4rem;"
-          onchange="quickSave(${rid}, 'status', this.value)">
+        <select class="text-xs font-bold py-0.5 px-1.5" style="border-radius:.4rem;min-width:90px;"
+                onchange="setEdit('${on}','status',this.value)">
           ${['Новий','Оброблено','Комплектація','Відправлено','Виконано','Відмова клієнта','Повернення']
-            .map(s => `<option${s===o.status?' selected':''}>${s}</option>`).join('')}
+            .map(s=>`<option${s===o.status?' selected':''}>${s}</option>`).join('')}
         </select>
       </td>
       <td>
-        <button onclick="saveRow(${rid})" class="px-2 py-1 rounded-lg text-xs font-bold text-white hover:opacity-80" style="background:var(--accent);" title="Зберегти зміни">
-          <i class="fa-solid fa-floppy-disk"></i>
-        </button>
+        <span class="editable" style="font-size:.65rem;color:var(--text2);max-width:100px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              onclick="editCell(this,'${on}','adminNote','${esc(o.adminNote||'')}')"
+              title="${esc(o.adminNote||'')}">${esc(o.adminNote||'—')}</span>
+      </td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button onclick="saveRow('${on}')"
+                  class="px-2 py-1 rounded-lg text-xs font-black text-white hover:opacity-80"
+                  style="background:var(--accent);" title="Зберегти">
+            <i class="fa-solid fa-floppy-disk"></i>
+          </button>
+          <button onclick="confirmDelete('${on}')"
+                  class="px-2 py-1 rounded-lg text-xs font-bold hover:text-red-500"
+                  style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);" title="Видалити">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
       </td>
     </tr>`;
   }).join('');
 }
 
-// ── EDIT CELL ─────────────────────────────────────────────
-function editCell(el, rowIndex, field, currentVal) {
-  if (el.querySelector('input')) return; // вже в режимі редагування
-  const val = currentVal || '';
-  el.innerHTML = `<input class="edit-input" value="${val}" 
-    onblur="finishEdit(this, ${rowIndex}, '${field}')"
-    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape')cancelEdit(this,'${val} ₴')"
-    autofocus>`;
+// ── РЕДАГУВАННЯ КЛІТИНОК ────────────────────────────────
+function editCell(el, orderNum, field, current) {
+  if (el.querySelector('input')) return;
+  el.innerHTML = `<input class="px-1 py-0.5 text-xs font-bold" style="min-width:70px;border-radius:.3rem;"
+    value="${esc(current)}"
+    onblur="finishEdit(this,'${orderNum}','${field}')"
+    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape'){this.parentElement.innerHTML='${esc(current||'—')}';}" autofocus>`;
   el.querySelector('input').select();
 }
-
-function finishEdit(input, rowIndex, field) {
-  const val = input.value.trim();
-  const display = (field === 'buyPrice' || field === 'sellPrice') ? val + ' ₴' : (val || '—');
-  input.parentElement.innerHTML = `<span class="editable" onclick="editCell(this, ${rowIndex}, '${field}', '${val}')">${display}</span>`;
-  if (!pendingEdits[rowIndex]) pendingEdits[rowIndex] = {};
-  pendingEdits[rowIndex][field] = val;
+function finishEdit(inp, orderNum, field) {
+  const val = inp.value.trim();
+  inp.parentElement.innerHTML = `<span class="editable" onclick="editCell(this,'${orderNum}','${field}','${esc(val)}')">${esc(val||'—')}</span>`;
+  setEdit(orderNum, field, val);
+}
+function setEdit(orderNum, field, value) {
+  if (!pendingEdits[orderNum]) pendingEdits[orderNum] = {};
+  pendingEdits[orderNum][field] = value;
 }
 
-function cancelEdit(input, originalHtml) {
-  input.parentElement.innerHTML = `<span class="editable">${originalHtml}</span>`;
-}
-
-// ── QUICK SAVE (статус з select) ──────────────────────────
-function quickSave(rowIndex, field, value) {
-  if (!pendingEdits[rowIndex]) pendingEdits[rowIndex] = {};
-  pendingEdits[rowIndex][field] = value;
-}
-
-// ── SAVE ROW ──────────────────────────────────────────────
-async function saveRow(rowIndex) {
-  const edits = pendingEdits[rowIndex];
-  if (!edits || !Object.keys(edits).length) {
-    showToast('ℹ️ Нема змін для збереження');
-    return;
-  }
+// ── ЗБЕРЕГТИ РЯДОК ─────────────────────────────────────
+async function saveRow(orderNum) {
+  const edits = pendingEdits[orderNum];
+  if (!edits || !Object.keys(edits).length) { toast('ℹ️ Немає змін'); return; }
   try {
-    const res  = await fetch(APPS_URL, {
-      method:'POST',
-      body: JSON.stringify({ action:'updateOrder', adminToken, rowIndex, ...edits }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      delete pendingEdits[rowIndex];
-      showToast('✅ Збережено!');
-    } else {
-      showToast('⚠️ ' + (data.error || 'Помилка збереження'));
-    }
-  } catch(e) { showToast('⚠️ Помилка з\'єднання'); }
+    const res = await api('updateOrder', { orderNum, ...edits });
+    if (res.ok) {
+      delete pendingEdits[orderNum];
+      toast('✅ Збережено!');
+      // Оновити локально
+      const idx = allOrders.findIndex(o=>o.orderNum===orderNum);
+      if (idx!==-1) allOrders[idx] = res.order;
+      renderOrders();
+    } else toast('⚠️ ' + res.error);
+  } catch { toast('⚠️ Помилка з\'єднання'); }
 }
 
-// ── RENDER DROPERS ─────────────────────────────────────────
-function renderDropers() {
-  const tbody = document.getElementById('dropersBody');
-  tbody.innerHTML = allDropers.map(d => {
-    const b = allBalances[d.code.toUpperCase()] || {};
-    const balance = (b.profit || 0);
-    const balColor = balance >= 0 ? 'var(--green)' : 'var(--red)';
-    return `<tr>
-      <td><span style="font-weight:800;color:var(--accent);">${d.code}</span></td>
-      <td class="font-bold">${d.name||'—'}</td>
-      <td style="font-size:.7rem;">${d.phone||'—'}</td>
-      <td style="font-size:.7rem;"><a href="${d.site||'#'}" target="_blank" style="color:var(--accent);">${d.site||'—'}</a></td>
-      <td style="font-size:.7rem;font-family:monospace;">${d.card||'—'}</td>
-      <td style="font-size:.7rem;color:var(--text2);">${d.comment||'—'}</td>
-      <td class="font-bold text-center">${b.orders||0}</td>
-      <td class="font-bold" style="color:var(--green);">+${b.profit||0} ₴</td>
-      <td class="font-bold" style="color:var(--red);">-${b.penalties||0} ₴</td>
-      <td class="font-bold" style="color:${balColor};">${balance>=0?'+':''}${balance} ₴</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('dropersSection').classList.remove('hidden');
+// ── ВИДАЛИТИ ЗАМОВЛЕННЯ ─────────────────────────────────
+async function confirmDelete(orderNum) {
+  if (!confirm(`Видалити замовлення ${orderNum}?`)) return;
+  const res = await api('deleteOrder', { orderNum });
+  if (res.ok) {
+    allOrders = allOrders.filter(o=>o.orderNum!==orderNum);
+    renderOrders(); updateStats(); toast('🗑️ Видалено');
+  } else toast('⚠️ '+res.error);
 }
 
-// ── RESET FILTERS ─────────────────────────────────────────
 function resetFilters() {
-  document.getElementById('searchQ').value        = '';
-  document.getElementById('filterDroper').value   = 'all';
-  document.getElementById('filterStatus').value   = 'all';
-  document.getElementById('filterFrom').value     = '';
-  document.getElementById('filterTo').value       = '';
+  document.getElementById('searchQ').value = '';
+  document.getElementById('fDroper').value = 'all';
+  document.getElementById('fStatus').value = 'all';
+  document.getElementById('fFrom').value   = '';
+  document.getElementById('fTo').value     = '';
   renderOrders();
 }
 
-// ── FORMAT DATE ───────────────────────────────────────────
-function formatDate(d) {
-  if (!d) return '—';
-  const date = new Date(d);
-  if (isNaN(date)) return String(d).slice(0,10);
-  return date.toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'});
+// ── RENDER ДРОПЕРІВ ─────────────────────────────────────
+function renderDropers() {
+  document.getElementById('dropersCountLabel').textContent = `Дроперів: ${allDropers.length}`;
+  document.getElementById('dropersBody').innerHTML = allDropers.map(d => {
+    const b = allBalances[d.code] || {};
+    const bal = b.profit||0;
+    const bc = bal>=0?'var(--green)':'var(--red)';
+    const isBlocked = d.active === false;
+    return `<tr style="${isBlocked?'opacity:.55':''}">
+      <td style="font-weight:900;color:var(--accent);">${d.code}</td>
+      <td style="font-weight:700;">${esc(d.name||'—')}</td>
+      <td style="font-size:.7rem;">${esc(d.phone||'—')}</td>
+      <td style="font-size:.7rem;">${d.site?`<a href="${d.site.startsWith('http')?d.site:'//'+d.site}" target="_blank" style="color:var(--accent);">${esc(d.site)}</a>`:'—'}</td>
+      <td style="font-size:.7rem;font-family:monospace;">${esc(d.card||'—')}</td>
+      <td style="font-size:.68rem;color:var(--text2);">${esc(d.comment||'—')}</td>
+      <td>${isBlocked
+        ? '<span style="font-size:.62rem;font-weight:800;color:var(--red);">Заблоковано</span>'
+        : '<span style="font-size:.62rem;font-weight:800;color:var(--green);">Активний</span>'}</td>
+      <td style="font-weight:700;text-align:center;">${b.totalOrders||0}</td>
+      <td style="font-weight:700;color:var(--green);">+${b.profit||0} ₴</td>
+      <td style="font-weight:700;color:var(--red);">-${b.penalties||0} ₴</td>
+      <td style="font-weight:900;color:${bc};">${bal>=0?'+':''}${bal} ₴</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button onclick="toggleBlock('${d.code}',${!isBlocked})"
+                  class="px-2 py-1 rounded text-xs font-bold text-white hover:opacity-80"
+                  style="background:${isBlocked?'var(--green)':'var(--red)'};">
+            ${isBlocked?'Розблок':'Блок'}
+          </button>
+          <button onclick="confirmDeleteDroper('${d.code}','${esc(d.name)}')"
+                  class="px-2 py-1 rounded text-xs font-bold hover:text-red-500"
+                  style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-// ── EXPORT CSV ────────────────────────────────────────────
-function exportCSV() {
-  if (!allOrders.length) { showToast('⚠️ Немає даних'); return; }
-  const rows = [['Замовлення','Дата','Дропер','Клієнт','Телефон','Місто','Оплата','Товари','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
-  getFilteredOrders().forEach(o => {
-    const itemsStr = (o.items||[]).map(it=>`${it.name} (${it.count}шт)`).join('; ');
-    rows.push([o.orderNum,o.date,o.droper,o.client,o.phone,o.city,o.payment,itemsStr,o.totalBuy,o.totalSell,o.profit,o.ttn,o.npStatus,o.status]);
+async function toggleBlock(code, newActive) {
+  const res = await api('updateDroper', { code, active: newActive });
+  if (res.ok) { await loadDropers(); renderDropers(); toast(newActive?'✅ Розблоковано':'🔒 Заблоковано'); }
+  else toast('⚠️ '+res.error);
+}
+async function confirmDeleteDroper(code, name) {
+  if (!confirm(`Видалити дропера ${code} (${name})?`)) return;
+  const res = await api('deleteDroper', { code });
+  if (res.ok) { await loadDropers(); renderDropers(); toast('🗑️ Видалено'); }
+  else toast('⚠️ '+res.error);
+}
+async function submitAddDroper() {
+  const name = document.getElementById('dnName').value.trim();
+  if (!name) { toast('⚠️ Введіть ім\'я'); return; }
+  const code = document.getElementById('dnCode').value.trim().toUpperCase() || undefined;
+  const res = await api('addDroper', {
+    name, code,
+    phone:   document.getElementById('dnPhone').value.trim(),
+    site:    document.getElementById('dnSite').value.trim(),
+    card:    document.getElementById('dnCard').value.trim(),
+    comment: document.getElementById('dnComment').value.trim(),
   });
-  const csv = rows.map(r => r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `utrade_admin_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  showToast('📊 CSV завантажено!');
+  if (res.ok) {
+    const msg = `✅ Дропер ${res.droper.code} (${name}) — код скопійовано!`;
+    navigator.clipboard.writeText(res.droper.code).catch(()=>{});
+    toast(msg, 4000);
+    document.getElementById('addForm').classList.add('hidden');
+    ['dnName','dnPhone','dnCode','dnSite','dnCard','dnComment'].forEach(id => document.getElementById(id).value='');
+    await loadDropers(); await loadBalances(); renderDropers();
+  } else toast('⚠️ '+res.error);
 }
 
-// ── EXPORT EXCEL ──────────────────────────────────────────
+// ── ДОПОМІЖНІ ──────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' +
+           dt.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
+  } catch { return String(d).slice(0,16); }
+}
+function getFiltered() {
+  const q      = (document.getElementById('searchQ')?.value||'').toLowerCase().trim();
+  const droper = document.getElementById('fDroper')?.value||'all';
+  const status = document.getElementById('fStatus')?.value||'all';
+  const from   = document.getElementById('fFrom')?.value;
+  const to     = document.getElementById('fTo')?.value;
+  return allOrders.filter(o => {
+    if (droper!=='all' && o.droperCode!==droper) return false;
+    if (status!=='all' && o.status!==status)     return false;
+    if (q) { const h=[o.orderNum,o.droperCode,o.clientName,o.phone,o.ttn,(o.items||[]).map(i=>i.name).join(' ')].join(' ').toLowerCase(); if(!h.includes(q))return false; }
+    if (from&&new Date(o.date)<new Date(from)) return false;
+    if (to  &&new Date(o.date)>new Date(to+'T23:59:59')) return false;
+    return true;
+  });
+}
+
+// ── EXCEL ──────────────────────────────────────────────
 function exportExcel() {
-  if (!allOrders.length) { showToast('⚠️ Немає даних'); return; }
-  const orders = getFilteredOrders();
-  const wsData = [['Замовлення','Дата','Дропер','Клієнт','Телефон','Місто','Оплата','Товари','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
+  const orders = getFiltered();
+  if (!orders.length) { toast('⚠️ Немає даних'); return; }
+
+  const wsData = [['Замовлення','Дата','Дропер','Клієнт','Телефон','Місто','Оплата','Товари','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус','Примітка']];
   orders.forEach(o => {
-    const itemsStr = (o.items||[]).map(it=>`${it.name} (${it.count}шт)`).join('; ');
-    wsData.push([o.orderNum,o.date,o.droper,o.client||'',o.phone||'',o.city||'',o.payment||'',itemsStr,parseFloat(o.totalBuy)||0,parseFloat(o.totalSell)||0,parseFloat(o.profit)||0,o.ttn||'',o.npStatus||'',o.status||'']);
+    const items = (o.items||[]).map(it=>`${it.name} (${it.count}шт × ${it.salePrice}₴)`).join('; ');
+    wsData.push([o.orderNum,o.dateDisplay||o.date,o.droperCode,o.clientName,o.phone,o.city,o.payment,
+                 items,parseFloat(o.totalBuy)||0,parseFloat(o.totalSell)||0,parseFloat(o.profit)||0,
+                 o.ttn,o.npStatus,o.status,o.adminNote]);
+  });
+
+  // Аркуш балансів
+  const balData = [['Код','Ім\'я','Телефон','Замовлень','Виконано','Відмов','В очікуванні','Прибуток','Штрафи','Баланс']];
+  allDropers.forEach(d => {
+    const b = allBalances[d.code]||{};
+    balData.push([d.code,d.name,d.phone,b.totalOrders||0,b.done||0,b.refused||0,b.pending||0,b.profit||0,b.penalties||0,b.profit||0]);
   });
 
   const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Ширина колонок
-  ws['!cols'] = [18,14,10,18,14,22,12,40,9,9,9,16,22,14].map(w=>({wch:w}));
-
-  // Аркуш балансів дроперів
-  const balData = [['Код','Ім\'я','Замовлень','Виконано','Відмов','Прибуток','Штрафи','Баланс']];
-  allDropers.forEach(d => {
-    const b = allBalances[d.code.toUpperCase()] || {};
-    balData.push([d.code,d.name||'',b.orders||0,b.done||0,b.refused||0,b.profit||0,b.penalties||0,(b.profit||0)]);
-  });
+  const ws  = XLSX.utils.aoa_to_sheet(wsData);
   const wsBal = XLSX.utils.aoa_to_sheet(balData);
-  wsBal['!cols'] = [10,20,12,12,12,12,12,12].map(w=>({wch:w}));
-
-  XLSX.utils.book_append_sheet(wb, ws, 'Замовлення');
-  XLSX.utils.book_append_sheet(wb, wsBal, 'Баланси дроперів');
-  XLSX.writeFile(wb, `utrade_${new Date().toISOString().slice(0,10)}.xlsx`);
-  showToast('📗 Excel завантажено!');
+  ws['!cols']    = [16,14,10,16,14,20,12,40,9,9,9,16,22,14,18].map(w=>({wch:w}));
+  wsBal['!cols'] = [10,18,14,12,10,10,14,10,10,10].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws,    'Замовлення');
+  XLSX.utils.book_append_sheet(wb, wsBal, 'Дропери');
+  XLSX.writeFile(wb, `utrade_admin_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('📗 Excel завантажено!');
 }
 
-function getFilteredOrders() {
-  const q      = (document.getElementById('searchQ')?.value||'').toLowerCase().trim();
-  const droper = document.getElementById('filterDroper')?.value||'all';
-  const status = document.getElementById('filterStatus')?.value||'all';
-  const from   = document.getElementById('filterFrom')?.value;
-  const to     = document.getElementById('filterTo')?.value;
-  return allOrders.filter(o => {
-    if (droper!=='all' && o.droper!==droper) return false;
-    if (status!=='all' && o.status!==status) return false;
-    if (q && !`${o.orderNum} ${o.droper} ${o.client} ${o.ttn} ${(o.items||[]).map(i=>i.name).join(' ')}`.toLowerCase().includes(q)) return false;
-    if (from||to){const d=new Date(o.date);if(from&&d<new Date(from))return false;if(to&&d>new Date(to+'T23:59:59'))return false;}
-    return true;
+// ── CSV ────────────────────────────────────────────────
+function exportAdminCSV() {
+  const orders = getFiltered();
+  if (!orders.length) { toast('⚠️ Немає даних'); return; }
+  const rows = [['Замовлення','Дата','Дропер','Клієнт','Телефон','Місто','Товари','Закупка','Продаж','Прибуток','ТТН','Статус НП','Статус']];
+  orders.forEach(o => {
+    const items = (o.items||[]).map(it=>`${it.name} (${it.count}шт)`).join('; ');
+    rows.push([o.orderNum,o.dateDisplay||o.date,o.droperCode,o.clientName,o.phone,o.city,items,o.totalBuy,o.totalSell,o.profit,o.ttn,o.npStatus,o.status]);
   });
+  const csv = rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = `utrade_admin_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('📊 CSV завантажено!');
 }
 </script>
 </body>
