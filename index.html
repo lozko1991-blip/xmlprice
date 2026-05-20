@@ -167,6 +167,27 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
 .badge-name{background:rgba(37,99,235,.1);color:var(--accent);}
 .badge-id{background:rgba(16,185,129,.1);color:#059669;}
 .badge-desc{background:rgba(245,158,11,.1);color:#b45309;}
+
+/* Order Success Modal */
+#orderSuccessModal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:1rem;}
+#orderSuccessModal.show{display:flex;}
+.order-success-box{background:var(--surface);border-radius:1.5rem;padding:2.5rem 2rem;max-width:600px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.35);max-height:90vh;overflow-y:auto;}
+.order-success-header{text-align:center;margin-bottom:2rem;}
+.order-success-header i{font-size:3.5rem;color:var(--green);margin-bottom:.75rem;display:block;}
+.order-success-header .bebas{font-size:2rem;color:var(--accent);margin-bottom:.5rem;letter-spacing:.05em;}
+.order-success-header .sec-title{margin-top:.5rem;}
+.order-success-num{font-size:1.8rem;text-align:center;color:var(--accent);letter-spacing:.08em;margin:.75rem 0;padding:1rem;background:var(--surface2);border:1px solid var(--border);border-radius:1rem;font-weight:900;}
+.order-summary{background:var(--surface2);border:1px solid var(--border);border-radius:1rem;padding:1.25rem;margin:1rem 0;}
+.order-summary-title{font-size:.65rem;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;display:block;}
+.order-item-row{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.8rem;}
+.order-item-row:last-child{border-bottom:none;}
+.order-item-row span:last-child{font-weight:700;}
+.order-totals{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;border-top:1.5px solid var(--border);padding-top:1rem;}
+.order-total-item{text-align:center;}
+.order-total-label{font-size:.65rem;color:var(--text2);text-transform:uppercase;margin-bottom:.5rem;}
+.order-total-value{font-size:1.4rem;font-weight:900;}
+#orderSuccessClose{padding:1rem 2rem;margin-top:1.5rem;width:100%;border-radius:1rem;font-size:.85rem;font-weight:800;cursor:pointer;transition:all .2s;text-align:center;border:none;color:#fff;}
+#orderSuccessClose:hover{opacity:.85;}
 </style>
 </head>
 <body data-theme="light">
@@ -346,9 +367,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);}
         <textarea id="clientComment" placeholder="Коментар (необов'язково)" rows="2" class="w-full px-3 py-2.5 text-sm resize-none"></textarea>
       </div>
       <div class="grid grid-cols-3 gap-2">
-        <button onclick="sendOrder('viber')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80" style="background:#7360f2;"><i class="fa-brands fa-viber"></i> Viber</button>
-        <button onclick="sendOrder('telegram')" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80" style="background:#29b6f6;"><i class="fa-brands fa-telegram"></i> Telegram</button>
-        <button onclick="sendOrder('copy')" class="py-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 hover:opacity-80" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);"><i class="fa-solid fa-copy"></i> Копія</button>
+        <button onclick="submitOrder()" class="py-3 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 hover:opacity-80 active:scale-95" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 14px rgba(16,185,129,.4);"><i class="fa-solid fa-arrow-right"></i> Відправити замовлення</button>
       </div>
     </div>
   </div>
@@ -1379,6 +1398,92 @@ function sendOrder(channel) {
 }
 
 // ═══ CSV ═══
+// ═══ SUBMIT ORDER ═══
+async function submitOrder() {
+  if (!cart.length) { showToast('⚠️ Кошик порожній!'); return; }
+  
+  const droperCode = document.getElementById('droperCode').value.trim();
+  if (!droperCode) { showToast('⚠️ Введіть код дропера'); return; }
+
+  const orderData = {
+    action: 'addOrder',
+    droperCode,
+    clientName: document.getElementById('clientName').value.trim(),
+    phone: document.getElementById('clientPhone').value.trim(),
+    city: document.getElementById('clientCity').value.trim(),
+    payment: document.getElementById('paymentType').value,
+    comment: document.getElementById('clientComment').value.trim(),
+    items: cart.map(p => ({
+      id: p.id,
+      name: p.name,
+      vendor: p.vendor,
+      count: p.count,
+      price: p.price,
+      salePrice: p.salePrice,
+    })),
+  };
+
+  localStorage.setItem('utrade_droper_code', droperCode);
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData),
+    }).then(r => r.json());
+
+    if (res.ok && res.orderNum) {
+      showOrderSuccess(res.orderNum);
+      cart = []; saveCart(); updateCartUI();
+      document.getElementById('clientName').value = '';
+      document.getElementById('clientPhone').value = '';
+      document.getElementById('clientCity').value = '';
+      document.getElementById('clientComment').value = '';
+    } else {
+      showToast('⚠️ ' + (res.error || 'Помилка'));
+    }
+  } catch(e) {
+    showToast('⚠️ Помилка з'єднання');
+  }
+}
+
+function showOrderSuccess(orderNum) {
+  document.getElementById('successOrderNum').textContent = orderNum;
+
+  let itemsHtml = '';
+  let totalBuy = 0, totalSell = 0;
+  
+  cart.forEach(item => {
+    const itemTotal = item.salePrice * item.count;
+    const itemCost = item.price * item.count;
+    totalBuy += itemCost;
+    totalSell += itemTotal;
+    const shortName = item.name.length > 40 ? item.name.slice(0, 37) + '…' : item.name;
+    itemsHtml += `<div class="order-item-row">
+      <span>${shortName} × ${item.count}шт</span>
+      <span>${itemTotal} ₴</span>
+    </div>`;
+  });
+
+  document.getElementById('successOrderItems').innerHTML = itemsHtml;
+  document.getElementById('successTotalBuy').textContent = Math.round(totalBuy) + ' ₴';
+  document.getElementById('successTotalSell').textContent = Math.round(totalSell) + ' ₴';
+
+  document.getElementById('successClientName').textContent = document.getElementById('clientName').value.trim() || '—';
+  document.getElementById('successPhone').textContent = document.getElementById('clientPhone').value.trim() || '—';
+  document.getElementById('successCity').textContent = document.getElementById('clientCity').value.trim() || '—';
+  document.getElementById('successPayment').textContent = document.getElementById('paymentType').value || '—';
+
+  document.getElementById('orderSuccessModal').classList.add('show');
+  document.getElementById('orderSuccessClose').onclick = closeOrderSuccess;
+}
+
+function closeOrderSuccess() {
+  document.getElementById('orderSuccessModal').classList.remove('show');
+  toggleCheckout();
+}
+
+// ═══ CSV ═══
 function exportCSV() {
   const margin = parseInt(document.getElementById('globalMargin').value) || 20;
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1458,5 +1563,57 @@ document.getElementById('pvTrack').addEventListener('touchend', e => {
 })();
 init();
 </script>
+<!-- ORDER SUCCESS MODAL -->
+<div id="orderSuccessModal">
+  <div class="order-success-box">
+    <div class="order-success-header">
+      <i class="fa-solid fa-circle-check"></i>
+      <div class="bebas">Замовлення прийнято!</div>
+      <div class="sec-title">Спасибо за замовлення</div>
+    </div>
+
+    <div class="order-success-num" id="successOrderNum">UT-20250519-001</div>
+
+    <div class="order-summary">
+      <span class="order-summary-title">Ваші товари</span>
+      <div id="successOrderItems"></div>
+      <div class="order-totals">
+        <div class="order-total-item">
+          <div class="order-total-label">Закупка</div>
+          <div class="order-total-value" style="color:var(--text2);" id="successTotalBuy">0 ₴</div>
+        </div>
+        <div class="order-total-item">
+          <div class="order-total-label">Сума до сплати</div>
+          <div class="order-total-value" style="color:var(--accent);" id="successTotalSell">0 ₴</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-summary">
+      <span class="order-summary-title">Дані доставки</span>
+      <div class="order-item-row">
+        <span>ПІБ</span>
+        <span id="successClientName">—</span>
+      </div>
+      <div class="order-item-row">
+        <span>Телефон</span>
+        <span id="successPhone">—</span>
+      </div>
+      <div class="order-item-row">
+        <span>Адреса</span>
+        <span id="successCity">—</span>
+      </div>
+      <div class="order-item-row">
+        <span>Оплата</span>
+        <span id="successPayment">—</span>
+      </div>
+    </div>
+
+    <button id="orderSuccessClose" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 14px rgba(16,185,129,.4);">
+      <i class="fa-solid fa-check mr-1.5"></i>Зрозуміло
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
