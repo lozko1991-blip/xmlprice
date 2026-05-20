@@ -1,1 +1,54 @@
-[]
+[
+  {
+    "orderNum": "UT-20260520-001",
+    "date": "2026-05-20T08:34:19.714Z",
+    "dateDisplay": "20.05.2026, 08:34:19",
+    "droperCode": "DR-C6KGG",
+    "droperName": "Сергій",
+    "clientName": "Сергій Іванов",
+    "phone": "0666172764",
+    "city": "Київ, 2 відділення",
+    "payment": "Накладений платіж",
+    "comment": "щвидко відправте",
+    "items": [
+      {
+        "id": "8281",
+        "name": "ПОРТАТИВНИЙ ОБІГРІВАЧ  HANDY HEATER ∙ МІНІ - ДУЙКА ДУЙЧИК У РОЗЕТКУ ХЕНДІ-ХІТЕР 12622 ROVUS",
+        "vendor": "SHKATULKA",
+        "count": 1,
+        "price": 359,
+        "salePrice": 555
+      },
+      {
+        "id": "8280",
+        "name": "ЕЛЕКТРИЧНА ТОЧИЛА ДЛЯ НОЖІВ LUCKY HOME ELECTRIC KNIFE SHARPENER",
+        "vendor": "SHKATULKA",
+        "count": 1,
+        "price": 257,
+        "salePrice": 358
+      },
+      {
+        "id": "8244",
+        "name": "РАДІОПРИЙМАЧ GOLON RX-606",
+        "vendor": "SHKATULKA",
+        "count": 1,
+        "price": 396,
+        "salePrice": 495
+      }
+    ],
+    "totalBuy": 1012,
+    "totalSell": 1408,
+    "profit": 396,
+    "ttn": "",
+    "npStatus": "",
+    "status": "Новий",
+    "adminNote": "",
+    "history": [
+      {
+        "ts": "2026-05-20T08:34:19.714Z",
+        "action": "Замовлення створено",
+        "by": "DR-C6KGG"
+      }
+    ]
+  }
+]
