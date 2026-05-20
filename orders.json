@@ -96,5 +96,49 @@
         "by": "admin"
       }
     ]
+  },
+  {
+    "orderNum": "UT-20260520-003",
+    "date": "2026-05-20T14:05:05.832Z",
+    "dateDisplay": "20.05.2026, 14:05:05",
+    "droperCode": "DR-C6KGG",
+    "droperName": "Сергій",
+    "clientName": "Сергій Лгоза",
+    "phone": "0666172763",
+    "city": "Рожище, 1 відділення нп",
+    "payment": "Накладений платіж",
+    "comment": "Потрібно швидко",
+    "items": [
+      {
+        "id": "8281",
+        "name": "ПОРТАТИВНИЙ ОБІГРІВАЧ  HANDY HEATER ∙ МІНІ - ДУЙКА ДУЙЧИК У РОЗЕТКУ ХЕНДІ-ХІТЕР 12622 ROVUS",
+        "vendor": "SHKATULKA",
+        "count": 2,
+        "price": 359,
+        "salePrice": 431
+      },
+      {
+        "id": "8280",
+        "name": "ЕЛЕКТРИЧНА ТОЧИЛА ДЛЯ НОЖІВ LUCKY HOME ELECTRIC KNIFE SHARPENER",
+        "vendor": "SHKATULKA",
+        "count": 1,
+        "price": 257,
+        "salePrice": 308
+      }
+    ],
+    "totalBuy": 975,
+    "totalSell": 1170,
+    "profit": 195,
+    "ttn": "",
+    "npStatus": "",
+    "status": "Новий",
+    "adminNote": "",
+    "history": [
+      {
+        "ts": "2026-05-20T14:05:05.832Z",
+        "action": "Замовлення створено",
+        "by": "DR-C6KGG"
+      }
+    ]
   }
 ]
