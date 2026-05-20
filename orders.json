@@ -8,7 +8,7 @@
     "clientName": "Сергій Іванов",
     "phone": "0666172764",
     "city": "Київ, 2 відділення",
-    "payment": "Накладений платіж",
+    "payment": "",
     "comment": "щвидко відправте",
     "items": [
       {
@@ -25,7 +25,7 @@
         "vendor": "SHKATULKA",
         "count": 1,
         "price": 257,
-        "salePrice": 358
+        "salePrice": 300
       },
       {
         "id": "8244",
@@ -33,7 +33,7 @@
         "vendor": "SHKATULKA",
         "count": 1,
         "price": 396,
-        "salePrice": 495
+        "salePrice": 300
       }
     ],
     "totalBuy": 1012,
@@ -52,6 +52,11 @@
       {
         "ts": "2026-05-20T08:34:49.103Z",
         "action": "Змінено: status: \"Новий\"→\"Оброблено\"",
+        "by": "admin"
+      },
+      {
+        "ts": "2026-05-20T14:29:12.245Z",
+        "action": "Змінено: payment: \"Накладений платіж\"→\"\", items",
         "by": "admin"
       }
     ]
