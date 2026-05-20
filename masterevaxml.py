@@ -12,7 +12,7 @@ from collections import defaultdict
 SOURCES = [
     ("1111", "https://shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
     ("2222", "https://opt-drop.com/storage/xml/opt-drop-5.xml"),
-    ("3333", "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),
+    # ("3333", "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),  # LUGI — тимчасово вимкнено
     ("4444", "https://dropom.com.ua/products_feed.xml?hash_tag=b55924e4ebc0576fda79ae6941f7a2a5&languages=uk%2Cru"),
     ("",     "http://kievopt.com.ua/prices/rozetka-22294.yml"),
     ("5555", "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml")
@@ -33,10 +33,10 @@ CUSTOM_MARKUP = {
         "markup_percent": 1.0,  # без наценки — ціна постачальника як є
         "markup_fixed":   0,
     },
-    "feed.lugi.com.ua": {
-        "markup_percent": 1.20, # +20%
-        "markup_fixed":   50,   # +50 грн
-    },
+    # "feed.lugi.com.ua": {   # LUGI — тимчасово вимкнено
+    #     "markup_percent": 1.20,
+    #     "markup_fixed":   50,
+    # },
 }
 
 # Захист від підозрілих цін
@@ -682,7 +682,7 @@ def process():
     yml  = ET.Element("yml_catalog", date=datetime.now().strftime("%Y-%m-%d %H:%M"))
     shop = ET.SubElement(yml, "shop")
     ET.SubElement(shop, "name").text = "AVI"
-    ET.SubElement(shop, "url").text  = "https://avi.in.ua"
+    ET.SubElement(shop, "url").text  = "https://AVI.in.ua"
 
     currencies = ET.SubElement(shop, "currencies")
     ET.SubElement(currencies, "currency", id="UAH", rate="1")
