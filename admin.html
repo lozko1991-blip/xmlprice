@@ -414,7 +414,7 @@ async function doAdminLogin() {
     document.getElementById('loginScreen').style.display = 'none';
     initAdmin();
   } catch(e) {
-    toast('❌ ' + (e.message || 'Помилка з'єднання'));
+    toast("❌ " + (e.message || "Помилка з'єднання"));
     btn.innerHTML = '<i class="fa-solid fa-unlock"></i> Увійти';
     btn.disabled = false;
     console.error('Login error:', e);
