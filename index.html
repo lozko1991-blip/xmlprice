@@ -524,14 +524,12 @@ const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 // Prefix map matches SOURCES in Mastereva_parser.py:
 //   "1111" → shkatulka.in.ua  → SHKATULKA
 //   "2222" → opt-drop.com     → OPT-DROP
-//   "3333" → lugi.com.ua      → LUGI
 //   "4444" → dropom.com.ua    → DROPOM
 //   ""     → kievopt.com.ua   → KIEVOPT  (no prefix — raw ID)
 //   "5555" → royaltoys        → ROYALTOYS
 const VENDOR_PREFIX_MAP = {
   '1111': 'SHKATULKA',
   '2222': 'OPT-DROP',
-  '3333': 'LUGI',
   '4444': 'DROPOM',
   '5555': 'ROYALTOYS',
 };
@@ -557,7 +555,6 @@ function getVendorFromUrl(url) {
   const u = url.toLowerCase();
   if (u.includes('shkatulka.in.ua'))  return 'SHKATULKA';
   if (u.includes('opt-drop.com'))     return 'OPT-DROP';
-  if (u.includes('lugi.com.ua'))      return 'LUGI';
   if (u.includes('dropom.com.ua'))    return 'DROPOM';
   if (u.includes('kievopt.com.ua'))   return 'KIEVOPT';
   if (u.includes('royaltoys.com.ua')) return 'ROYALTOYS';
