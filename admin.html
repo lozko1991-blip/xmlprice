@@ -521,7 +521,7 @@ function renderOrders() {
       <td style="font-weight:900;color:${pColor};">${profit>=0?'+':''}${profit} ₴</td>
       <td><select onchange="quickStatus('${o.orderNum}', this.value)" class="text-xs font-bold py-0.5 px-1" style="border-radius:.4rem;">
         ${['Новий','Оброблено','Комплектація','Відправлено','Виконано','Відмова клієнта','Повернення']
-          .map(s=>\`<option\${s===o.status?' selected':''}\>${s}</option>\`).join('')}
+          .map(s=>`<option${s===o.status?' selected':''}>${s}</option>`).join('')}
       </select></td>
       <td>
         <div style="display:flex;gap:4px;">
