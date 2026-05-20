@@ -392,6 +392,10 @@ async function api(action, body={}) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action, adminToken, ...body }),
   });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`HTTP ${res.status}: ${text.slice(0,100)}`);
+  }
   return res.json();
 }
 
@@ -410,9 +414,10 @@ async function doAdminLogin() {
     document.getElementById('loginScreen').style.display = 'none';
     initAdmin();
   } catch(e) {
-    toast('❌ ' + e.message);
+    toast('❌ ' + (e.message || 'Помилка з'єднання'));
     btn.innerHTML = '<i class="fa-solid fa-unlock"></i> Увійти';
     btn.disabled = false;
+    console.error('Login error:', e);
   }
 }
 function doAdminLogout() { adminToken=''; sessionStorage.removeItem('utrade_admin'); location.reload(); }
