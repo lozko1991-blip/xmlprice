@@ -12,7 +12,7 @@ from collections import defaultdict
 SOURCES = [
     ("1111", "https://shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
     ("2222", "https://opt-drop.com/storage/xml/opt-drop-5.xml"),
-    # ("3333", "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),  # LUGI — тимчасово вимкнено
+    ("3333", "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),
     ("4444", "https://dropom.com.ua/products_feed.xml?hash_tag=b55924e4ebc0576fda79ae6941f7a2a5&languages=uk%2Cru"),
     ("",     "http://kievopt.com.ua/prices/rozetka-22294.yml"),
     ("5555", "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml")
@@ -21,10 +21,18 @@ SOURCES = [
 MARKUP_PERCENT      = 1.35
 MARKUP_FIXED        = 40
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
-MIN_PRICE_THRESHOLD = 150      # мінімальна ціна в грн
+MIN_PRICE_THRESHOLD = 199      # мінімальна ціна в грн
 DESC_LIMIT          = 2800     # максимальна довжина опису
 DEFAULT_QTY         = 2        # кількість якщо постачальник не вказав або вказав 0
 REQUEST_DELAY       = 3        # затримка між запитами в секундах (щоб не отримати 429)
+
+# Домени яким додаємо prefix через _ до offer id товарів
+# Решта постачальників (kievopt, royaltoys, lugi) — offer id без змін
+OFFER_ID_PREFIXES = {
+    "shkatulka.in.ua": "1111",
+    "opt-drop.com":    "2222",
+    "dropom.com.ua":   "4444",
+}
 
 # Індивідуальні налаштування наценки по доменах
 # Якщо домену нема в словнику — використовується глобальна наценка вище
@@ -33,10 +41,10 @@ CUSTOM_MARKUP = {
         "markup_percent": 1.0,  # без наценки — ціна постачальника як є
         "markup_fixed":   0,
     },
-    # "feed.lugi.com.ua": {   # LUGI — тимчасово вимкнено
-    #     "markup_percent": 1.20,
-    #     "markup_fixed":   50,
-    # },
+    "feed.lugi.com.ua": {
+        "markup_percent": 1.20, # +20%
+        "markup_fixed":   50,   # +50 грн
+    },
 }
 
 # Захист від підозрілих цін
@@ -431,9 +439,12 @@ def process():
 
     for prefix, url, domain, root, currency_rates in feeds:
         for offer in root.xpath(".//offer"):
-            offer_id = offer.get('id', '').strip().upper()
-            if not offer_id:
+            raw_id   = offer.get('id', '').strip().upper()
+            if not raw_id:
                 continue
+            # Додаємо prefix через _ для визначених постачальників
+            id_prefix = OFFER_ID_PREFIXES.get(domain, '')
+            offer_id  = f"{id_prefix}_{raw_id}" if id_prefix else raw_id
             price_nodes = offer.xpath('./price')
             price_text  = price_nodes[0].text if price_nodes else ''
             id_registry[offer_id].append((domain, price_text or ''))
@@ -497,9 +508,12 @@ def process():
         count_default_qty = 0
 
         for offer in root.xpath(".//offer"):
-            offer_id = offer.get('id', '').strip().upper()
-            if not offer_id:
+            raw_id   = offer.get('id', '').strip().upper()
+            if not raw_id:
                 continue
+            # Додаємо prefix через _ для визначених постачальників
+            id_prefix = OFFER_ID_PREFIXES.get(domain, '')
+            offer_id  = f"{id_prefix}_{raw_id}" if id_prefix else raw_id
 
             # -- Перевірка 1: blacklist --
             if offer_id in blacklisted_ids:
@@ -682,7 +696,7 @@ def process():
     yml  = ET.Element("yml_catalog", date=datetime.now().strftime("%Y-%m-%d %H:%M"))
     shop = ET.SubElement(yml, "shop")
     ET.SubElement(shop, "name").text = "AVI"
-    ET.SubElement(shop, "url").text  = "https://AVI.in.ua"
+    ET.SubElement(shop, "url").text  = "https://avi.in.ua"
 
     currencies = ET.SubElement(shop, "currencies")
     ET.SubElement(currencies, "currency", id="UAH", rate="1")
