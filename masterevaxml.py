@@ -357,6 +357,26 @@ def get_params(offer):
     return result
 
 
+def get_article(offer):
+    """
+    Читає артикул товару.
+
+    Підтримує:
+    - <vendorCode> (shkatulka, lugi, dropom, kievopt)
+    - <article>    (royaltoys)
+    - <vendor_code> (інші варіанти)
+
+    Повертає рядок (макс 255 символів) або '' якщо нема.
+    """
+    article = fix_text(
+        offer.findtext('vendorCode') or
+        offer.findtext('article')    or
+        offer.findtext('vendor_code') or
+        ''
+    )
+    return article[:255] if article else ''
+
+
 def load_blacklist():
     """
     Читає blacklist.txt.
@@ -620,21 +640,30 @@ def process():
                 cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
 
                 # -- Збірка XML елемента товару --
+                # Порядок тегів відповідає прикладу з документації EVA
+                # https://sellersupport.eva.ua/article/pidhotovka-prays-listu-xml
                 new_off = ET.Element("offer", id=offer_id, available="true")
 
-                ET.SubElement(new_off, "name_ua").text        = name_ua[:250]
                 ET.SubElement(new_off, "price").text          = str(price)
-                ET.SubElement(new_off, "old_price").text      = str(old_price)
+                ET.SubElement(new_off, "price_old").text      = str(old_price)
+                ET.SubElement(new_off, "stock_quantity").text = str(qty)
                 ET.SubElement(new_off, "currencyId").text     = "UAH"
                 ET.SubElement(new_off, "categoryId").text     = cat_id
-                ET.SubElement(new_off, "vendor").text         = vendor
-                ET.SubElement(new_off, "stock_quantity").text = str(qty)
-                ET.SubElement(new_off, "description_ua").text = ET.CDATA(desc)
 
                 # Картинки
                 for pic in offer.findall('picture'):
                     if pic.text and pic.text.strip():
                         ET.SubElement(new_off, "picture").text = pic.text.strip()
+
+                ET.SubElement(new_off, "vendor").text         = vendor
+
+                # Артикул товару (якщо є)
+                article = get_article(offer)
+                if article:
+                    ET.SubElement(new_off, "article").text    = article
+
+                ET.SubElement(new_off, "name_ua").text        = name_ua[:250]
+                ET.SubElement(new_off, "description_ua").text = ET.CDATA(desc)
 
                 # Параметри через нормалізуючу функцію
                 params = get_params(offer)
@@ -721,7 +750,27 @@ def process():
         offers_n.append(o)
 
     with open("Masterevanew.xml", "wb") as f:
-        f.write(ET.tostring(yml, encoding='utf-8', xml_declaration=True, pretty_print=True))
+        # Генеруємо XML
+        xml_bytes = ET.tostring(yml, encoding='UTF-8', xml_declaration=True, pretty_print=True)
+        # Додаємо DOCTYPE після XML декларації (як вимагає стандарт YML і EVA)
+        xml_bytes = xml_bytes.replace(
+            b"<?xml version='1.0' encoding='UTF-8'?>\n",
+            b'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE yml_catalog SYSTEM "shops.dtd">\n',
+            1
+        )
+        # На випадок якщо lxml використовує подвійні лапки
+        xml_bytes = xml_bytes.replace(
+            b'<?xml version="1.0" encoding="UTF-8"?>\n<?xml',
+            b'<?xml'
+        )
+        # Якщо DOCTYPE вже не додався через інший формат декларації
+        if b'<!DOCTYPE' not in xml_bytes:
+            xml_bytes = xml_bytes.replace(
+                b'<?xml version="1.0" encoding="UTF-8"?>\n',
+                b'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE yml_catalog SYSTEM "shops.dtd">\n',
+                1
+            )
+        f.write(xml_bytes)
 
     # --------------------------------------------------------------------------
     # КРОК 8: Збереження price_warnings.log
