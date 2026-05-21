@@ -27,11 +27,12 @@ DEFAULT_QTY         = 2        # кількість якщо постачаль�
 REQUEST_DELAY       = 3        # затримка між запитами в секундах (щоб не отримати 429)
 
 # Домени яким додаємо prefix через _ до offer id товарів
-# Решта постачальників (kievopt, royaltoys, lugi) — offer id без змін
+# Решта постачальників (kievopt, royaltoys) — offer id без змін
 OFFER_ID_PREFIXES = {
-    "shkatulka.in.ua": "1111",
-    "opt-drop.com":    "2222",
-    "dropom.com.ua":   "4444",
+    "shkatulka.in.ua":  "1111",
+    "opt-drop.com":     "2222",
+    "feed.lugi.com.ua": "3333",
+    "dropom.com.ua":    "4444",
 }
 
 # Індивідуальні налаштування наценки по доменах
@@ -642,9 +643,19 @@ def process():
                     ET.SubElement(new_off, "param", name="Стан").text  = "Новий"
                     ET.SubElement(new_off, "param", name="Колір").text = "Комбінований"
                     ET.SubElement(new_off, "param", name="Вага").text  = "-"
+                    ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
                 else:
                     for p_name, p_val in params:
                         ET.SubElement(new_off, "param", name=p_name).text = p_val[:500]
+                    # Додаємо Розмір Size якщо його нема серед існуючих параметрів
+                    existing_names = [p[0].lower() for p in params]
+                    has_size = any(
+                        w in n
+                        for n in existing_names
+                        for w in ('розмір', 'размер', 'size', 'габарит')
+                    )
+                    if not has_size:
+                        ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
 
                 processed_offers.append(new_off)
                 count_ok += 1
