@@ -4,7 +4,7 @@ from datetime import datetime
 import re
 import time
 from html import unescape
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 # ==============================================================================
 # 1. КОНФІГУРАЦІЯ
@@ -18,12 +18,14 @@ SOURCES = [
     ("5555", "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml"),
     ("7777", "https://posudograd.ua/dropship/19155/prom"),
     ("8888", "https://i-posud.com.ua/assets/export/xml/prom_export_sklad.xml"),
+    ("9999", "https://www.websklad.biz.ua/wp-content/uploads/randomize_prom_84230.xml"),
 ]
 
 MARKUP_PERCENT      = 1.35
 MARKUP_FIXED        = 40
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
 MIN_PRICE_THRESHOLD = 199      # мінімальна ціна в грн
+MIN_OFFERS_PER_CATEGORY = 3   # категорії з ≤ N прямих товарів видаляються (якщо не батьківські)
 DESC_LIMIT          = 2800     # максимальна довжина опису
 DEFAULT_QTY         = 2        # кількість якщо постачальник не вказав або вказав 0
 REQUEST_DELAY       = 3        # затримка між запитами в секундах (щоб не отримати 429)
@@ -35,8 +37,9 @@ OFFER_ID_PREFIXES = {
     "opt-drop.com":     "2222",
     "feed.lugi.com.ua": "3333",
     "dropom.com.ua":    "4444",
-    "posudograd.ua":    "7777",
-    "i-posud.com.ua":   "8888",
+    "posudograd.ua":          "7777",
+    "i-posud.com.ua":         "8888",
+    "www.websklad.biz.ua":    "9999",  # URL має www. — ключ теж має бути з www.
 }
 
 # Індивідуальні налаштування наценки по доменах
@@ -64,13 +67,17 @@ CUSTOM_MARKUP = {
         "markup_fixed":   40,   # +40 грн
         "min_price_raw":  70,   # мінімум від ціни постачальника
     },
+    "www.websklad.biz.ua": {   # URL має www. — ключ теж має бути з www.
+        "markup_percent": 1.0,  # без наценки
+        "markup_fixed":   30,   # +30 грн
+    },
 }
 
 # Захист від підозрілих цін
 MAX_PRICE_UAH      = 500_000
 SUSPICIOUS_LOW_UAH = 10.0
 
-# Запасні курси валют (якщо фід не дає курс або дає CBR/НБУ)
+# Запасні курси валют (використовуються якщо НБУ API недоступне)
 FALLBACK_RATES = {
     "UAH": 1.0,
     "USD": 41.5,
@@ -98,6 +105,17 @@ def fix_text(text):
     return unescape(unescape(text)).replace("\u2019", "'").strip()
 
 
+_UA_CHARS = frozenset('\u0457\u0454\u0491\u0407\u0404\u0490')
+_RU_CHARS = frozenset('\u044b\u044a\u044d\u042b\u042a\u042d')
+
+def _lang(text):
+    """\u0412\u0438\u0437\u043d\u0430\u0447\u0430\u0454 \u043c\u043e\u0432\u0443 \u0442\u0435\u043a\u0441\u0442\u0443 \u0437\u0430 \u0443\u043d\u0456\u043a\u0430\u043b\u044c\u043d\u0438\u043c\u0438 \u0441\u0438\u043c\u0432\u043e\u043b\u0430\u043c\u0438: 'uk', 'ru' \u0430\u0431\u043e 'other'."""
+    t = text or ''
+    if any(c in _UA_CHARS for c in t): return 'uk'
+    if any(c in _RU_CHARS for c in t): return 'ru'
+    return 'other'
+
+
 def clean_description(text, name_ua, vendor):
     """
     Нормалізує HTML-опис товару для EVA:
@@ -110,7 +128,7 @@ def clean_description(text, name_ua, vendor):
     - обрізає до DESC_LIMIT символів
     - якщо чистий текст < 30 символів — генерує заглушку (вимога EVA)
     """
-    fallback = f"<p>{name_ua} від виробника {vendor}.</p>"
+    fallback = f"<p>{name_ua} від виробника {vendor}.</p>".replace(']]>', ']] >')
     if not text:
         return fallback
 
@@ -119,8 +137,12 @@ def clean_description(text, name_ua, vendor):
     # XML 1.0 забороняє ASCII 0-8, 11-12, 14-31
     text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
 
-    # Видаляємо небажані теги
-    text = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', text, flags=re.DOTALL)
+    # Видаляємо небажані теги (з вмістом)
+    text = re.sub(r'<(script|style|iframe|video|audio)[^>]*>.*?</\1>', '', text, flags=re.DOTALL)
+    # Самозакривні версії (наприклад <video/>)
+    text = re.sub(r'<(video|audio|iframe)[^>]*/>', '', text)
+    # HTML-коментарі
+    text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
     text = re.sub(r'<img[^>]*/?>', '', text)
 
     # Видаляємо URL
@@ -147,6 +169,9 @@ def clean_description(text, name_ua, vendor):
     plain = re.sub(r'<[^>]+>', '', text).strip()
     if len(plain) < 30:
         return fallback
+
+    # Захист від ]]> що закриває CDATA передчасно і ламає весь XML
+    text = text.replace(']]>', ']] >')
 
     return text
 
@@ -307,17 +332,28 @@ def get_availability(offer):
     Підтримує:
     - available атрибут (всі постачальники)
     - in_stock атрибут (lugi додатково)
+    - <available>true</available> як дочірній тег
 
     Повертає True якщо товар доступний.
     """
-    # Основний атрибут
+    AVAIL_TRUE = {'true', 'yes', '1'}
+
+    # Атрибут available
     avail_raw = offer.get('available', '').lower().strip()
+    if avail_raw:
+        return avail_raw in AVAIL_TRUE
 
-    # Якщо available відсутній — перевіряємо in_stock (lugi)
-    if not avail_raw:
-        avail_raw = offer.get('in_stock', 'false').lower().strip()
+    # Дочірній тег <available> (деякі постачальники)
+    avail_tag = offer.findtext('available')
+    if avail_tag is not None:
+        return avail_tag.lower().strip() in AVAIL_TRUE
 
-    return avail_raw in ['true', 'yes', '1']
+    # Атрибут in_stock (lugi)
+    in_stock = offer.get('in_stock', '').lower().strip()
+    if in_stock:
+        return in_stock in AVAIL_TRUE
+
+    return False
 
 
 def get_name(offer):
@@ -402,6 +438,36 @@ def get_article(offer):
     return article[:255] if article else ''
 
 
+def fetch_nbu_rates():
+    """
+    Отримує актуальні курси НБУ.
+    API: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json
+    Безкоштовно, без ключа. Повертає dict {ISO_CODE: rate_to_uah}.
+    При будь-якій помилці — повертає FALLBACK_RATES без виключення.
+    """
+    try:
+        r = requests.get(
+            "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json",
+            timeout=10
+        )
+        if not r.ok:
+            return dict(FALLBACK_RATES)
+        rates = {"UAH": 1.0}
+        for item in r.json():
+            code = item.get("cc", "").upper()
+            rate = item.get("rate")
+            if code and rate:
+                rates[code] = float(rate)
+        # RUR = RUB (деякі фіди використовують RUR)
+        if "RUB" in rates:
+            rates["RUR"] = rates["RUB"]
+        print(f"[НБУ] Курси отримано: USD={rates.get('USD', '?'):.2f}, EUR={rates.get('EUR', '?'):.2f}")
+        return rates
+    except Exception as e:
+        print(f"[НБУ] Помилка отримання курсів: {e} — використовуємо FALLBACK")
+        return dict(FALLBACK_RATES)
+
+
 def load_blacklist():
     """
     Читає blacklist.txt.
@@ -441,6 +507,13 @@ def process():
     print("--- СТАРТ ОБРОБКИ ---")
 
     # --------------------------------------------------------------------------
+    # КРОК 0: Актуальні курси НБУ (один запит на початку, далі не звертаємось)
+    # --------------------------------------------------------------------------
+    live_rates = fetch_nbu_rates()
+    # Оновлюємо глобальні FALLBACK_RATES актуальними курсами
+    FALLBACK_RATES.update(live_rates)
+
+    # --------------------------------------------------------------------------
     # КРОК 1: Завантаження blacklist
     # --------------------------------------------------------------------------
     blacklisted_ids, blacklist_count = load_blacklist()
@@ -458,24 +531,46 @@ def process():
         if i > 0:
             time.sleep(REQUEST_DELAY)
 
-        try:
-            r = requests.get(url, timeout=120, headers={
-                'User-Agent': 'Mozilla/5.0 (compatible; PriceParser/1.0)'
-            })
-            if not r.ok:
-                print(f"[HTTP ERROR] {domain}: {r.status_code}")
-                report_stats[domain] = {"http_error": r.status_code}
-                continue
+        last_error = None
+        for attempt in range(1, 4):  # 3 спроби
+            try:
+                r = requests.get(url, timeout=120, headers={
+                    'User-Agent': 'Mozilla/5.0 (compatible; PriceParser/1.0)'
+                })
+                if not r.ok:
+                    last_error = f"HTTP {r.status_code}"
+                    if attempt < 3:
+                        print(f"[RETRY {attempt}/3] {domain}: {last_error} — повтор через 15с")
+                        time.sleep(15)
+                        continue
+                    print(f"[HTTP ERROR] {domain}: {r.status_code}")
+                    report_stats[domain] = {"http_error": r.status_code}
+                    break
 
-            root           = ET.fromstring(r.content, parser=ET.XMLParser(recover=True))
-            currency_rates = get_currency_rates(root)
-            visible_rates  = {k: v for k, v in currency_rates.items() if k in ('UAH', 'USD', 'EUR')}
-            print(f"[{domain}] Завантажено. Курси: {visible_rates}")
-            feeds.append((prefix, url, domain, root, currency_rates))
+                # Перевірка Content-Type — захист від HTML-сторінки замість XML
+                ct = r.headers.get('Content-Type', '')
+                if 'html' in ct and 'xml' not in ct and len(r.content) < 50_000:
+                    last_error = f"Content-Type={ct} (можливо HTML замість XML)"
+                    if attempt < 3:
+                        print(f"[RETRY {attempt}/3] {domain}: {last_error}")
+                        time.sleep(15)
+                        continue
 
-        except Exception as e:
-            print(f"[ПОМИЛКА ФІДУ] {domain}: {e}")
-            report_stats[domain] = {"feed_error": str(e)}
+                root           = ET.fromstring(r.content, parser=ET.XMLParser(recover=True))
+                currency_rates = get_currency_rates(root)
+                visible_rates  = {k: v for k, v in currency_rates.items() if k in ('UAH', 'USD', 'EUR')}
+                print(f"[{domain}] Завантажено (спроба {attempt}). Курси: {visible_rates}")
+                feeds.append((prefix, url, domain, root, currency_rates))
+                break
+
+            except Exception as e:
+                last_error = str(e)
+                if attempt < 3:
+                    print(f"[RETRY {attempt}/3] {domain}: {e} — повтор через 15с")
+                    time.sleep(15)
+                else:
+                    print(f"[ПОМИЛКА ФІДУ] {domain}: {e}")
+                    report_stats[domain] = {"feed_error": last_error}
 
     # --------------------------------------------------------------------------
     # КРОК 3: ПРОХІД 1 — збір всіх offer id для виявлення дублікатів
@@ -537,6 +632,10 @@ def process():
                 parent = cat.get('parentId')
                 cat.set('parentId', f"{prefix}{parent}" if prefix else parent)
 
+            # Нормалізуємо назву категорії — HTML-entities можуть зламати XML
+            if cat.text:
+                cat.text = fix_text(cat.text)
+
             final_categories[new_id] = cat
 
     # --------------------------------------------------------------------------
@@ -552,6 +651,16 @@ def process():
         count_duplicate   = 0
         count_blacklist   = 0
         count_default_qty = 0
+        count_name_ua     = 0
+        count_name_ru     = 0
+        count_desc_ua     = 0
+        count_desc_ru     = 0
+        count_desc_none   = 0
+        count_multi_pic   = 0
+        count_no_params   = 0
+        count_no_article  = 0
+        price_min         = float('inf')
+        price_max         = 0.0
 
         for offer in root.xpath(".//offer"):
             raw_id   = offer.get('id', '').strip().upper()
@@ -652,8 +761,8 @@ def process():
                 vendor  = fix_text(offer.findtext('vendor') or '') or 'NoBrand'
                 name_ua = get_name(offer)
 
-                # Якщо назва порожня — пропускаємо товар
-                if not name_ua:
+                # Якщо назва порожня або занадто коротка — пропускаємо товар
+                if not name_ua or len(name_ua.strip()) < 3:
                     count_price_err += 1
                     continue
 
@@ -676,17 +785,21 @@ def process():
 
                 ET.SubElement(new_off, "price").text          = str(price)
                 ET.SubElement(new_off, "price_old").text      = str(old_price)
-                ET.SubElement(new_off, "stock_quantity").text = str(qty)
+                ET.SubElement(new_off, "stock_quantity").text = str(min(qty, 9999))
                 ET.SubElement(new_off, "currencyId").text     = "UAH"
                 ET.SubElement(new_off, "categoryId").text     = cat_id
 
                 # Картинки (мін 1 обов'язково, макс 15 за вимогою EVA)
+                # Валідуємо URL (тільки http/https) та дедублікуємо
                 pic_count = 0
+                seen_pics = set()
                 for pic in offer.findall('picture'):
                     if pic_count >= 15:
                         break
-                    if pic.text and pic.text.strip():
-                        ET.SubElement(new_off, "picture").text = pic.text.strip()
+                    url_val = (pic.text or '').strip()
+                    if url_val and url_val.startswith(('http://', 'https://')) and url_val not in seen_pics:
+                        ET.SubElement(new_off, "picture").text = url_val
+                        seen_pics.add(url_val)
                         pic_count += 1
                 if pic_count == 0:
                     price_warnings.append(
@@ -715,7 +828,7 @@ def process():
                     ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
                 else:
                     for p_name, p_val in params:
-                        ET.SubElement(new_off, "param", name=p_name).text = p_val[:255]
+                        ET.SubElement(new_off, "param", name=p_name[:100]).text = p_val[:255]
                     # Додаємо Розмір Size якщо його нема серед існуючих параметрів
                     existing_names = [p[0].lower() for p in params]
                     has_size = any(
@@ -725,6 +838,29 @@ def process():
                     )
                     if not has_size:
                         ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
+
+                # -- Статистика якості даних для звіту --
+                _n_ua = (offer.findtext('name_ua') or '').strip()
+                _n    = (offer.findtext('name')    or '').strip()
+                if _n_ua or _lang(_n_ua or _n) == 'uk':
+                    count_name_ua += 1
+                elif _lang(_n) == 'ru':
+                    count_name_ru += 1
+
+                _d_ua = (offer.findtext('description_ua') or '').strip()
+                _d    = (offer.findtext('description')    or '').strip()
+                if not _d_ua and not _d:
+                    count_desc_none += 1
+                elif _d_ua or _lang(_d_ua or _d) == 'uk':
+                    count_desc_ua += 1
+                elif _lang(_d) == 'ru':
+                    count_desc_ru += 1
+
+                if pic_count >= 2:  count_multi_pic  += 1
+                if not params:      count_no_params  += 1
+                if not article:     count_no_article += 1
+                if price < price_min: price_min = price
+                if price > price_max: price_max = price
 
                 processed_offers.append(new_off)
                 count_ok += 1
@@ -738,13 +874,23 @@ def process():
                 continue
 
         report_stats[domain] = {
-            "ok":          count_ok,
-            "low":         count_low,
-            "not_avail":   count_no,
-            "price_err":   count_price_err,
-            "duplicate":   count_duplicate,
-            "blacklist":   count_blacklist,
-            "default_qty": count_default_qty,
+            "ok":           count_ok,
+            "low":          count_low,
+            "not_avail":    count_no,
+            "price_err":    count_price_err,
+            "duplicate":    count_duplicate,
+            "blacklist":    count_blacklist,
+            "default_qty":  count_default_qty,
+            "name_ua":      count_name_ua,
+            "name_ru":      count_name_ru,
+            "desc_ua":      count_desc_ua,
+            "desc_ru":      count_desc_ru,
+            "desc_none":    count_desc_none,
+            "multi_pic":    count_multi_pic,
+            "no_params":    count_no_params,
+            "no_article":   count_no_article,
+            "price_min":    int(price_min) if price_min != float('inf') else 0,
+            "price_max":    int(price_max),
         }
         source_results.append(
             f"{domain}: OK={count_ok} | LOW={count_low} | NOT_AVAIL={count_no} | "
@@ -769,6 +915,59 @@ def process():
 
     if category_errors:
         print(f"\n[УВАГА] Видалено товарів через відсутню категорію: {len(category_errors)}")
+
+    # --------------------------------------------------------------------------
+    # КРОК 6.5: Видалення тонких/порожніх категорій (≤ MIN_OFFERS_PER_CATEGORY)
+    # Батьківські категорії (ті що мають дочірні) НЕ видаляються — щоб не
+    # зламати parentId дочірніх категорій.
+    # --------------------------------------------------------------------------
+
+    # Категорії що є чиїмось parentId — не чіпаємо
+    parent_ids = {
+        cat_el.get('parentId')
+        for cat_el in final_categories.values()
+        if cat_el.get('parentId') in final_categories
+    }
+
+    # Кількість прямих товарів для кожної категорії
+    cat_direct_counts = Counter(
+        offer.findtext('categoryId') for offer in valid_offers
+    )
+
+    # Тонкі/порожні категорії: ≤ порогу І не батьківські
+    thin_cats = {
+        cat_id
+        for cat_id in final_categories
+        if cat_direct_counts.get(cat_id, 0) <= MIN_OFFERS_PER_CATEGORY
+        and cat_id not in parent_ids
+    }
+
+    if thin_cats:
+        # Видаляємо товари що належать тонким категоріям
+        new_valid = []
+        thin_offers_removed = 0
+        for offer in valid_offers:
+            if offer.findtext('categoryId') in thin_cats:
+                thin_offers_removed += 1
+            else:
+                new_valid.append(offer)
+        valid_offers = new_valid
+
+        # Видаляємо самі категорії
+        for cat_id in thin_cats:
+            del final_categories[cat_id]
+
+        empty_removed = sum(
+            1 for c in thin_cats if cat_direct_counts.get(c, 0) == 0
+        )
+        thin_removed = len(thin_cats) - empty_removed
+        print(
+            f"\n[КАТЕГОРІЇ] Видалено {len(thin_cats)} категорій "
+            f"({empty_removed} порожніх + {thin_removed} з ≤{MIN_OFFERS_PER_CATEGORY} товарів), "
+            f"{thin_offers_removed} товарів видалено"
+        )
+    else:
+        print(f"\n[КАТЕГОРІЇ] Тонких/порожніх категорій не знайдено")
 
     # --------------------------------------------------------------------------
     # КРОК 7: Збірка фінального XML
@@ -875,6 +1074,31 @@ def process():
                 f"| {v.get('default_qty', 0)} "
                 f"| {v.get('duplicate', 0)} "
                 f"| {v.get('blacklist', 0)} |"
+            )
+
+    md.append("\n## Якість даних по постачальниках")
+    md.append("| Постачальник | 🇺🇦 Назва UA | 🇷🇺 Назва RU | 🇺🇦 Опис UA | 🇷🇺 Опис RU | ❌ Без опису | 📸 2+ фото | ⚙️ Без парамів | 🏷️ Без артикула | 💰 Ціна min–max |")
+    md.append("|---|---|---|---|---|---|---|---|---|---|")
+    for prefix, url in SOURCES:
+        domain = url.split('/')[2]
+        v = report_stats.get(domain, {})
+        if "http_error" in v or "feed_error" in v:
+            md.append(f"| {domain} | — | — | — | — | — | — | — | — | — |")
+        else:
+            p_min = v.get('price_min', 0)
+            p_max = v.get('price_max', 0)
+            price_range = f"{p_min}–{p_max} грн" if p_max > 0 else "—"
+            md.append(
+                f"| {domain} "
+                f"| {v.get('name_ua', 0)} "
+                f"| {v.get('name_ru', 0)} "
+                f"| {v.get('desc_ua', 0)} "
+                f"| {v.get('desc_ru', 0)} "
+                f"| {v.get('desc_none', 0)} "
+                f"| {v.get('multi_pic', 0)} "
+                f"| {v.get('no_params', 0)} "
+                f"| {v.get('no_article', 0)} "
+                f"| {price_range} |"
             )
 
     if cross_duplicates:
