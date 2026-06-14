@@ -10,12 +10,14 @@ from collections import defaultdict
 # 1. КОНФІГУРАЦІЯ
 # ==============================================================================
 SOURCES = [
-    ("1111", "https://shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
-    ("2222", "https://opt-drop.com/storage/xml/opt-drop-5.xml"),
+    ("1111", "https://dropt.in.ua/index.php?route=export/prom&markup=15"),
+    ("2222", "https://opt-drop.com/storage/xml/opt-drop-1.xml"),
     ("3333", "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),
     ("4444", "https://dropom.com.ua/products_feed.xml?hash_tag=b55924e4ebc0576fda79ae6941f7a2a5&languages=uk%2Cru"),
     ("",     "http://kievopt.com.ua/prices/rozetka-22294.yml"),
-    ("5555", "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml")
+    ("5555", "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml"),
+    ("7777", "https://posudograd.ua/dropship/19155/prom"),
+    ("8888", "https://i-posud.com.ua/assets/export/xml/prom_export_sklad.xml"),
 ]
 
 MARKUP_PERCENT      = 1.35
@@ -29,15 +31,21 @@ REQUEST_DELAY       = 3        # затримка між запитами в с�
 # Домени яким додаємо prefix через _ до offer id товарів
 # Решта постачальників (kievopt, royaltoys) — offer id без змін
 OFFER_ID_PREFIXES = {
-    "shkatulka.in.ua":  "1111",
+    "dropt.in.ua":      "1111",
     "opt-drop.com":     "2222",
     "feed.lugi.com.ua": "3333",
     "dropom.com.ua":    "4444",
+    "posudograd.ua":    "7777",
+    "i-posud.com.ua":   "8888",
 }
 
 # Індивідуальні налаштування наценки по доменах
 # Якщо домену нема в словнику — використовується глобальна наценка вище
 CUSTOM_MARKUP = {
+    "dropt.in.ua": {
+        "markup_percent": 1.15, # +15%
+        "markup_fixed":   30,   # +30 грн
+    },
     "kievopt.com.ua": {
         "markup_percent": 1.0,  # без наценки — ціна постачальника як є
         "markup_fixed":   0,
@@ -45,6 +53,16 @@ CUSTOM_MARKUP = {
     "feed.lugi.com.ua": {
         "markup_percent": 1.20, # +20%
         "markup_fixed":   50,   # +50 грн
+    },
+    "posudograd.ua": {
+        "markup_percent": 1.0,  # без наценки
+        "markup_fixed":   30,   # +30 грн
+        "min_price_raw":  70,   # мінімум від ціни постачальника
+    },
+    "i-posud.com.ua": {
+        "markup_percent": 1.15, # +15%
+        "markup_fixed":   40,   # +40 грн
+        "min_price_raw":  70,   # мінімум від ціни постачальника
     },
 }
 
@@ -76,7 +94,8 @@ def fix_text(text):
     """
     if not text:
         return ""
-    return unescape(unescape(str(text))).replace("\u2019", "'").strip()
+    text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', str(text))
+    return unescape(unescape(text)).replace("\u2019", "'").strip()
 
 
 def clean_description(text, name_ua, vendor):
@@ -97,6 +116,8 @@ def clean_description(text, name_ua, vendor):
 
     # Подвійний unescape — для opt-drop який дає &lt;p&gt; замість <p>
     text = unescape(unescape(str(text)))
+    # XML 1.0 забороняє ASCII 0-8, 11-12, 14-31
+    text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
 
     # Видаляємо небажані теги
     text = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', text, flags=re.DOTALL)
@@ -112,9 +133,13 @@ def clean_description(text, name_ua, vendor):
     # Видаляємо порожні теги (залишки після видалення img/url)
     text = re.sub(r'<(\w+)[^>]*>\s*</\1>', '', text)
 
-    # Обрізаємо
+    # Обрізаємо безпечно — не розрізаємо HTML-тег посередині
     if len(text) > DESC_LIMIT:
-        text = text[:DESC_LIMIT] + "..."
+        cut_pos = text.rfind('>', 0, DESC_LIMIT)
+        if cut_pos > 0:
+            text = text[:cut_pos + 1] + "..."
+        else:
+            text = text[:DESC_LIMIT] + "..."
 
     text = text.strip()
 
@@ -604,13 +629,18 @@ def process():
                 old_price = round(price * OLD_PRICE_MULT)
 
                 # Фільтр мінімальної ціни
-                if price < MIN_PRICE_THRESHOLD:
+                min_raw = cfg.get("min_price_raw")
+                if min_raw is not None:
+                    if price_uah < min_raw:
+                        count_low += 1
+                        continue
+                elif price < MIN_PRICE_THRESHOLD:
                     count_low += 1
                     continue
 
                 # Захист: наша фінальна ціна не може бути меншою за оригінальну
-                # (якщо менша — щось пішло не так з наценкою або конвертацією)
-                if price < price_uah:
+                # (допускаємо -1 грн похибки через round(), більше — помилка наценки)
+                if price < price_uah - 1:
                     price_warnings.append(
                         f"[ЦІНА НИЖЧА ЗА ОРИГІНАЛ] {domain} offer={offer_id} "
                         f"original={price_uah:.0f} UAH our_price={price} UAH — видаляємо"
@@ -650,10 +680,20 @@ def process():
                 ET.SubElement(new_off, "currencyId").text     = "UAH"
                 ET.SubElement(new_off, "categoryId").text     = cat_id
 
-                # Картинки
+                # Картинки (мін 1 обов'язково, макс 15 за вимогою EVA)
+                pic_count = 0
                 for pic in offer.findall('picture'):
+                    if pic_count >= 15:
+                        break
                     if pic.text and pic.text.strip():
                         ET.SubElement(new_off, "picture").text = pic.text.strip()
+                        pic_count += 1
+                if pic_count == 0:
+                    price_warnings.append(
+                        f"[БЕЗ ФОТО] {domain} offer={offer_id} — пропускаємо"
+                    )
+                    count_price_err += 1
+                    continue
 
                 ET.SubElement(new_off, "vendor").text         = vendor
 
@@ -675,7 +715,7 @@ def process():
                     ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
                 else:
                     for p_name, p_val in params:
-                        ET.SubElement(new_off, "param", name=p_name).text = p_val[:500]
+                        ET.SubElement(new_off, "param", name=p_name).text = p_val[:255]
                     # Додаємо Розмір Size якщо його нема серед існуючих параметрів
                     existing_names = [p[0].lower() for p in params]
                     has_size = any(
@@ -775,9 +815,8 @@ def process():
     # --------------------------------------------------------------------------
     # КРОК 8: Збереження price_warnings.log
     # --------------------------------------------------------------------------
-    if price_warnings:
-        with open("price_warnings.log", "w", encoding="utf-8") as f:
-            f.write('\n'.join(price_warnings))
+    with open("price_warnings.log", "w", encoding="utf-8") as f:
+        f.write('\n'.join(price_warnings))
 
     # --------------------------------------------------------------------------
     # КРОК 9: Генерація REPORT.md
