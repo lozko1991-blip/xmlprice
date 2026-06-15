@@ -23,6 +23,13 @@ permissions:
   pages: write
   id-token: write
 
+# Не даємо запускам перетинатися — другий чекає, поки завершиться перший.
+# cancel-in-progress: false — не обриваємо вже початий запуск (важливо: він
+# дописує фід), а ставимо новий у чергу.
+concurrency:
+  group: master-feed
+  cancel-in-progress: false
+
 jobs:
   build_master_feed:
     runs-on: ubuntu-latest
@@ -42,12 +49,24 @@ jobs:
         run: python masterevaxml.py
 
       - name: Save REPORT and logs to repo
+        # Неблокуючий: якщо коміт звіту колись не пройде — фід усе одно
+        # завантажиться й задеплоїться (звіт другорядний відносно XML).
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add REPORT.md price_warnings.log --force
-          git diff --staged --quiet || git commit -m "Auto update: report"
-          git push
+          git diff --staged --quiet && { echo "Немає змін у звіті — пропускаємо"; exit 0; }
+          git commit -m "Auto update: report"
+          # Стійкий push: підтягуємо свіже й ребейзимо, до 3 спроб —
+          # страхує від випередження remote іншим запуском.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main && git push && { echo "Push успішний (спроба $attempt)"; exit 0; }
+            echo "Push не вдався (спроба $attempt) — повтор через 5с"
+            sleep 5
+          done
+          echo "Push не вдався після 3 спроб"
+          exit 1
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
