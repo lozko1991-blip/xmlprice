@@ -9,16 +9,20 @@ from collections import defaultdict, Counter
 # ==============================================================================
 # 1. КОНФІГУРАЦІЯ
 # ==============================================================================
+# (cat_prefix, id_prefix, url)
+# cat_prefix  — додається до categoryId з фіду постачальника
+# id_prefix   — додається до offer id (через "_"); "" = без префіксу
 SOURCES = [
-    ("1111", "https://dropt.in.ua/index.php?route=export/prom&markup=15"),
-    ("2222", "https://opt-drop.com/storage/xml/opt-drop-1.xml"),
-    ("3333", "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),
-    ("4444", "https://dropom.com.ua/products_feed.xml?hash_tag=b55924e4ebc0576fda79ae6941f7a2a5&languages=uk%2Cru"),
-    ("",     "http://kievopt.com.ua/prices/rozetka-22294.yml"),
-    ("5555", "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml"),
-    ("7777", "https://posudograd.ua/dropship/19155/prom"),
-    ("8888", "https://i-posud.com.ua/assets/export/xml/prom_export_sklad.xml"),
-    ("9999", "https://www.websklad.biz.ua/wp-content/uploads/randomize_prom_84230.xml"),
+    ("1000", "1000",  "https://dropt.in.ua/index.php?route=export/prom&markup=15"),
+    ("2222", "2222",  "https://opt-drop.com/storage/xml/opt-drop-1.xml"),
+    ("3333", "3333",  "https://feed.lugi.com.ua/index.php?route=extension/feed/unixml/ukr_ru"),
+    ("4444", "4444",  "https://dropom.com.ua/products_feed.xml?hash_tag=b55924e4ebc0576fda79ae6941f7a2a5&languages=uk%2Cru"),
+    ("",     "",      "http://kievopt.com.ua/prices/rozetka-22294.yml"),
+    ("5555", "",      "https://dwn.royaltoys.com.ua/my/export/v2/e6f6dcf6-2539-4a43-a285-32667169f0db.xml"),
+    ("7777", "7777",  "https://posudograd.ua/dropship/19155/prom"),
+    ("8888", "8888",  "https://i-posud.com.ua/assets/export/xml/prom_export_sklad.xml"),
+    ("9999", "9999",  "https://www.websklad.biz.ua/wp-content/uploads/randomize_prom_84230.xml"),
+    ("1111", "1111",  "https://www.shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
 ]
 
 MARKUP_PERCENT      = 1.35
@@ -30,17 +34,6 @@ DESC_LIMIT          = 2800     # максимальна довжина опис�
 DEFAULT_QTY         = 2        # кількість якщо постачальник не вказав або вказав 0
 REQUEST_DELAY       = 3        # затримка між запитами в секундах (щоб не отримати 429)
 
-# Домени яким додаємо prefix через _ до offer id товарів
-# Решта постачальників (kievopt, royaltoys) — offer id без змін
-OFFER_ID_PREFIXES = {
-    "dropt.in.ua":      "1111",
-    "opt-drop.com":     "2222",
-    "feed.lugi.com.ua": "3333",
-    "dropom.com.ua":    "4444",
-    "posudograd.ua":          "7777",
-    "i-posud.com.ua":         "8888",
-    "www.websklad.biz.ua":    "9999",  # URL має www. — ключ теж має бути з www.
-}
 
 # Індивідуальні налаштування наценки по доменах
 # Якщо домену нема в словнику — використовується глобальна наценка вище
@@ -70,6 +63,10 @@ CUSTOM_MARKUP = {
     "www.websklad.biz.ua": {   # URL має www. — ключ теж має бути з www.
         "markup_percent": 1.0,  # без наценки
         "markup_fixed":   30,   # +30 грн
+    },
+    "www.shkatulka.in.ua": {   # URL має www. — ключ теж має бути з www.
+        "markup_percent": 1.30, # +30%
+        "markup_fixed":   40,   # +40 грн
     },
 }
 
@@ -114,6 +111,15 @@ def _lang(text):
     if any(c in _UA_CHARS for c in t): return 'uk'
     if any(c in _RU_CHARS for c in t): return 'ru'
     return 'other'
+
+
+_RU_TO_UA = str.maketrans({'ы': 'и', 'Ы': 'И', 'э': 'е', 'Э': 'Е',
+                            'ъ': '',  'Ъ': '',  'ё': 'е', 'Ё': 'Е'})
+
+def ru_to_ua(text):
+    if not text:
+        return text
+    return text.translate(_RU_TO_UA)
 
 
 def clean_description(text, name_ua, vendor):
@@ -524,7 +530,7 @@ def process():
     # --------------------------------------------------------------------------
     feeds = []
 
-    for i, (prefix, url) in enumerate(SOURCES):
+    for i, (prefix, id_prefix, url) in enumerate(SOURCES):
         domain = url.split('/')[2]
 
         # Затримка між запитами (крім першого)
@@ -560,7 +566,7 @@ def process():
                 currency_rates = get_currency_rates(root)
                 visible_rates  = {k: v for k, v in currency_rates.items() if k in ('UAH', 'USD', 'EUR')}
                 print(f"[{domain}] Завантажено (спроба {attempt}). Курси: {visible_rates}")
-                feeds.append((prefix, url, domain, root, currency_rates))
+                feeds.append((prefix, id_prefix, url, domain, root, currency_rates))
                 break
 
             except Exception as e:
@@ -578,13 +584,11 @@ def process():
     # --------------------------------------------------------------------------
     id_registry = defaultdict(list)
 
-    for prefix, url, domain, root, currency_rates in feeds:
+    for prefix, id_prefix, url, domain, root, currency_rates in feeds:
         for offer in root.xpath(".//offer"):
             raw_id   = offer.get('id', '').strip().upper()
             if not raw_id:
                 continue
-            # Додаємо prefix через _ для визначених постачальників
-            id_prefix = OFFER_ID_PREFIXES.get(domain, '')
             offer_id  = f"{id_prefix}_{raw_id}" if id_prefix else raw_id
             price_nodes = offer.xpath('./price')
             price_text  = price_nodes[0].text if price_nodes else ''
@@ -614,7 +618,7 @@ def process():
     # --------------------------------------------------------------------------
     # КРОК 4: Обробка категорій (всі фіди)
     # --------------------------------------------------------------------------
-    for prefix, url, domain, root, currency_rates in feeds:
+    for prefix, id_prefix, url, domain, root, currency_rates in feeds:
         for cat in root.xpath(".//category"):
             orig_id = cat.get('id')
             if not orig_id:
@@ -643,7 +647,7 @@ def process():
     # --------------------------------------------------------------------------
     processed_offers = []
 
-    for prefix, url, domain, root, currency_rates in feeds:
+    for prefix, id_prefix, url, domain, root, currency_rates in feeds:
         count_ok          = 0
         count_low         = 0
         count_no          = 0
@@ -666,8 +670,6 @@ def process():
             raw_id   = offer.get('id', '').strip().upper()
             if not raw_id:
                 continue
-            # Додаємо prefix через _ для визначених постачальників
-            id_prefix = OFFER_ID_PREFIXES.get(domain, '')
             offer_id  = f"{id_prefix}_{raw_id}" if id_prefix else raw_id
 
             # -- Перевірка 1: blacklist --
@@ -759,7 +761,7 @@ def process():
 
                 # -- Збірка полів товару через нормалізуючі функції --
                 vendor  = fix_text(offer.findtext('vendor') or '') or 'NoBrand'
-                name_ua = get_name(offer)
+                name_ua = ru_to_ua(get_name(offer))
 
                 # Якщо назва порожня або занадто коротка — пропускаємо товар
                 if not name_ua or len(name_ua.strip()) < 3:
@@ -772,7 +774,7 @@ def process():
 
                 # Опис
                 desc_raw = get_description(offer)
-                desc     = clean_description(desc_raw, name_ua, vendor)
+                desc     = ru_to_ua(clean_description(desc_raw, name_ua, vendor))
 
                 # Категорія
                 orig_cat = offer.findtext('categoryId') or ''
@@ -1057,7 +1059,7 @@ def process():
     md.append("## По постачальниках")
     md.append("| Постачальник | ✅ OK | 💰 Низька ціна | 🚫 Недоступні | ⚠️ Помилки ціни | 📦 Сток за замовч. | 🔁 Дублі | 🚷 Blacklist |")
     md.append("|---|---|---|---|---|---|---|---|")
-    for prefix, url in SOURCES:
+    for prefix, id_prefix, url in SOURCES:
         domain = url.split('/')[2]
         v = report_stats.get(domain, {})
         if "http_error" in v:
@@ -1079,7 +1081,7 @@ def process():
     md.append("\n## Якість даних по постачальниках")
     md.append("| Постачальник | 🇺🇦 Назва UA | 🇷🇺 Назва RU | 🇺🇦 Опис UA | 🇷🇺 Опис RU | ❌ Без опису | 📸 2+ фото | ⚙️ Без парамів | 🏷️ Без артикула | 💰 Ціна min–max |")
     md.append("|---|---|---|---|---|---|---|---|---|---|")
-    for prefix, url in SOURCES:
+    for prefix, id_prefix, url in SOURCES:
         domain = url.split('/')[2]
         v = report_stats.get(domain, {})
         if "http_error" in v or "feed_error" in v:
