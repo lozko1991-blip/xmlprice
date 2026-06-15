@@ -32,7 +32,10 @@ MIN_PRICE_THRESHOLD = 199      # мінімальна ціна в грн
 MIN_OFFERS_PER_CATEGORY = 3   # категорії з ≤ N прямих товарів видаляються (якщо не батьківські)
 DESC_LIMIT          = 2800     # максимальна довжина опису
 DEFAULT_QTY         = 2        # кількість якщо постачальник не вказав або вказав 0
-REQUEST_DELAY       = 3        # затримка між запитами в секундах (щоб не отримати 429)
+REQUEST_DELAY       = 6        # затримка між запитами в секундах (щоб не отримати 429)
+MAX_FETCH_ATTEMPTS  = 5        # скільки разів пробувати завантажити фід
+RETRY_BACKOFF_BASE  = 20       # базова пауза перед повтором (сек); далі росте 20→40→80…
+RETRY_BACKOFF_MAX   = 120      # стеля паузи між повторами (сек)
 
 
 # Індивідуальні налаштування наценки по доменах
@@ -538,16 +541,29 @@ def process():
             time.sleep(REQUEST_DELAY)
 
         last_error = None
-        for attempt in range(1, 4):  # 3 спроби
+        for attempt in range(1, MAX_FETCH_ATTEMPTS + 1):
+            # Експоненційний backoff: 20 → 40 → 80 → 120 → 120… (стеля RETRY_BACKOFF_MAX)
+            backoff = min(RETRY_BACKOFF_BASE * (2 ** (attempt - 1)), RETRY_BACKOFF_MAX)
             try:
+                # Браузероподібні заголовки — деякі сервери ріжуть «голі» запити
                 r = requests.get(url, timeout=120, headers={
-                    'User-Agent': 'Mozilla/5.0 (compatible; PriceParser/1.0)'
+                    'User-Agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                                   'AppleWebKit/537.36 (KHTML, like Gecko) '
+                                   'Chrome/124.0 Safari/537.36'),
+                    'Accept': 'application/xml,text/xml,*/*;q=0.9',
+                    'Accept-Language': 'uk,ru;q=0.9,en;q=0.8',
                 })
                 if not r.ok:
                     last_error = f"HTTP {r.status_code}"
-                    if attempt < 3:
-                        print(f"[RETRY {attempt}/3] {domain}: {last_error} — повтор через 15с")
-                        time.sleep(15)
+                    if attempt < MAX_FETCH_ATTEMPTS:
+                        # 429/503 часто віддають Retry-After — поважаємо його
+                        wait = backoff
+                        if r.status_code in (429, 503):
+                            ra = r.headers.get('Retry-After', '').strip()
+                            if ra.isdigit():
+                                wait = max(int(ra), backoff)
+                        print(f"[RETRY {attempt}/{MAX_FETCH_ATTEMPTS}] {domain}: {last_error} — повтор через {wait}с")
+                        time.sleep(wait)
                         continue
                     print(f"[HTTP ERROR] {domain}: {r.status_code}")
                     report_stats[domain] = {"http_error": r.status_code}
@@ -557,9 +573,9 @@ def process():
                 ct = r.headers.get('Content-Type', '')
                 if 'html' in ct and 'xml' not in ct and len(r.content) < 50_000:
                     last_error = f"Content-Type={ct} (можливо HTML замість XML)"
-                    if attempt < 3:
-                        print(f"[RETRY {attempt}/3] {domain}: {last_error}")
-                        time.sleep(15)
+                    if attempt < MAX_FETCH_ATTEMPTS:
+                        print(f"[RETRY {attempt}/{MAX_FETCH_ATTEMPTS}] {domain}: {last_error} — повтор через {backoff}с")
+                        time.sleep(backoff)
                         continue
 
                 root           = ET.fromstring(r.content, parser=ET.XMLParser(recover=True))
@@ -571,9 +587,9 @@ def process():
 
             except Exception as e:
                 last_error = str(e)
-                if attempt < 3:
-                    print(f"[RETRY {attempt}/3] {domain}: {e} — повтор через 15с")
-                    time.sleep(15)
+                if attempt < MAX_FETCH_ATTEMPTS:
+                    print(f"[RETRY {attempt}/{MAX_FETCH_ATTEMPTS}] {domain}: {e} — повтор через {backoff}с")
+                    time.sleep(backoff)
                 else:
                     print(f"[ПОМИЛКА ФІДУ] {domain}: {e}")
                     report_stats[domain] = {"feed_error": last_error}
