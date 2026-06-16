@@ -23,10 +23,9 @@ SOURCES = [
     ("8888", "8888",  "https://i-posud.com.ua/assets/export/xml/prom_export_sklad.xml"),
     ("9999", "9999",  "https://www.websklad.biz.ua/wp-content/uploads/randomize_prom_84230.xml"),
     ("1111", "1111",  "https://www.shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
+    ("1100", "1100",  "https://forus.com.ua/vugruzka/forus_opt_prom_stock.xml"),
 ]
 
-MARKUP_PERCENT      = 1.35
-MARKUP_FIXED        = 40
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
 MIN_PRICE_THRESHOLD = 199      # мінімальна ціна в грн
 MIN_OFFERS_PER_CATEGORY = 3   # категорії з ≤ N прямих товарів видаляються (якщо не батьківські)
@@ -38,20 +37,34 @@ RETRY_BACKOFF_BASE  = 20       # базова пауза перед повтор
 RETRY_BACKOFF_MAX   = 120      # стеля паузи між повторами (сек)
 
 
-# Індивідуальні налаштування наценки по доменах
-# Якщо домену нема в словнику — використовується глобальна наценка вище
+# Наценка по доменах — ОБОВ'ЯЗКОВА для КОЖНОГО постачальника зі SOURCES.
+# Глобальної наценки за замовчуванням більше немає: якщо домену тут нема,
+# validate_markup_config() зупинить запуск з чіткою помилкою на старті.
+# Обов'язкові ключі: markup_percent, markup_fixed. Опційні: min_price_raw / min_price_final.
 CUSTOM_MARKUP = {
     "dropt.in.ua": {
         "markup_percent": 1.15, # +15%
         "markup_fixed":   30,   # +30 грн
     },
+    "opt-drop.com": {
+        "markup_percent": 1.35, # +35%
+        "markup_fixed":   40,   # +40 грн
+    },
     "kievopt.com.ua": {
         "markup_percent": 1.0,  # без наценки — ціна постачальника як є
         "markup_fixed":   0,
     },
+    "dwn.royaltoys.com.ua": {  # домен з url.split('/')[2] — саме dwn.royaltoys.com.ua
+        "markup_percent": 1.35, # +35%
+        "markup_fixed":   40,   # +40 грн
+    },
     "feed.lugi.com.ua": {
         "markup_percent": 1.20, # +20%
         "markup_fixed":   50,   # +50 грн
+    },
+    "dropom.com.ua": {
+        "markup_percent": 1.35, # +35%
+        "markup_fixed":   40,   # +40 грн
     },
     "posudograd.ua": {
         "markup_percent": 1.0,  # без наценки
@@ -70,6 +83,11 @@ CUSTOM_MARKUP = {
     "www.shkatulka.in.ua": {   # URL має www. — ключ теж має бути з www.
         "markup_percent": 1.30, # +30%
         "markup_fixed":   40,   # +40 грн
+    },
+    "forus.com.ua": {          # URL без www. — ключ без www.
+        "markup_percent": 1.10, # +10%
+        "markup_fixed":   30,   # +30 грн
+        "min_price_final": 130, # мінімум від фінальної ціни (після наценки)
     },
 }
 
@@ -497,6 +515,57 @@ def load_blacklist():
         return set(), 0
 
 
+def normalize_feed_tags(root):
+    """
+    Приводить нестандартні теги до стандарту YML.
+
+    Деякі постачальники (FORUS) використовують:
+      <item>     замість <offer>
+      <image>    замість <picture>
+      parentID   замість parentId
+    Якщо у фіді НЕМАЄ жодного <offer>, але є <item> — нормалізуємо теги,
+    щоб уся подальша логіка (КРОК 3–10) працювала без змін.
+
+    Стандартні фіди (з <offer>) НЕ зачіпаються — повертає False одразу.
+    Повертає True, якщо нормалізація виконана.
+    """
+    if root.xpath(".//offer") or not root.xpath(".//item"):
+        return False
+
+    for it in root.xpath(".//item"):
+        it.tag = "offer"
+    for im in root.xpath(".//image"):
+        im.tag = "picture"
+    for cat in root.xpath(".//category[@parentID]"):
+        cat.set("parentId", cat.get("parentID"))
+        del cat.attrib["parentID"]
+
+    return True
+
+
+def validate_markup_config():
+    """
+    Перевіряє, що КОЖЕН постачальник зі SOURCES має наценку в CUSTOM_MARKUP
+    (обов'язкові ключі markup_percent і markup_fixed).
+
+    Глобальної наценки за замовчуванням більше немає, тож відсутність запису
+    має зупиняти запуск з ЧІТКОЮ помилкою на старті — а не тихо ламатись
+    посеред обробки чи відправляти товар без коректної наценки.
+    """
+    missing = []
+    for _cat_prefix, _id_prefix, url in SOURCES:
+        domain = url.split('/')[2]
+        cfg = CUSTOM_MARKUP.get(domain)
+        if not cfg or 'markup_percent' not in cfg or 'markup_fixed' not in cfg:
+            missing.append(domain)
+    if missing:
+        raise SystemExit(
+            "[КОНФІГ] Немає наценки в CUSTOM_MARKUP для: " + ", ".join(missing) +
+            ". Додай markup_percent і markup_fixed для кожного з них."
+        )
+    print(f"[КОНФІГ] Наценку перевірено: усі {len(SOURCES)} постачальників мають явні значення")
+
+
 # ==============================================================================
 # 3. ГОЛОВНА ФУНКЦІЯ
 # ==============================================================================
@@ -514,6 +583,9 @@ def process():
     category_errors  = []
 
     print("--- СТАРТ ОБРОБКИ ---")
+
+    # Перевірка конфігу наценок ПЕРЕД будь-якими запитами — fail fast
+    validate_markup_config()
 
     # --------------------------------------------------------------------------
     # КРОК 0: Актуальні курси НБУ (один запит на початку, далі не звертаємось)
@@ -579,6 +651,8 @@ def process():
                         continue
 
                 root           = ET.fromstring(r.content, parser=ET.XMLParser(recover=True))
+                if normalize_feed_tags(root):
+                    print(f"[{domain}] Нестандартні теги (item/image/parentID) нормалізовано")
                 currency_rates = get_currency_rates(root)
                 visible_rates  = {k: v for k, v in currency_rates.items() if k in ('UAH', 'USD', 'EUR')}
                 print(f"[{domain}] Завантажено (спроба {attempt}). Курси: {visible_rates}")
@@ -747,18 +821,26 @@ def process():
                     count_price_err += 1
                     continue
 
-                # Крок 3: наценка
-                cfg       = CUSTOM_MARKUP.get(domain, {})
-                m_percent = cfg.get("markup_percent", MARKUP_PERCENT)
-                m_fixed   = cfg.get("markup_fixed",   MARKUP_FIXED)
+                # Крок 3: наценка (домен гарантовано є — перевірено на старті)
+                cfg       = CUSTOM_MARKUP[domain]
+                m_percent = cfg["markup_percent"]
+                m_fixed   = cfg["markup_fixed"]
 
                 price     = round(price_uah * m_percent + m_fixed)
                 old_price = round(price * OLD_PRICE_MULT)
 
                 # Фільтр мінімальної ціни
-                min_raw = cfg.get("min_price_raw")
+                # min_price_raw   — поріг від ціни постачальника (до наценки)
+                # min_price_final — поріг від фінальної ціни (після наценки)
+                # якщо жодного нема — глобальний MIN_PRICE_THRESHOLD (фінальна)
+                min_raw   = cfg.get("min_price_raw")
+                min_final = cfg.get("min_price_final")
                 if min_raw is not None:
                     if price_uah < min_raw:
+                        count_low += 1
+                        continue
+                elif min_final is not None:
+                    if price < min_final:
                         count_low += 1
                         continue
                 elif price < MIN_PRICE_THRESHOLD:
