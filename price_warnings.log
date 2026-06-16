@@ -19,12 +19,13 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_13357 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_18215 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_14977 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_20211 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] opt-drop.com offer=2222_20334 price=5.05 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_17987 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_14356 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_104219 — пропускаємо
-[БЕЗ ФОТО] opt-drop.com offer=2222_20211 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_21339 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_20047 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_17150 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=739113-05 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=738341-05 — пропускаємо
@@ -75,22 +76,9 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=976307-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1044027-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=809248-01 — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=9.55 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=8.82 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-20 price=8.82 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-21 price=8.82 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-22 price=8.09 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-23 price=8.09 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_7115 price=9.3 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8941 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8930 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8944 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8936 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8949 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8940 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.41 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_MS-001 price=1.5 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_KS-001 price=1.5 UAH < 10.0 грн — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=816166-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=816165-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=882451-01 — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16698 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16699 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17056 raw='0'
