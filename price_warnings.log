@@ -64,7 +64,6 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1021339-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020148-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020176-13 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=364178-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=440589-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=871780-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1086376-01 — пропускаємо
@@ -75,21 +74,6 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1044027-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=809251-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=809248-01 — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=9.55 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=8.82 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-20 price=8.82 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-21 price=8.82 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-22 price=8.09 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-23 price=8.09 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8941 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8930 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8944 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8936 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8949 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8940 price=0.73 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.41 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_MS-001 price=1.5 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_KS-001 price=1.5 UAH < 10.0 грн — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16698 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16699 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17056 raw='0'
