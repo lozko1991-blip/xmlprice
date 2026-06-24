@@ -55,20 +55,20 @@ CUSTOM_MARKUP = {
         "markup_fixed":   0,
     },
     "dwn.royaltoys.com.ua": {  # домен з url.split('/')[2] — саме dwn.royaltoys.com.ua
-        "markup_percent": 1.05, # +35%
-        "markup_fixed":   20,   # +40 грн
+        "markup_percent": 1.01, # +35%
+        "markup_fixed":   10,   # +40 грн
     },
     "feed.lugi.com.ua": {
         "markup_percent": 1.15, # +20%
-        "markup_fixed":   40,   # +50 грн
+        "markup_fixed":   50,   # +50 грн
     },
     "dropom.com.ua": {
         "markup_percent": 1.35, # +35%
-        "markup_fixed":   50,   # +40 грн
+        "markup_fixed":   40,   # +40 грн
     },
     "posudograd.ua": {
         "markup_percent": 1.0,  # без наценки
-        "markup_fixed":   30,   # +30 грн
+        "markup_fixed":   40,   # +30 грн
         "min_price_raw":  70,   # мінімум від ціни постачальника
     },
     "i-posud.com.ua": {
@@ -85,8 +85,8 @@ CUSTOM_MARKUP = {
         "markup_fixed":   40,   # +40 грн
     },
     "forus.com.ua": {          # URL без www. — ключ без www.
-        "markup_percent": 1.10, # +10%
-        "markup_fixed":   30,   # +30 грн
+        "markup_percent": 1.15, # +10%
+        "markup_fixed":   40,   # +30 грн
         "min_price_final": 130, # мінімум від фінальної ціни (після наценки)
     },
 }
