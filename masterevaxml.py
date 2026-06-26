@@ -43,12 +43,12 @@ RETRY_BACKOFF_MAX   = 120      # стеля паузи між повторами
 # Обов'язкові ключі: markup_percent, markup_fixed. Опційні: min_price_raw / min_price_final.
 CUSTOM_MARKUP = {
     "dropt.in.ua": {
-        "markup_percent": 1.20, # +15%
-        "markup_fixed":   40,   # +30 грн
+        "markup_percent": 1.15, # +15%
+        "markup_fixed":   70,   # +30 грн
     },
     "opt-drop.com": {
-        "markup_percent": 1.35, # +35%
-        "markup_fixed":   40,   # +40 грн
+        "markup_percent": 1.30, # +35%
+        "markup_fixed":   70,   # +40 грн
     },
     "kievopt.com.ua": {
         "markup_percent": 1.0,  # без наценки — ціна постачальника як є
@@ -59,12 +59,12 @@ CUSTOM_MARKUP = {
         "markup_fixed":   5,   # +40 грн
     },
     "feed.lugi.com.ua": {
-        "markup_percent": 1.15, # +20%
+        "markup_percent": 1.05, # +20%
         "markup_fixed":   50,   # +50 грн
     },
     "dropom.com.ua": {
-        "markup_percent": 1.35, # +35%
-        "markup_fixed":   40,   # +40 грн
+        "markup_percent": 1.25, # +35%
+        "markup_fixed":   80,   # +40 грн
     },
     "posudograd.ua": {
         "markup_percent": 1.0,  # без наценки
@@ -73,7 +73,7 @@ CUSTOM_MARKUP = {
     },
     "i-posud.com.ua": {
         "markup_percent": 1.15, # +15%
-        "markup_fixed":   40,   # +40 грн
+        "markup_fixed":   50,   # +40 грн
         "min_price_raw":  70,   # мінімум від ціни постачальника
     },
     "www.websklad.biz.ua": {   # URL має www. — ключ теж має бути з www.
@@ -81,12 +81,12 @@ CUSTOM_MARKUP = {
         "markup_fixed":   30,   # +30 грн
     },
     "www.shkatulka.in.ua": {   # URL має www. — ключ теж має бути з www.
-        "markup_percent": 1.30, # +30%
-        "markup_fixed":   40,   # +40 грн
+        "markup_percent": 1.25, # +30%
+        "markup_fixed":   70,   # +40 грн
     },
     "forus.com.ua": {          # URL без www. — ключ без www.
         "markup_percent": 1.15, # +10%
-        "markup_fixed":   40,   # +30 грн
+        "markup_fixed":   50,   # +30 грн
         "min_price_final": 130, # мінімум від фінальної ціни (після наценки)
     },
 }
