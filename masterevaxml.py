@@ -81,11 +81,11 @@ CUSTOM_MARKUP = {
         "markup_fixed":   30,   # +30 грн
     },
     "www.shkatulka.in.ua": {   # URL має www. — ключ теж має бути з www.
-        "markup_percent": 1.25, # +30%
-        "markup_fixed":   70,   # +40 грн
+        "markup_percent": 1.30, # +30%
+        "markup_fixed":   50,   # +40 грн
     },
     "forus.com.ua": {          # URL без www. — ключ без www.
-        "markup_percent": 1.15, # +10%
+        "markup_percent": 1.10, # +10%
         "markup_fixed":   50,   # +30 грн
         "min_price_final": 130, # мінімум від фінальної ціни (після наценки)
     },
@@ -98,8 +98,8 @@ SUSPICIOUS_LOW_UAH = 10.0
 # Запасні курси валют (використовуються якщо НБУ API недоступне)
 FALLBACK_RATES = {
     "UAH": 1.0,
-    "USD": 41.5,
-    "EUR": 45.0,
+    "USD": 44.5,
+    "EUR": 52.0,
     "RUB": 0.45,
     "RUR": 0.45,
     "BYN": 12.5,
