@@ -13,6 +13,7 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_104221 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_106407 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_106744 — пропускаємо
+[НЕМОЖЛИВО РОЗПАРСИТИ] feed.lugi.com.ua offer=3333_HP-HK-C13 raw='0'
 [БЕЗ ФОТО] kievopt.com.ua offer=297825-05 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=288375-05 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=297824-05 — пропускаємо
@@ -72,6 +73,7 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1091463-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091446-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091447-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1091470-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091444-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091445-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091452-01 — пропускаємо
@@ -83,13 +85,19 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1091449-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=809251-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=809248-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1091472-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1091471-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1091473-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091453-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091454-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091466-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1091474-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091475-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091455-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091459-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091458-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1087279-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1096460-01 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-17 price=8.53 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=7.39 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=6.83 UAH < 10.0 грн — пропускаємо
