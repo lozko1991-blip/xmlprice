@@ -1,5 +1,3 @@
-[НЕМОЖЛИВО РОЗПАРСИТИ] dropt.in.ua offer=1000_16637 raw='0'
-[НЕМОЖЛИВО РОЗПАРСИТИ] dropt.in.ua offer=1000_16638 raw='0'
 [БЕЗ ФОТО] opt-drop.com offer=2222_13357 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_14181 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_14797 — пропускаємо
@@ -100,6 +98,7 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1091455-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091459-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091458-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1096460-01 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-17 price=8.53 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=7.39 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=6.83 UAH < 10.0 грн — пропускаємо
