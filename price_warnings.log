@@ -3,7 +3,6 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_14797 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_14977 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_17150 — пропускаємо
-[БЕЗ ФОТО] opt-drop.com offer=2222_17671 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] opt-drop.com offer=2222_20334 price=5.05 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_20677 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_102170 — пропускаємо
@@ -179,23 +178,60 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=403122-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=506622-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=506623-01 — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-17 price=8.53 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=7.39 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=6.83 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-20 price=6.83 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-21 price=6.83 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-22 price=6.26 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-23 price=6.26 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8941 price=0.8 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8930 price=0.8 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8944 price=0.8 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8936 price=0.8 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8949 price=0.8 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8940 price=0.8 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.78 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_MS-001 price=1.5 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_KS-001 price=1.5 UAH < 10.0 грн — пропускаємо
-[НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16698 raw='0'
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66962 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66963 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66964 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66966 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66967 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66968 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66969 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66970 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66971 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66972 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66973 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66974 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66975 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66976 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66978 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66979 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66980 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66981 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66982 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66983 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66984 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66985 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66986 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66987 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66988 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66989 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66990 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66991 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66992 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66993 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66994 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66995 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66996 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT66997 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67003 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67004 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67006 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67007 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67008 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67009 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67010 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67011 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67012 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67013 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67014 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67015 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67016 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67017 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67018 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67019 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67020 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67021 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67022 — пропускаємо
+[БЕЗ ФОТО] dwn.royaltoys.com.ua offer=RT67023 — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16699 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17056 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17057 raw='0'
