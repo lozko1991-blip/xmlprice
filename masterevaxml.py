@@ -26,6 +26,9 @@ SOURCES = [
     ("1100", "1100",  "https://forus.com.ua/vugruzka/forus_opt_prom_stock.xml"),
     ("1200", "1200",  "https://aveon.net.ua/products_feed.xml?hash_tag=7b71fadcc4a12f03cf26a304da032fba&sales_notes=&product_ids=&label_ids=&exclude_fields=&html_description=0&yandex_cpa=&process_presence_sure=&languages=uk&group_ids="),
     ("1300", "1300",  "https://sonechko233.com.ua/products_feed.xml?hash_tag=220ed1761695cce1df21b74fc555efcd&sales_notes=&product_ids=&label_ids=&exclude_fields=&html_description=0&yandex_cpa=&process_presence_sure=&languages=uk%2Cru&extra_fields=&group_ids="),
+    ("2000", "2000",  "https://crm.yavshoke.ua/media/export/bt_opt_price.xml"),
+    ("2000", "2000",  "https://crm.yavshoke.ua/media/export/posuda_opt_price.xml"),
+    ("2000", "2000",  "https://crm.yavshoke.ua/media/export/top_aliexpress_opt_price.xml"),
 ]
 
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
@@ -213,6 +216,15 @@ CUSTOM_MARKUP = {
             (4000,   1.23,  50),   # 2000–4000 грн
             (8000,   1.23,  50),   # 4000–8000 грн
             (999999, 1.23,  50),   # вище 8000 грн
+        ],
+    },
+    "crm.yavshoke.ua": {
+        "markup_percent": 1.35,
+        "markup_fixed":   50,
+        "markup_tiers": [
+            (1000,   1.35,  50),   # до 1000 грн    → 35% + 50 грн
+            (3000,   1.32,  50),   # 1000–3000 грн  → 32% + 50 грн
+            (999999, 1.30,  50),   # вище 3000 грн  → 30% + 50 грн
         ],
     },
 }
