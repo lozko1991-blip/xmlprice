@@ -24,6 +24,8 @@ SOURCES = [
     ("9999", "9999",  "https://www.websklad.biz.ua/wp-content/uploads/randomize_prom_84230.xml"),
     ("1111", "1111",  "https://www.shkatulka.in.ua/content/export/cb28b41c71e755eab59d094a399ecfd8.xml"),
     ("1100", "1100",  "https://forus.com.ua/vugruzka/forus_opt_prom_stock.xml"),
+    ("1200", "1200",  "https://aveon.net.ua/products_feed.xml?hash_tag=7b71fadcc4a12f03cf26a304da032fba&sales_notes=&product_ids=&label_ids=&exclude_fields=&html_description=0&yandex_cpa=&process_presence_sure=&languages=uk&group_ids="),
+    ("1300", "1300",  "https://sonechko233.com.ua/products_feed.xml?hash_tag=220ed1761695cce1df21b74fc555efcd&sales_notes=&product_ids=&label_ids=&exclude_fields=&html_description=0&yandex_cpa=&process_presence_sure=&languages=uk%2Cru&extra_fields=&group_ids="),
 ]
 
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
@@ -40,54 +42,178 @@ RETRY_BACKOFF_MAX   = 120      # стеля паузи між повторами
 # Наценка по доменах — ОБОВ'ЯЗКОВА для КОЖНОГО постачальника зі SOURCES.
 # Глобальної наценки за замовчуванням більше немає: якщо домену тут нема,
 # validate_markup_config() зупинить запуск з чіткою помилкою на старті.
-# Обов'язкові ключі: markup_percent, markup_fixed. Опційні: min_price_raw / min_price_final.
+#
+# Обов'язкові ключі:  markup_percent, markup_fixed  (резерв якщо markup_tiers не задані)
+# Опційні ключі:      min_price_raw / min_price_final
+# Тієрна наценка:     markup_tiers — список кортежів (max_ціна, percent, fixed_грн)
+#                     Перший тієр де ціна_товару <= max_ціна — той і застосовується.
+#                     Тієри МАЮТЬ бути відсортовані за зростанням max_ціни.
+#                     Останній тієр (999999) покриває всі ціни вище 15 000 грн.
+#
+# Формат тієру: (максимальна_ціна_постачальника, markup_percent, markup_fixed)
+#   Приклад: price_uah = 800 → шукаємо перший рядок де 800 <= max_ціна
+#            (500, 1.20, 40)  — ні, 800 > 500
+#            (1000, 1.17, 35) — так! → ціна = round(800 * 1.17 + 35) = 971 грн
 CUSTOM_MARKUP = {
     "dropt.in.ua": {
-        "markup_percent": 1.25, # +25%
-        "markup_fixed":   70,   # +70 грн
+        "markup_percent": 1.20,  # резерв (якщо markup_tiers видалити)
+        "markup_fixed":   40,
+        "markup_tiers": [
+            #  (до якої ціни,  %,     фікс.грн)     ← редагуйте цифри тут
+            (500,    1.20,  40),   # до 500 грн     → поточна (не змінюємо)
+            (1000,   1.17,  35),   # 500–1000 грн
+            (2000,   1.15,  30),   # 1000–2000 грн
+            (4000,   1.12,  20),   # 2000–4000 грн
+            (8000,   1.10,   0),   # 4000–8000 грн
+            (999999, 1.07,   0),   # вище 8000 грн
+        ],
     },
     "opt-drop.com": {
-        "markup_percent": 1.35, # +35%
-        "markup_fixed":   70,   # +70 грн
+        "markup_percent": 1.35,
+        "markup_fixed":   40,
+        "markup_tiers": [
+            (500,    1.35,  40),   # до 500 грн     → поточна
+            (1000,   1.32,  35),   # 500–1000 грн
+            (2000,   1.28,  30),   # 1000–2000 грн
+            (4000,   1.24,  20),   # 2000–4000 грн
+            (8000,   1.20,   0),   # 4000–8000 грн
+            (999999, 1.15,   0),   # вище 8000 грн
+        ],
     },
     "kievopt.com.ua": {
-        "markup_percent": 1.0,  # без наценки — ціна постачальника як є
+        "markup_percent": 1.0,   # без наценки — ціна постачальника як є
         "markup_fixed":   0,
+        "markup_tiers": [
+            (500,    1.0,   0),    # до 500 грн     → поточна
+            (1000,   1.0,   0),    # 500–1000 грн
+            (2000,   1.0,   0),    # 1000–2000 грн
+            (4000,   1.0,   0),    # 2000–4000 грн
+            (8000,   1.0,   0),    # 4000–8000 грн
+            (999999, 1.0,   0),    # вище 8000 грн
+        ],
     },
-    "dwn.royaltoys.com.ua": {  # домен з url.split('/')[2] — саме dwn.royaltoys.com.ua
-        "markup_percent": 1.01, # +01%
-        "markup_fixed":   5,   # +5 грн
+    "dwn.royaltoys.com.ua": {   # домен з url.split('/')[2] — саме dwn.royaltoys.com.ua
+        "markup_percent": 1.01,
+        "markup_fixed":   5,
+        "markup_tiers": [
+            (500,    1.01,  5),    # до 500 грн     → поточна
+            (1000,   1.01,  5),    # 500–1000 грн
+            (2000,   1.01,  5),    # 1000–2000 грн
+            (4000,   1.01,  5),    # 2000–4000 грн
+            (8000,   1.01,  0),    # 4000–8000 грн
+            (999999, 1.01,  0),    # вище 8000 грн
+        ],
     },
     "feed.lugi.com.ua": {
-        "markup_percent": 1.05, # +05%
-        "markup_fixed":   50,   # +50 грн
+        "markup_percent": 1.15,
+        "markup_fixed":   50,
+        "markup_tiers": [
+            (500,    1.15,  50),   # до 500 грн     → поточна
+            (1000,   1.13,  40),   # 500–1000 грн
+            (2000,   1.10,  30),   # 1000–2000 грн
+            (4000,   1.08,  20),   # 2000–4000 грн
+            (8000,   1.06,   0),   # 4000–8000 грн
+            (999999, 1.05,   0),   # вище 8000 грн
+        ],
     },
     "dropom.com.ua": {
-        "markup_percent": 1.35, # +35%
-        "markup_fixed":   50,   # +40 грн
+        "markup_percent": 1.35,
+        "markup_fixed":   40,
+        "markup_tiers": [
+            (500,    1.35,  40),   # до 500 грн     → поточна
+            (1000,   1.32,  35),   # 500–1000 грн
+            (2000,   1.28,  30),   # 1000–2000 грн
+            (4000,   1.24,  20),   # 2000–4000 грн
+            (8000,   1.20,   0),   # 4000–8000 грн
+            (999999, 1.15,   0),   # вище 8000 грн
+        ],
     },
     "posudograd.ua": {
-        "markup_percent": 1.0,  # без наценки
-        "markup_fixed":   40,   # +40 грн
-        "min_price_raw":  70,   # мінімум від ціни постачальника
+        "markup_percent": 1.0,
+        "markup_fixed":   40,
+        "min_price_raw":  70,      # мінімум від ціни постачальника
+        "markup_tiers": [
+            (500,    1.0,   40),   # до 500 грн     → поточна
+            (1000,   1.0,   35),   # 500–1000 грн
+            (2000,   1.0,   30),   # 1000–2000 грн
+            (4000,   1.0,   20),   # 2000–4000 грн
+            (8000,   1.0,    0),   # 4000–8000 грн
+            (999999, 1.0,    0),   # вище 8000 грн
+        ],
     },
     "i-posud.com.ua": {
-        "markup_percent": 1.15, # +15%
-        "markup_fixed":   50,   # +40 грн
-        "min_price_raw":  70,   # мінімум від ціни постачальника
+        "markup_percent": 1.15,
+        "markup_fixed":   40,
+        "min_price_raw":  70,      # мінімум від ціни постачальника
+        "markup_tiers": [
+            (500,    1.15,  40),   # до 500 грн     → поточна
+            (1000,   1.13,  35),   # 500–1000 грн
+            (2000,   1.10,  30),   # 1000–2000 грн
+            (4000,   1.08,  20),   # 2000–4000 грн
+            (8000,   1.06,   0),   # 4000–8000 грн
+            (999999, 1.05,   0),   # вище 8000 грн
+        ],
     },
-    "www.websklad.biz.ua": {   # URL має www. — ключ теж має бути з www.
-        "markup_percent": 1.0,  # без наценки
-        "markup_fixed":   30,   # +30 грн
+    "www.websklad.biz.ua": {    # URL має www. — ключ теж має бути з www.
+        "markup_percent": 1.0,
+        "markup_fixed":   30,
+        "markup_tiers": [
+            (500,    1.0,   30),   # до 500 грн     → поточна
+            (1000,   1.0,   25),   # 500–1000 грн
+            (2000,   1.0,   20),   # 1000–2000 грн
+            (4000,   1.0,   15),   # 2000–4000 грн
+            (8000,   1.0,    0),   # 4000–8000 грн
+            (999999, 1.0,    0),   # вище 8000 грн
+        ],
     },
-    "www.shkatulka.in.ua": {   # URL має www. — ключ теж має бути з www.
-        "markup_percent": 1.45, # +45%
-        "markup_fixed":   70,   # +70 грн
+    "www.shkatulka.in.ua": {    # URL має www. — ключ теж має бути з www.
+        "markup_percent": 1.30,
+        "markup_fixed":   40,
+        "markup_tiers": [
+            (500,    1.30,  40),   # до 500 грн     → поточна
+            (1000,   1.27,  35),   # 500–1000 грн
+            (2000,   1.24,  30),   # 1000–2000 грн
+            (4000,   1.20,  20),   # 2000–4000 грн
+            (8000,   1.16,   0),   # 4000–8000 грн
+            (999999, 1.12,   0),   # вище 8000 грн
+        ],
     },
-    "forus.com.ua": {          # URL без www. — ключ без www.
-        "markup_percent": 1.10, # +10%
-        "markup_fixed":   50,   # +50 грн
-        "min_price_final": 130, # мінімум від фінальної ціни (після наценки)
+    "forus.com.ua": {           # URL без www. — ключ без www.
+        "markup_percent": 1.15,
+        "markup_fixed":   40,
+        "min_price_final": 130,   # мінімум від фінальної ціни (після наценки)
+        "markup_tiers": [
+            (500,    1.15,  40),   # до 500 грн     → поточна
+            (1000,   1.13,  35),   # 500–1000 грн
+            (2000,   1.10,  30),   # 1000–2000 грн
+            (4000,   1.08,  20),   # 2000–4000 грн
+            (8000,   1.06,   0),   # 4000–8000 грн
+            (999999, 1.05,   0),   # вище 8000 грн
+        ],
+    },
+    "aveon.net.ua": {
+        "markup_percent": 1.20,
+        "markup_fixed":   40,
+        "markup_tiers": [
+            (500,    1.20,  40),   # до 500 грн     → поточна
+            (1000,   1.17,  35),   # 500–1000 грн
+            (2000,   1.15,  30),   # 1000–2000 грн
+            (4000,   1.12,  20),   # 2000–4000 грн
+            (8000,   1.10,   0),   # 4000–8000 грн
+            (999999, 1.07,   0),   # вище 8000 грн
+        ],
+    },
+    "sonechko233.com.ua": {
+        "markup_percent": 1.20,
+        "markup_fixed":   40,
+        "markup_tiers": [
+            (500,    1.20,  40),   # до 500 грн     → поточна
+            (1000,   1.17,  35),   # 500–1000 грн
+            (2000,   1.15,  30),   # 1000–2000 грн
+            (4000,   1.12,  20),   # 2000–4000 грн
+            (8000,   1.10,   0),   # 4000–8000 грн
+            (999999, 1.07,   0),   # вище 8000 грн
+        ],
     },
 }
 
@@ -98,13 +224,35 @@ SUSPICIOUS_LOW_UAH = 10.0
 # Запасні курси валют (використовуються якщо НБУ API недоступне)
 FALLBACK_RATES = {
     "UAH": 1.0,
-    "USD": 44.5,
-    "EUR": 52.0,
+    "USD": 41.5,
+    "EUR": 45.0,
     "RUB": 0.45,
     "RUR": 0.45,
     "BYN": 12.5,
     "PLN": 10.5,
     "GBP": 52.0,
+}
+
+
+# Фіксовані українські назви категорій для постачальників, що надають їх не тією мовою.
+# Ключ: домен постачальника → словник {оригінальна_назва: українська_назва}
+# При обробці (Крок 4) оригінальна назва замінюється на зафіксовану українську.
+CATEGORY_NAME_OVERRIDES = {
+    "sonechko233.com.ua": {
+        "Товары для дома и сада":                          "Товари для дому та саду",
+        "Сезонный  товар":                                 "Сезонний товар",
+        "Сезонный товар":                                  "Сезонний товар",
+        "Красота и здоровье":                              "Краса та здоров'я",
+        "PowerBank, внешние аккумуляторы":                 "PowerBank, зовнішні акумулятори",
+        "Все для кухни":                                   "Все для кухні",
+        "Электроника":                                     "Електроніка",
+        "Игровые девайсы для ПК":                          "Ігрові девайси для ПК",
+        "Одежда и обувь":                                  "Одяг та взуття",
+        "Охота и Рыбалка":                                 "Мисливство та Рибалка",
+        "Автотовары, электроинструмент, ручной инструмент": "Автотовари, електроінструмент, ручний інструмент",
+        "Детский мир, детские товары":                     "Дитячий світ, дитячі товари",
+        "Спорт, здоровье, туризм":                         "Спорт, здоров'я, туризм",
+    },
 }
 
 
@@ -495,24 +643,124 @@ def fetch_nbu_rates():
         return dict(FALLBACK_RATES)
 
 
+import os
+
+class Blacklist:
+    def __init__(self, raw_lines_count=0):
+        self.disable_all = False
+        self.disabled_suppliers = set()  # lowercase domains or prefixes
+        self.disabled_categories = set() # lowercase category names or IDs
+        self.disabled_ids = set()        # uppercase offer IDs or articles
+        self.total_entries = raw_lines_count
+
+    def is_supplier_disabled(self, domain, id_prefix):
+        if self.disable_all:
+            return True
+        if domain.lower() in self.disabled_suppliers:
+            return True
+        if id_prefix.lower() in self.disabled_suppliers:
+            return True
+        return False
+
+    def is_category_disabled(self, category_id, category_name):
+        if self.disable_all:
+            return True
+        if category_id.lower() in self.disabled_categories:
+            return True
+        if category_name.lower() in self.disabled_categories:
+            return True
+        return False
+
+    def is_offer_disabled(self, offer_id, article, domain, id_prefix):
+        if self.disable_all:
+            return True
+        if domain.lower() in self.disabled_suppliers:
+            return True
+        if id_prefix.lower() in self.disabled_suppliers:
+            return True
+        if offer_id.upper() in self.disabled_ids:
+            return True
+        if article and article.upper() in self.disabled_ids:
+            return True
+        return False
+
+    def __contains__(self, offer_id):
+        if self.disable_all:
+            return True
+        if offer_id.upper() in self.disabled_ids:
+            return True
+        parts = offer_id.split('_', 1)
+        if len(parts) > 1:
+            prefix = parts[0].lower()
+            if prefix in self.disabled_suppliers:
+                return True
+        return False
+
+
 def load_blacklist():
     """
     Читає blacklist.txt.
-    Якщо файл відсутній — повертає порожню множину і не ламає прайс.
-    Формат: один offer id на рядок, # для коментарів.
+    Підтримує виключення постачальників, категорій, брендів або окремих товарів/артикулів.
     """
     try:
-        with open("blacklist.txt", "r", encoding="utf-8") as f:
-            ids = {
-                line.strip()
-                for line in f
-                if line.strip() and not line.strip().startswith('#')
-            }
-        print(f"Blacklist завантажено: {len(ids)} товарів")
-        return ids, len(ids)
+        path = "blacklist.txt"
+        if not os.path.exists(path) and os.path.exists("../blacklist.txt"):
+            path = "../blacklist.txt"
+        
+        disable_all = False
+        disabled_suppliers = set()
+        disabled_categories = set()
+        disabled_ids = set()
+        raw_lines_count = 0
+        
+        # Список числових префіксів для розпізнавання постачальників у списку
+        known_prefixes = {"1000", "2222", "3333", "4444", "5555", "7777", "8888", "9999", "1111", "1100"}
+        
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line_clean = line.strip()
+                if not line_clean or line_clean.startswith('#'):
+                    continue
+                raw_lines_count += 1
+                val_upper = line_clean.upper()
+                val_lower = line_clean.lower()
+                
+                # Перевіряємо префікси категорій
+                is_cat_rule = False
+                for prefix in ("category:", "cat:", "category_", "cat_"):
+                    if val_lower.startswith(prefix):
+                        rule_val = line_clean[len(prefix):].strip().lower()
+                        disabled_categories.add(rule_val)
+                        is_cat_rule = True
+                        break
+                
+                if is_cat_rule:
+                    continue
+                
+                # Перевіряємо інші типи правил
+                if val_upper in ("ALL", "*", "VACATION", "DISABLE_ALL"):
+                    disable_all = True
+                elif "." in val_lower or val_lower in known_prefixes:
+                    disabled_suppliers.add(val_lower)
+                else:
+                    disabled_ids.add(line_clean.upper())
+                    
+        blacklist_obj = Blacklist(raw_lines_count)
+        blacklist_obj.disable_all = disable_all
+        blacklist_obj.disabled_suppliers = disabled_suppliers
+        blacklist_obj.disabled_categories = disabled_categories
+        blacklist_obj.disabled_ids = disabled_ids
+        
+        if disable_all:
+            print(f"Blacklist: загальне вимкнення всього прайсу ({path})")
+        else:
+            print(f"Blacklist завантажено з {path}: {len(disabled_suppliers)} постачальників, {len(disabled_categories)} категорій, {len(disabled_ids)} товарів/артикулів.")
+            
+        return blacklist_obj, raw_lines_count
+        
     except FileNotFoundError:
         print("blacklist.txt не знайдено — крок пропускається")
-        return set(), 0
+        return Blacklist(0), 0
 
 
 def normalize_feed_tags(root):
@@ -551,6 +799,10 @@ def validate_markup_config():
     Глобальної наценки за замовчуванням більше немає, тож відсутність запису
     має зупиняти запуск з ЧІТКОЮ помилкою на старті — а не тихо ламатись
     посеред обробки чи відправляти товар без коректної наценки.
+
+    Також перевіряє структуру markup_tiers якщо вони задані:
+    - кожен тієр має бути кортежем з 3 елементів (max_price, percent, fixed)
+    - тієри мають бути відсортовані за зростанням max_price
     """
     missing = []
     for _cat_prefix, _id_prefix, url in SOURCES:
@@ -558,12 +810,55 @@ def validate_markup_config():
         cfg = CUSTOM_MARKUP.get(domain)
         if not cfg or 'markup_percent' not in cfg or 'markup_fixed' not in cfg:
             missing.append(domain)
+            continue
+        tiers = cfg.get('markup_tiers')
+        if tiers:
+            for i, t in enumerate(tiers):
+                if len(t) != 3:
+                    raise SystemExit(
+                        f"[КОНФІГ] markup_tiers[{i}] для '{domain}' має неправильний формат. "
+                        f"Очікується кортеж (max_price, percent, fixed), отримано: {t}"
+                    )
+            prices = [t[0] for t in tiers]
+            if prices != sorted(prices):
+                raise SystemExit(
+                    f"[КОНФІГ] markup_tiers для '{domain}' не відсортовані за зростанням ціни! "
+                    f"Поточний порядок: {prices}"
+                )
     if missing:
         raise SystemExit(
             "[КОНФІГ] Немає наценки в CUSTOM_MARKUP для: " + ", ".join(missing) +
             ". Додай markup_percent і markup_fixed для кожного з них."
         )
     print(f"[КОНФІГ] Наценку перевірено: усі {len(SOURCES)} постачальників мають явні значення")
+
+
+def get_markup(price_uah, cfg):
+    """
+    Повертає (markup_percent, markup_fixed) залежно від ціни товару.
+
+    Якщо в конфігу постачальника є markup_tiers — перебирає тієри по порядку
+    і повертає перший, де price_uah <= max_price.
+    Якщо ціна перевищує всі тієри — повертає значення останнього тієру.
+    Якщо markup_tiers відсутній або порожній — повертає глобальний
+    markup_percent / markup_fixed (стара логіка без тієрів).
+
+    Аргументи:
+        price_uah (float): ціна товару постачальника у гривнях
+        cfg (dict):        запис із CUSTOM_MARKUP для поточного домену
+
+    Повертає:
+        (float, float): (markup_percent, markup_fixed)
+    """
+    tiers = cfg.get('markup_tiers')
+    if tiers:                                 # None або [] → стара логіка
+        for max_price, pct, fixed in tiers:
+            if price_uah <= max_price:
+                return pct, fixed
+        # Ціна вища за всі тієри — беремо останній
+        return tiers[-1][1], tiers[-1][2]
+    # Тієрів немає — стара плоска логіка
+    return cfg['markup_percent'], cfg['markup_fixed']
 
 
 # ==============================================================================
@@ -605,8 +900,25 @@ def process():
     # --------------------------------------------------------------------------
     feeds = []
 
+    # Якщо увімкнено загальне вимкнення прайсу - пропускаємо завантаження фідів
+    if blacklisted_ids.disable_all:
+        print("[BLACKLIST] Увімкнено загальне вимкнення прайсу (VACATION/DISABLE_ALL). Завантаження фідів скасовано.")
+        return
+
     for i, (prefix, id_prefix, url) in enumerate(SOURCES):
         domain = url.split('/')[2]
+
+        # Перевірка вимкнення постачальника перед завантаженням фідів (економить час та трафік)
+        if blacklisted_ids.is_supplier_disabled(domain, prefix):
+            print(f"[BLACKLIST] Постачальник {domain} вимкнений у blacklist.txt — пропускаємо завантаження")
+            report_stats[domain] = {
+                "ok": 0, "low": 0, "not_avail": 0, "price_err": 0, "duplicate": 0, 
+                "blacklist": 0, "default_qty": 0,
+                "name_ua": 0, "name_ru": 0, "desc_ua": 0, "desc_ru": 0, "desc_none": 0,
+                "multi_pic": 0, "no_params": 0, "no_article": 0, "saved_cat": 0,
+                "avg_pics": 0, "avg_params": 0, "price_min": 0, "price_max": 0
+            }
+            continue
 
         # Затримка між запитами (крім першого)
         if i > 0:
@@ -730,6 +1042,11 @@ def process():
             if cat.text:
                 cat.text = fix_text(cat.text)
 
+            # Застосовуємо фіксований переклад назви категорії (якщо є для цього домену)
+            _cat_overrides = CATEGORY_NAME_OVERRIDES.get(domain, {})
+            if _cat_overrides and cat.text and cat.text in _cat_overrides:
+                cat.text = _cat_overrides[cat.text]
+
             final_categories[new_id] = cat
 
     # --------------------------------------------------------------------------
@@ -745,14 +1062,22 @@ def process():
         count_duplicate   = 0
         count_blacklist   = 0
         count_default_qty = 0
-        count_name_ua     = 0
-        count_name_ru     = 0
-        count_desc_ua     = 0
-        count_desc_ru     = 0
-        count_desc_none   = 0
+        
+        # Статистика мов назв та описів (надійна, за наявністю тегів)
+        count_name_ua            = 0  # оригінальна назва українською (name_ua)
+        count_name_ru_translated = 0  # перекладена назва з російської (name)
+        count_desc_ua            = 0  # оригінальний опис українською (description_ua)
+        count_desc_ru_translated = 0  # перекладений опис з російської (description)
+        count_desc_fallback      = 0  # використано заглушку (опис порожній або <30 символів)
+        
         count_multi_pic   = 0
         count_no_params   = 0
         count_no_article  = 0
+        count_saved_category = 0  # врятовано товарів у категорію "Інші"
+        
+        total_pics        = 0  # сума фото для середнього
+        total_params      = 0  # сума параметрів для середнього
+        
         price_min         = float('inf')
         price_max         = 0.0
 
@@ -762,8 +1087,18 @@ def process():
                 continue
             offer_id  = f"{id_prefix}_{raw_id}" if id_prefix else raw_id
 
-            # -- Перевірка 1: blacklist --
-            if offer_id in blacklisted_ids:
+            # Зчитуємо артикул, оригінальну категорію та назву для перевірки блеклиста
+            article = get_article(offer)
+            orig_cat = offer.findtext('categoryId') or ''
+            cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
+            cat_element = final_categories.get(cat_id)
+            cat_name = cat_element.text if cat_element is not None else ""
+
+            # -- Перевірка 1: blacklist (загальне вимкнення, постачальник, категорія, ID товару або артикул) --
+            if (blacklisted_ids.is_supplier_disabled(domain, prefix) or
+                blacklisted_ids.is_category_disabled(cat_id, cat_name) or
+                blacklisted_ids.is_offer_disabled(offer_id, article, domain, prefix)):
+                
                 blacklist_hits[domain] += 1
                 count_blacklist += 1
                 continue
@@ -821,10 +1156,9 @@ def process():
                     count_price_err += 1
                     continue
 
-                # Крок 3: наценка (домен гарантовано є — перевірено на старті)
-                cfg       = CUSTOM_MARKUP[domain]
-                m_percent = cfg["markup_percent"]
-                m_fixed   = cfg["markup_fixed"]
+                # Крок 3: тієрна наценка (домен гарантовано є — перевірено на старті)
+                cfg                = CUSTOM_MARKUP[domain]
+                m_percent, m_fixed = get_markup(price_uah, cfg)   # обирає тієр за ціною
 
                 price     = round(price_uah * m_percent + m_fixed)
                 old_price = round(price * OLD_PRICE_MULT)
@@ -878,6 +1212,25 @@ def process():
                 orig_cat = offer.findtext('categoryId') or ''
                 cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
 
+                # Якщо категорія відсутня у списку категорій постачальника -
+                # переносимо товар у фіксовану категорію "Інші товари [Постачальник]"
+                # Це дозволяє врятувати близько 1000 товарів без зміни існуючих категорій.
+                is_saved_cat = False
+                if cat_id not in final_categories:
+                    fixed_cat_id = f"{prefix}99999" if prefix else "99999"
+                    clean_domain = domain.replace('www.', '')
+                    cat_name = f"Інші товари {clean_domain}"
+                    
+                    # Додаємо фіксовану категорію в XML, якщо її ще немає
+                    if fixed_cat_id not in final_categories:
+                        new_cat = ET.Element("category", id=fixed_cat_id)
+                        new_cat.text = cat_name
+                        final_categories[fixed_cat_id] = new_cat
+                    
+                    # Перепризначаємо категорію для товару
+                    cat_id = fixed_cat_id
+                    is_saved_cat = True
+
                 # -- Збірка XML елемента товару --
                 # Порядок тегів відповідає прикладу з документації EVA
                 # https://sellersupport.eva.ua/article/pidhotovka-prays-listu-xml
@@ -911,7 +1264,6 @@ def process():
                 ET.SubElement(new_off, "vendor").text         = vendor
 
                 # Артикул товару (якщо є)
-                article = get_article(offer)
                 if article:
                     ET.SubElement(new_off, "article").text    = article
 
@@ -940,25 +1292,33 @@ def process():
                         ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
 
                 # -- Статистика якості даних для звіту --
-                _n_ua = (offer.findtext('name_ua') or '').strip()
-                _n    = (offer.findtext('name')    or '').strip()
-                if _n_ua or _lang(_n_ua or _n) == 'uk':
+                # Назва: чи була оригінально українською у фіді (тег name_ua)
+                has_orig_name_ua = bool((offer.findtext('name_ua') or '').strip())
+                if has_orig_name_ua:
                     count_name_ua += 1
-                elif _lang(_n) == 'ru':
-                    count_name_ru += 1
+                else:
+                    count_name_ru_translated += 1
 
-                _d_ua = (offer.findtext('description_ua') or '').strip()
-                _d    = (offer.findtext('description')    or '').strip()
-                if not _d_ua and not _d:
-                    count_desc_none += 1
-                elif _d_ua or _lang(_d_ua or _d) == 'uk':
-                    count_desc_ua += 1
-                elif _lang(_d) == 'ru':
-                    count_desc_ru += 1
+                # Опис: чи використано заглушку через порожній або короткий опис
+                plain_desc = re.sub(r'<[^>]+>', '', desc_raw).strip() if desc_raw else ""
+                if not desc_raw or len(plain_desc) < 30:
+                    count_desc_fallback += 1
+                else:
+                    # Якщо опис є, перевіряємо чи він початково був українською
+                    orig_desc_ua = (offer.findtext('description_ua') or '').strip()
+                    if orig_desc_ua:
+                        count_desc_ua += 1
+                    else:
+                        count_desc_ru_translated += 1
 
                 if pic_count >= 2:  count_multi_pic  += 1
                 if not params:      count_no_params  += 1
                 if not article:     count_no_article += 1
+                if is_saved_cat:    count_saved_category += 1
+                
+                total_pics   += pic_count
+                total_params += len(params)
+                
                 if price < price_min: price_min = price
                 if price > price_max: price_max = price
 
@@ -981,21 +1341,29 @@ def process():
             "duplicate":    count_duplicate,
             "blacklist":    count_blacklist,
             "default_qty":  count_default_qty,
+            
+            # Якість даних
             "name_ua":      count_name_ua,
-            "name_ru":      count_name_ru,
+            "name_ru":      count_name_ru_translated,
             "desc_ua":      count_desc_ua,
-            "desc_ru":      count_desc_ru,
-            "desc_none":    count_desc_none,
+            "desc_ru":      count_desc_ru_translated,
+            "desc_none":    count_desc_fallback,
             "multi_pic":    count_multi_pic,
             "no_params":    count_no_params,
             "no_article":   count_no_article,
+            
+            # Додаткові метрики якості
+            "saved_cat":    count_saved_category,
+            "avg_pics":     round(total_pics / count_ok, 1) if count_ok > 0 else 0,
+            "avg_params":   round(total_params / count_ok, 1) if count_ok > 0 else 0,
+            
             "price_min":    int(price_min) if price_min != float('inf') else 0,
             "price_max":    int(price_max),
         }
         source_results.append(
             f"{domain}: OK={count_ok} | LOW={count_low} | NOT_AVAIL={count_no} | "
             f"PRICE_ERR={count_price_err} | DUPL={count_duplicate} | "
-            f"BLACKLIST={count_blacklist} | DEFAULT_QTY={count_default_qty}"
+            f"SAVED_CAT={count_saved_category}"
         )
 
     # --------------------------------------------------------------------------
@@ -1177,7 +1545,7 @@ def process():
             )
 
     md.append("\n## Якість даних по постачальниках")
-    md.append("| Постачальник | 🇺🇦 Назва UA | 🇷🇺 Назва RU | 🇺🇦 Опис UA | 🇷🇺 Опис RU | ❌ Без опису | 📸 2+ фото | ⚙️ Без парамів | 🏷️ Без артикула | 💰 Ціна min–max |")
+    md.append("| Постачальник | 🇺🇦 Назва UA (ориг) | 🔄 Назва UA (переклад) | 🇺🇦 Опис UA (ориг) | 🔄 Опис UA (переклад) | ⚠️ Опис (заглушка) | 📸 2+ фото (Сер) | ⚙️ Без парамів (Сер) | 🏷️ Врятовано в \"Інші\" | 💰 Ціна min–max |")
     md.append("|---|---|---|---|---|---|---|---|---|---|")
     for prefix, id_prefix, url in SOURCES:
         domain = url.split('/')[2]
@@ -1188,6 +1556,10 @@ def process():
             p_min = v.get('price_min', 0)
             p_max = v.get('price_max', 0)
             price_range = f"{p_min}–{p_max} грн" if p_max > 0 else "—"
+            
+            avg_pics_str = f"{v.get('multi_pic', 0)} ({v.get('avg_pics', 0)})"
+            avg_params_str = f"{v.get('no_params', 0)} ({v.get('avg_params', 0)})"
+            
             md.append(
                 f"| {domain} "
                 f"| {v.get('name_ua', 0)} "
@@ -1195,9 +1567,9 @@ def process():
                 f"| {v.get('desc_ua', 0)} "
                 f"| {v.get('desc_ru', 0)} "
                 f"| {v.get('desc_none', 0)} "
-                f"| {v.get('multi_pic', 0)} "
-                f"| {v.get('no_params', 0)} "
-                f"| {v.get('no_article', 0)} "
+                f"| {avg_pics_str} "
+                f"| {avg_params_str} "
+                f"| **{v.get('saved_cat', 0)}** "
                 f"| {price_range} |"
             )
 
