@@ -272,6 +272,21 @@ CATEGORY_NAME_OVERRIDES = {
 # 2. ДОПОМІЖНІ ФУНКЦІЇ
 # ==============================================================================
 
+def get_source_label(url):
+    """
+    Повертає унікальну мітку джерела для звіту.
+    Розрізняє окремі прайси crm.yavshoke.ua.
+    """
+    domain = url.split('/')[2]
+    if "bt_opt_price.xml" in url:
+        return "crm.yavshoke.ua (Побутова техніка)"
+    elif "posuda_opt_price.xml" in url:
+        return "crm.yavshoke.ua (Посуд)"
+    elif "top_aliexpress_opt_price.xml" in url:
+        return "crm.yavshoke.ua (Топ Aliexpress)"
+    return domain
+
+
 def fix_text(text):
     """
     Подвійний unescape HTML-ентіті + нормалізація лапок.
@@ -1345,7 +1360,8 @@ def process():
                 count_price_err += 1
                 continue
 
-        report_stats[domain] = {
+        source_label = get_source_label(url)
+        report_stats[source_label] = {
             "ok":           count_ok,
             "low":          count_low,
             "not_avail":    count_no,
@@ -1373,7 +1389,7 @@ def process():
             "price_max":    int(price_max),
         }
         source_results.append(
-            f"{domain}: OK={count_ok} | LOW={count_low} | NOT_AVAIL={count_no} | "
+            f"{source_label}: OK={count_ok} | LOW={count_low} | NOT_AVAIL={count_no} | "
             f"PRICE_ERR={count_price_err} | DUPL={count_duplicate} | "
             f"SAVED_CAT={count_saved_category}"
         )
@@ -1538,15 +1554,15 @@ def process():
     md.append("| Постачальник | ✅ OK | 💰 Низька ціна | 🚫 Недоступні | ⚠️ Помилки ціни | 📦 Сток за замовч. | 🔁 Дублі | 🚷 Blacklist |")
     md.append("|---|---|---|---|---|---|---|---|")
     for prefix, id_prefix, url in SOURCES:
-        domain = url.split('/')[2]
-        v = report_stats.get(domain, {})
+        source_label = get_source_label(url)
+        v = report_stats.get(source_label, {})
         if "http_error" in v:
-            md.append(f"| {domain} | 🔴 HTTP {v['http_error']} | — | — | — | — | — | — |")
+            md.append(f"| {source_label} | 🔴 HTTP {v['http_error']} | — | — | — | — | — | — |")
         elif "feed_error" in v:
-            md.append(f"| {domain} | 🔴 ПОМИЛКА ЗАВАНТАЖЕННЯ | — | — | — | — | — | — |")
+            md.append(f"| {source_label} | 🔴 ПОМИЛКА ЗАВАНТАЖЕННЯ | — | — | — | — | — | — |")
         else:
             md.append(
-                f"| {domain} "
+                f"| {source_label} "
                 f"| {v.get('ok', 0)} "
                 f"| {v.get('low', 0)} "
                 f"| {v.get('not_avail', 0)} "
@@ -1560,10 +1576,10 @@ def process():
     md.append("| Постачальник | 🇺🇦 Назва UA (ориг) | 🔄 Назва UA (переклад) | 🇺🇦 Опис UA (ориг) | 🔄 Опис UA (переклад) | ⚠️ Опис (заглушка) | 📸 2+ фото (Сер) | ⚙️ Без парамів (Сер) | 🏷️ Врятовано в \"Інші\" | 💰 Ціна min–max |")
     md.append("|---|---|---|---|---|---|---|---|---|---|")
     for prefix, id_prefix, url in SOURCES:
-        domain = url.split('/')[2]
-        v = report_stats.get(domain, {})
+        source_label = get_source_label(url)
+        v = report_stats.get(source_label, {})
         if "http_error" in v or "feed_error" in v:
-            md.append(f"| {domain} | — | — | — | — | — | — | — | — | — |")
+            md.append(f"| {source_label} | — | — | — | — | — | — | — | — | — |")
         else:
             p_min = v.get('price_min', 0)
             p_max = v.get('price_max', 0)
@@ -1573,7 +1589,7 @@ def process():
             avg_params_str = f"{v.get('no_params', 0)} ({v.get('avg_params', 0)})"
             
             md.append(
-                f"| {domain} "
+                f"| {source_label} "
                 f"| {v.get('name_ua', 0)} "
                 f"| {v.get('name_ru', 0)} "
                 f"| {v.get('desc_ua', 0)} "
