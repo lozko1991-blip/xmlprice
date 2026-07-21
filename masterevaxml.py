@@ -29,6 +29,8 @@ SOURCES = [
     ("2000", "2000",  "https://crm.yavshoke.ua/media/export/bt_opt_price.xml"),
     ("2000", "2000",  "https://crm.yavshoke.ua/media/export/posuda_opt_price.xml"),
     ("2000", "2000",  "https://crm.yavshoke.ua/media/export/top_aliexpress_opt_price.xml"),
+    ("3000", "3000",  "https://api.dropshipping.ua/api/feeds/bestsellers.xml"),
+    ("3000", "3000",  "https://api.dropshipping.ua/api/feeds/4452.xml"),
 ]
 
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
@@ -227,6 +229,15 @@ CUSTOM_MARKUP = {
             (999999, 1.30,  50),   # вище 3000 грн  → 30% + 50 грн
         ],
     },
+    "api.dropshipping.ua": {
+        "markup_percent": 1.35,
+        "markup_fixed":   50,
+        "markup_tiers": [
+            (1000,   1.35,  50),   # до 1000 грн    → 35% + 50 грн
+            (3000,   1.30,  50),   # 1000–3000 грн  → 30% + 50 грн
+            (999999, 1.25,  50),   # вище 3000 грн  → 25% + 50 грн
+        ],
+    },
 }
 
 # Захист від підозрілих цін
@@ -275,7 +286,7 @@ CATEGORY_NAME_OVERRIDES = {
 def get_source_label(url):
     """
     Повертає унікальну мітку джерела для звіту.
-    Розрізняє окремі прайси crm.yavshoke.ua.
+    Розрізняє окремі прайси crm.yavshoke.ua та api.dropshipping.ua.
     """
     domain = url.split('/')[2]
     if "bt_opt_price.xml" in url:
@@ -284,6 +295,10 @@ def get_source_label(url):
         return "crm.yavshoke.ua (Посуд)"
     elif "top_aliexpress_opt_price.xml" in url:
         return "crm.yavshoke.ua (Топ Aliexpress)"
+    elif "bestsellers.xml" in url:
+        return "api.dropshipping.ua (Бестселери)"
+    elif "4452.xml" in url:
+        return "api.dropshipping.ua (Основний прайс)"
     return domain
 
 
