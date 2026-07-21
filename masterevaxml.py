@@ -1023,26 +1023,29 @@ def process():
             price_text  = price_nodes[0].text if price_nodes else ''
             id_registry[offer_id].append((domain, price_text or ''))
 
-    # Визначаємо конфліктні id
+    # Визначаємо конфліктні id (ТІЛЬКИ між РІЗНИМИ постачальниками)
     conflict_ids = set()
     for offer_id, entries in id_registry.items():
         if len(entries) > 1:
             domains = [e[0] for e in entries]
             if len(set(domains)) == 1:
+                # Внутрішній дублікат одного постачальника (наприклад yavshoke або dropt)
+                # 1 товар буде залишено при проході, решта зафіксована у звіт
                 inner_duplicates.append({
                     "offer_id": offer_id,
                     "domain":   domains[0],
                     "count":    len(entries)
                 })
             else:
+                # Конфлікт між РІЗНИМИ постачальниками — повністю блокуємо
                 cross_duplicates.append({
                     "offer_id": offer_id,
                     "entries":  entries
                 })
-            conflict_ids.add(offer_id)
+                conflict_ids.add(offer_id)
 
-    print(f"\nДублікати між постачальниками: {len(cross_duplicates)}")
-    print(f"Дублікати всередині постачальника: {len(inner_duplicates)}")
+    print(f"\nДублікати між постачальниками (видаляються повністю): {len(cross_duplicates)}")
+    print(f"Дублікати всередині постачальника (залишається 1 товар): {len(inner_duplicates)}")
 
     # --------------------------------------------------------------------------
     # КРОК 4: Обробка категорій (всі фіди)
@@ -1080,6 +1083,7 @@ def process():
     # КРОК 5: ПРОХІД 2 — основна обробка товарів
     # --------------------------------------------------------------------------
     processed_offers = []
+    seen_offer_ids   = set()
 
     for prefix, id_prefix, url, domain, root, currency_rates in feeds:
         count_ok          = 0
@@ -1131,7 +1135,13 @@ def process():
                 continue
 
             # -- Перевірка 2: дублікати --
+            # a) Міжрізні постачальники — повне видалення
             if offer_id in conflict_ids:
+                count_duplicate += 1
+                continue
+
+            # b) Внутрішні дублікати одного постачальника (або між прайсами yavshoke) — залишаємо 1-й товар
+            if offer_id in seen_offer_ids:
                 count_duplicate += 1
                 continue
 
