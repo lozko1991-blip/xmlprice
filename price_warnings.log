@@ -60,8 +60,10 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1021321-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1021339-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020176-13 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=418609-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=418622-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=364178-01 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=832666-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=418620-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=749096-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=440589-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=871780-01 — пропускаємо
@@ -99,6 +101,12 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1091455-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091459-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1091458-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=418625-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=608098-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=608099-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=418608-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=418621-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=418623-01 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-17 price=8.53 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=7.39 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=6.83 UAH < 10.0 грн — пропускаємо
@@ -133,7 +141,6 @@
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4508298 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1025910391 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_456105 raw='0.00'
