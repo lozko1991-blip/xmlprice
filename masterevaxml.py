@@ -690,40 +690,79 @@ import os
 class Blacklist:
     def __init__(self, raw_lines_count=0):
         self.disable_all = False
-        self.disabled_suppliers = set()  # lowercase domains or prefixes
-        self.disabled_categories = set() # lowercase category names or IDs
-        self.disabled_ids = set()        # uppercase offer IDs or articles
+        self.disabled_suppliers = set()  # set of domain patterns / prefixes
+        self.disabled_categories = []    # list of (supplier_pattern, category_target_lower)
+        self.disabled_keywords = []      # list of (supplier_pattern, keyword_lower)
+        self.disabled_ids = set()        # set of uppercase offer_ids or articles
         self.total_entries = raw_lines_count
+
+    def _match_supplier(self, pattern, domain, prefix):
+        """
+        Перевіряє чи збігається паттерн постачальника з його доменом чи префіксом.
+        Підтримує:
+        - "*" або "all" -> підходить для всіх
+        - Повний домен: dropt.in.ua == dropt.in.ua
+        - Префікс: 1000 == 1000
+        - Короткий аліас: dropt in dropt.in.ua, shkatulka in www.shkatulka.in.ua
+        """
+        if not pattern or pattern in ('*', 'all'):
+            return True
+        p = pattern.lower().replace('www.', '').strip()
+        d = domain.lower().replace('www.', '').strip()
+        pref = prefix.lower().strip() if prefix else ""
+
+        if p == d:
+            return True
+        if pref and p == pref:
+            return True
+        if p in d or d.startswith(p):
+            return True
+        return False
 
     def is_supplier_disabled(self, domain, id_prefix):
         if self.disable_all:
             return True
-        if domain.lower() in self.disabled_suppliers:
-            return True
-        if id_prefix.lower() in self.disabled_suppliers:
-            return True
+        for pattern in self.disabled_suppliers:
+            if self._match_supplier(pattern, domain, id_prefix):
+                return True
         return False
 
-    def is_category_disabled(self, category_id, category_name):
+    def is_category_disabled(self, category_id, category_name, domain, id_prefix):
         if self.disable_all:
             return True
-        if category_id.lower() in self.disabled_categories:
+        if self.is_supplier_disabled(domain, id_prefix):
             return True
-        if category_name.lower() in self.disabled_categories:
-            return True
+
+        cat_id_clean   = (category_id or '').lower().strip()
+        cat_name_clean = (category_name or '').lower().strip()
+
+        for supp_pattern, cat_target in self.disabled_categories:
+            if self._match_supplier(supp_pattern, domain, id_prefix):
+                # Перевірка за ID категорії
+                if cat_id_clean and cat_id_clean == cat_target:
+                    return True
+                # Перевірка за назвою категорії (точне збігання або підрядок)
+                if cat_name_clean and (cat_target == cat_name_clean or cat_target in cat_name_clean):
+                    return True
         return False
 
-    def is_offer_disabled(self, offer_id, article, domain, id_prefix):
+    def is_offer_disabled(self, offer_id, offer_name, article, domain, id_prefix):
         if self.disable_all:
             return True
-        if domain.lower() in self.disabled_suppliers:
+        if self.is_supplier_disabled(domain, id_prefix):
             return True
-        if id_prefix.lower() in self.disabled_suppliers:
-            return True
-        if offer_id.upper() in self.disabled_ids:
+        if offer_id and offer_id.upper() in self.disabled_ids:
             return True
         if article and article.upper() in self.disabled_ids:
             return True
+
+        # Перевірка за забороненими словами у назві товару
+        name_clean = (offer_name or '').lower().strip()
+        if name_clean:
+            for supp_pattern, kw in self.disabled_keywords:
+                if self._match_supplier(supp_pattern, domain, id_prefix):
+                    if kw in name_clean:
+                        return True
         return False
 
     def __contains__(self, offer_id):
@@ -741,65 +780,128 @@ class Blacklist:
 
 def load_blacklist():
     """
-    Читає blacklist.txt.
-    Підтримує виключення постачальників, категорій, брендів або окремих товарів/артикулів.
+    Читає blacklist.txt з підтримкою секцій:
+    [DISABLED_SUPPLIERS]
+    [DISABLED_CATEGORIES]
+    [DISABLED_KEYWORDS]
+    [STOP_ITEMS]
+    Прив'язка категорій та слів йде за ДОМЕНОМ постачальника (наприклад dropt.in.ua : Павербанки).
     """
     try:
         path = "blacklist.txt"
         if not os.path.exists(path) and os.path.exists("../blacklist.txt"):
             path = "../blacklist.txt"
-        
+
         disable_all = False
         disabled_suppliers = set()
-        disabled_categories = set()
+        disabled_categories = []
+        disabled_keywords = []
         disabled_ids = set()
         raw_lines_count = 0
-        
-        # Список числових префіксів для розпізнавання постачальників у списку
-        known_prefixes = {"1000", "2222", "3333", "4444", "5555", "7777", "8888", "9999", "1111", "1100"}
-        
+
+        current_section = "STOP_ITEMS"
+        known_prefixes = {"1000", "2222", "3333", "4444", "5555", "7777", "8888", "9999", "1111", "1100", "1200", "1300", "2000", "3000"}
+
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 line_clean = line.strip()
                 if not line_clean or line_clean.startswith('#'):
                     continue
+
                 raw_lines_count += 1
+
+                # Перевірка заголовків секцій
+                if line_clean.startswith('[') and line_clean.endswith(']'):
+                    sec = line_clean[1:-1].strip().upper()
+                    if sec in ("DISABLED_SUPPLIERS", "SUPPLIERS"):
+                        current_section = "SUPPLIERS"
+                    elif sec in ("DISABLED_CATEGORIES", "CATEGORIES"):
+                        current_section = "CATEGORIES"
+                    elif sec in ("DISABLED_KEYWORDS", "KEYWORDS"):
+                        current_section = "KEYWORDS"
+                    elif sec in ("STOP_ITEMS", "DISABLED_IDS", "ITEMS", "GENERAL"):
+                        current_section = "STOP_ITEMS"
+                    continue
+
                 val_upper = line_clean.upper()
                 val_lower = line_clean.lower()
-                
-                # Перевіряємо префікси категорій
-                is_cat_rule = False
-                for prefix in ("category:", "cat:", "category_", "cat_"):
-                    if val_lower.startswith(prefix):
-                        rule_val = line_clean[len(prefix):].strip().lower()
-                        disabled_categories.add(rule_val)
-                        is_cat_rule = True
-                        break
-                
-                if is_cat_rule:
-                    continue
-                
-                # Перевіряємо інші типи правил
+
                 if val_upper in ("ALL", "*", "VACATION", "DISABLE_ALL"):
                     disable_all = True
-                elif "." in val_lower or val_lower in known_prefixes:
+                    continue
+
+                if current_section == "SUPPLIERS":
                     disabled_suppliers.add(val_lower)
-                else:
-                    disabled_ids.add(line_clean.upper())
-                    
+
+                elif current_section == "CATEGORIES":
+                    if ":" in line_clean:
+                        supp, cat = line_clean.split(":", 1)
+                        disabled_categories.append((supp.strip(), cat.strip().lower()))
+                    else:
+                        disabled_categories.append(("*", line_clean.lower()))
+
+                elif current_section == "KEYWORDS":
+                    if ":" in line_clean:
+                        supp, kw = line_clean.split(":", 1)
+                        disabled_keywords.append((supp.strip(), kw.strip().lower()))
+                    else:
+                        disabled_keywords.append(("*", line_clean.lower()))
+
+                elif current_section == "STOP_ITEMS":
+                    # Захист зворотної сумісності для старих записів та префіксів cat: / keyword:
+                    is_special = False
+                    for pfx in ("category:", "cat:", "category_", "cat_"):
+                        if val_lower.startswith(pfx):
+                            rule_val = line_clean[len(pfx):].strip()
+                            if ":" in rule_val:
+                                supp, cat = rule_val.split(":", 1)
+                                disabled_categories.append((supp.strip(), cat.strip().lower()))
+                            else:
+                                disabled_categories.append(("*", rule_val.lower()))
+                            is_special = True
+                            break
+
+                    if not is_special:
+                        for pfx in ("keyword:", "kw:", "keyword_", "kw_"):
+                            if val_lower.startswith(pfx):
+                                rule_val = line_clean[len(pfx):].strip()
+                                if ":" in rule_val:
+                                    supp, kw = rule_val.split(":", 1)
+                                    disabled_keywords.append((supp.strip(), kw.strip().lower()))
+                                else:
+                                    disabled_keywords.append(("*", rule_val.lower()))
+                                is_special = True
+                                break
+
+                    if not is_special:
+                        if ":" in line_clean:
+                            parts = line_clean.split(":", 1)
+                            disabled_categories.append((parts[0].strip(), parts[1].strip().lower()))
+                        elif "." in val_lower or val_lower in known_prefixes:
+                            disabled_suppliers.add(val_lower)
+                        else:
+                            disabled_ids.add(val_upper)
+
         blacklist_obj = Blacklist(raw_lines_count)
         blacklist_obj.disable_all = disable_all
         blacklist_obj.disabled_suppliers = disabled_suppliers
         blacklist_obj.disabled_categories = disabled_categories
+        blacklist_obj.disabled_keywords = disabled_keywords
         blacklist_obj.disabled_ids = disabled_ids
-        
+
         if disable_all:
             print(f"Blacklist: загальне вимкнення всього прайсу ({path})")
         else:
-            print(f"Blacklist завантажено з {path}: {len(disabled_suppliers)} постачальників, {len(disabled_categories)} категорій, {len(disabled_ids)} товарів/артикулів.")
-            
+            print(
+                f"Blacklist завантажено з {path}: "
+                f"{len(disabled_suppliers)} постачальників, "
+                f"{len(disabled_categories)} правил категорій, "
+                f"{len(disabled_keywords)} правил слів, "
+                f"{len(disabled_ids)} товарів/артикулів."
+            )
+
         return blacklist_obj, raw_lines_count
-        
+
     except FileNotFoundError:
         print("blacklist.txt не знайдено — крок пропускається")
         return Blacklist(0), 0
@@ -1139,11 +1241,12 @@ def process():
             cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
             cat_element = final_categories.get(cat_id)
             cat_name = cat_element.text if cat_element is not None else ""
+            offer_name = get_name(offer)
 
-            # -- Перевірка 1: blacklist (загальне вимкнення, постачальник, категорія, ID товару або артикул) --
+            # -- Перевірка 1: blacklist (загальне вимкнення, постачальник, категорія, ключові слова, ID товару або артикул) --
             if (blacklisted_ids.is_supplier_disabled(domain, prefix) or
-                blacklisted_ids.is_category_disabled(cat_id, cat_name) or
-                blacklisted_ids.is_offer_disabled(offer_id, article, domain, prefix)):
+                blacklisted_ids.is_category_disabled(cat_id, cat_name, domain, prefix) or
+                blacklisted_ids.is_offer_disabled(offer_id, offer_name, article, domain, prefix)):
                 
                 blacklist_hits[domain] += 1
                 count_blacklist += 1
