@@ -91,7 +91,6 @@
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8941 price=0.8 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8930 price=0.8 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8944 price=0.8 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8936 price=0.8 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8949 price=0.8 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_8940 price=0.8 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.78 UAH < 10.0 грн — пропускаємо
@@ -142,6 +141,7 @@
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5261782 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5261783 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
+[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_456105 raw='0.00'
