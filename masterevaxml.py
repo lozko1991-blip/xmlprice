@@ -785,7 +785,8 @@ def load_blacklist():
     [DISABLED_CATEGORIES]
     [DISABLED_KEYWORDS]
     [STOP_ITEMS]
-    Прив'язка категорій та слів йде за ДОМЕНОМ постачальника (наприклад dropt.in.ua : Павербанки).
+    Підтримує розділення як з двокрапкою ("dropt.in.ua : Павербанки"),
+    так і просто через пробіл/пробіли ("dropt.in.ua Павербанки", "dropt Павербанки").
     """
     try:
         path = "blacklist.txt"
@@ -800,7 +801,33 @@ def load_blacklist():
         raw_lines_count = 0
 
         current_section = "STOP_ITEMS"
-        known_prefixes = {"1000", "2222", "3333", "4444", "5555", "7777", "8888", "9999", "1111", "1100", "1200", "1300", "2000", "3000"}
+        
+        # Динамічно збираємо всі відомі домени та аліаси з SOURCES
+        known_suppliers = {
+            "1000", "2222", "3333", "4444", "5555", "7777", "8888", "9999", "1111", "1100", "1200", "1300", "2000", "3000",
+            "dropt", "opt-drop", "optdrop", "lugi", "dropom", "kievopt", "royaltoys", "posudograd", "iposud", "i-posud",
+            "websklad", "shkatulka", "forus", "aveon", "sonechko", "yavshoke", "dropshipping"
+        }
+        for _p, _id_p, url in SOURCES:
+            d = url.split('/')[2].lower().replace('www.', '')
+            known_suppliers.add(d)
+            known_suppliers.add(d.split('.')[0])
+
+        def parse_rule_line(line_str):
+            if ":" in line_str:
+                supp, val = line_str.split(":", 1)
+                return supp.strip(), val.strip().lower()
+            parts = line_str.split(None, 1)
+            if len(parts) == 2:
+                first_word = parts[0].lower().replace('www.', '').strip()
+                is_supp = (
+                    "." in first_word or
+                    first_word in known_suppliers or
+                    any(first_word in s for s in known_suppliers)
+                )
+                if is_supp:
+                    return parts[0].strip(), parts[1].strip().lower()
+            return "*", line_str.lower()
 
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
@@ -834,18 +861,12 @@ def load_blacklist():
                     disabled_suppliers.add(val_lower)
 
                 elif current_section == "CATEGORIES":
-                    if ":" in line_clean:
-                        supp, cat = line_clean.split(":", 1)
-                        disabled_categories.append((supp.strip(), cat.strip().lower()))
-                    else:
-                        disabled_categories.append(("*", line_clean.lower()))
+                    supp, cat = parse_rule_line(line_clean)
+                    disabled_categories.append((supp, cat))
 
                 elif current_section == "KEYWORDS":
-                    if ":" in line_clean:
-                        supp, kw = line_clean.split(":", 1)
-                        disabled_keywords.append((supp.strip(), kw.strip().lower()))
-                    else:
-                        disabled_keywords.append(("*", line_clean.lower()))
+                    supp, kw = parse_rule_line(line_clean)
+                    disabled_keywords.append((supp, kw))
 
                 elif current_section == "STOP_ITEMS":
                     # Захист зворотної сумісності для старих записів та префіксів cat: / keyword:
@@ -853,11 +874,8 @@ def load_blacklist():
                     for pfx in ("category:", "cat:", "category_", "cat_"):
                         if val_lower.startswith(pfx):
                             rule_val = line_clean[len(pfx):].strip()
-                            if ":" in rule_val:
-                                supp, cat = rule_val.split(":", 1)
-                                disabled_categories.append((supp.strip(), cat.strip().lower()))
-                            else:
-                                disabled_categories.append(("*", rule_val.lower()))
+                            supp, cat = parse_rule_line(rule_val)
+                            disabled_categories.append((supp, cat))
                             is_special = True
                             break
 
@@ -865,19 +883,16 @@ def load_blacklist():
                         for pfx in ("keyword:", "kw:", "keyword_", "kw_"):
                             if val_lower.startswith(pfx):
                                 rule_val = line_clean[len(pfx):].strip()
-                                if ":" in rule_val:
-                                    supp, kw = rule_val.split(":", 1)
-                                    disabled_keywords.append((supp.strip(), kw.strip().lower()))
-                                else:
-                                    disabled_keywords.append(("*", rule_val.lower()))
+                                supp, kw = parse_rule_line(rule_val)
+                                disabled_keywords.append((supp, kw))
                                 is_special = True
                                 break
 
                     if not is_special:
                         if ":" in line_clean:
-                            parts = line_clean.split(":", 1)
-                            disabled_categories.append((parts[0].strip(), parts[1].strip().lower()))
-                        elif "." in val_lower or val_lower in known_prefixes:
+                            supp, cat = parse_rule_line(line_clean)
+                            disabled_categories.append((supp, cat))
+                        elif "." in val_lower or val_lower in known_suppliers:
                             disabled_suppliers.add(val_lower)
                         else:
                             disabled_ids.add(val_upper)
