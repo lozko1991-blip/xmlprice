@@ -59,186 +59,8 @@ RETRY_BACKOFF_MAX   = 120      # стеля паузи між повторами
 #   Приклад: price_uah = 800 → шукаємо перший рядок де 800 <= max_ціна
 #            (500, 1.20, 40)  — ні, 800 > 500
 #            (1000, 1.17, 35) — так! → ціна = round(800 * 1.17 + 35) = 971 грн
-CUSTOM_MARKUP = {
-    "dropt.in.ua": {
-        "markup_percent": 1.20,  # резерв (якщо markup_tiers видалити)
-        "markup_fixed":   40,
-        "markup_tiers": [
-            #  (до якої ціни,  %,     фікс.грн)     ← редагуйте цифри тут
-            (500,    1.17,  40),   # до 500 грн     → поточна (не змінюємо)
-            (1000,   1.15,  40),   # 500–1000 грн
-            (2000,   1.12,  40),   # 1000–2000 грн
-            (4000,   1.12,  40),   # 2000–4000 грн
-            (8000,   1.12,  70),   # 4000–8000 грн
-            (999999, 1.12,  70),   # вище 8000 грн
-        ],
-    },
-    "opt-drop.com": {
-        "markup_percent": 1.35,
-        "markup_fixed":   40,
-        "markup_tiers": [
-            (500,    1.35,  40),   # до 500 грн     → поточна
-            (1000,   1.32,  35),   # 500–1000 грн
-            (2000,   1.28,  30),   # 1000–2000 грн
-            (4000,   1.24,  20),   # 2000–4000 грн
-            (8000,   1.24,  50),   # 4000–8000 грн
-            (999999, 1.24,  50),   # вище 8000 грн
-        ],
-    },
-    "kievopt.com.ua": {
-        "markup_percent": 1.0,   # без наценки — ціна постачальника як є
-        "markup_fixed":   0,
-        "markup_tiers": [
-            (500,    1.0,   0),    # до 500 грн     → поточна
-            (1000,   1.0,   0),    # 500–1000 грн
-            (2000,   1.0,   0),    # 1000–2000 грн
-            (4000,   1.0,   0),    # 2000–4000 грн
-            (8000,   1.0,   0),    # 4000–8000 грн
-            (999999, 1.0,   0),    # вище 8000 грн
-        ],
-    },
-    "dwn.royaltoys.com.ua": {   # домен з url.split('/')[2] — саме dwn.royaltoys.com.ua
-        "markup_percent": 1.01,
-        "markup_fixed":   5,
-        "markup_tiers": [
-            (500,    1.01,  20),    # до 500 грн     → поточна
-            (1000,   1.01,  25),    # 500–1000 грн
-            (2000,   1.01,  25),    # 1000–2000 грн
-            (4000,   1.01,  35),    # 2000–4000 грн
-            (8000,   1.01,  35),    # 4000–8000 грн
-            (999999, 1.01,  35),    # вище 8000 грн
-        ],
-    },
-    "feed.lugi.com.ua": {
-        "markup_percent": 1.15,
-        "markup_fixed":   50,
-        "markup_tiers": [
-            (500,    1.15,  50),   # до 500 грн     → поточна
-            (1000,   1.13,  40),   # 500–1000 грн
-            (2000,   1.10,  40),   # 1000–2000 грн
-            (4000,   1.10,  40),   # 2000–4000 грн
-            (8000,   1.10,  50),   # 4000–8000 грн
-            (999999, 1.10,  50),   # вище 8000 грн
-        ],
-    },
-    "dropom.com.ua": {
-        "markup_percent": 1.35,
-        "markup_fixed":   40,
-        "markup_tiers": [
-            (500,    1.35,  40),   # до 500 грн     → поточна
-            (1000,   1.32,  35),   # 500–1000 грн
-            (2000,   1.28,  30),   # 1000–2000 грн
-            (4000,   1.24,  20),   # 2000–4000 грн
-            (8000,   1.22,   0),   # 4000–8000 грн
-            (999999, 1.22,   0),   # вище 8000 грн
-        ],
-    },
-    "posudograd.ua": {
-        "markup_percent": 1.0,
-        "markup_fixed":   40,
-        "min_price_raw":  70,      # мінімум від ціни постачальника
-        "markup_tiers": [
-            (500,    1.0,   40),   # до 500 грн     → поточна
-            (1000,   1.0,   40),   # 500–1000 грн
-            (2000,   1.0,   30),   # 1000–2000 грн
-            (4000,   1.0,   30),   # 2000–4000 грн
-            (8000,   1.0,   30),   # 4000–8000 грн
-            (999999, 1.0,   30),   # вище 8000 грн
-        ],
-    },
-    "i-posud.com.ua": {
-        "markup_percent": 1.15,
-        "markup_fixed":   40,
-        "min_price_raw":  70,      # мінімум від ціни постачальника
-        "markup_tiers": [
-            (500,    1.20,  40),   # до 500 грн     → поточна
-            (1000,   1.17,  35),   # 500–1000 грн
-            (2000,   1.17,  30),   # 1000–2000 грн
-            (4000,   1.17,  20),   # 2000–4000 грн
-            (8000,   1.17,  50),   # 4000–8000 грн
-            (999999, 1.05,  50),   # вище 8000 грн
-        ],
-    },
-    "www.websklad.biz.ua": {    # URL має www. — ключ теж має бути з www.
-        "markup_percent": 1.0,
-        "markup_fixed":   30,
-        "markup_tiers": [
-            (500,    1.0,   30),   # до 500 грн     → поточна
-            (1000,   1.0,   25),   # 500–1000 грн
-            (2000,   1.0,   20),   # 1000–2000 грн
-            (4000,   1.0,   15),   # 2000–4000 грн
-            (8000,   1.0,    0),   # 4000–8000 грн
-            (999999, 1.0,    0),   # вище 8000 грн
-        ],
-    },
-    "www.shkatulka.in.ua": {    # URL має www. — ключ теж має бути з www.
-        "markup_percent": 1.30,
-        "markup_fixed":   40,
-        "markup_tiers": [
-            (500,    1.30,  30),   # до 500 грн     → поточна
-            (1000,   1.27,  35),   # 500–1000 грн
-            (2000,   1.27,  30),   # 1000–2000 грн
-            (4000,   1.25,  20),   # 2000–4000 грн
-            (8000,   1.20,  40),   # 4000–8000 грн
-            (999999, 1.20,  40),   # вище 8000 грн
-        ],
-    },
-    "forus.com.ua": {           # URL без www. — ключ без www.
-        "markup_percent": 1.15,
-        "markup_fixed":   40,
-        "min_price_final": 130,   # мінімум від фінальної ціни (після наценки)
-        "markup_tiers": [
-            (500,    1.15,  40),   # до 500 грн     → поточна
-            (1000,   1.15,  40),   # 500–1000 грн
-            (2000,   1.10,  30),   # 1000–2000 грн
-            (4000,   1.10,  20),   # 2000–4000 грн
-            (8000,   1.10,  40),   # 4000–8000 грн
-            (999999, 1.10,  40),   # вище 8000 грн
-        ],
-    },
-    "aveon.net.ua": {
-        "markup_percent": 1.25,
-        "markup_fixed":   50,
-        "markup_tiers": [
-            (500,    1.25,  60),   # до 500 грн     → поточна
-            (1000,   1.23,  45),   # 500–1000 грн
-            (2000,   1.20,  40),   # 1000–2000 грн
-            (4000,   1.20,  40),   # 2000–4000 грн
-            (8000,   1.20,  50),   # 4000–8000 грн
-            (999999, 1.20,  50),   # вище 8000 грн
-        ],
-    },
-    "sonechko233.com.ua": {
-        "markup_percent": 1.25,
-        "markup_fixed":   50,
-        "markup_tiers": [
-            (500,    1.30,  50),   # до 500 грн     → поточна
-            (1000,   1.25,  50),   # 500–1000 грн
-            (2000,   1.25,  50),   # 1000–2000 грн
-            (4000,   1.23,  50),   # 2000–4000 грн
-            (8000,   1.23,  50),   # 4000–8000 грн
-            (999999, 1.23,  50),   # вище 8000 грн
-        ],
-    },
-    "crm.yavshoke.ua": {
-        "markup_percent": 1.35,
-        "markup_fixed":   50,
-        "markup_tiers": [
-            (1000,   1.35,  50),   # до 1000 грн    → 35% + 50 грн
-            (3000,   1.32,  50),   # 1000–3000 грн  → 32% + 50 грн
-            (999999, 1.30,  50),   # вище 3000 грн  → 30% + 50 грн
-        ],
-    },
-    "api.dropshipping.ua": {
-        "markup_percent": 1.35,
-        "markup_fixed":   50,
-        "markup_tiers": [
-            (1000,   1.35,  50),   # до 1000 грн    → 35% + 50 грн
-            (3000,   1.30,  50),   # 1000–3000 грн  → 30% + 50 грн
-            (999999, 1.25,  50),   # вище 3000 грн  → 25% + 50 грн
-        ],
-    },
-}
+from markup_config import CUSTOM_MARKUP
+from content_overrides import PRODUCT_OVERRIDES
 
 # Захист від підозрілих цін
 MAX_PRICE_UAH      = 500_000
@@ -992,32 +814,29 @@ def validate_markup_config():
     print(f"[КОНФІГ] Наценку перевірено: усі {len(SOURCES)} постачальників мають явні значення")
 
 
-def get_markup(price_uah, cfg):
+def get_markup(price_uah, cfg, offer_id=None):
     """
-    Повертає (markup_percent, markup_fixed) залежно від ціни товару.
-
-    Якщо в конфігу постачальника є markup_tiers — перебирає тієри по порядку
-    і повертає перший, де price_uah <= max_price.
-    Якщо ціна перевищує всі тієри — повертає значення останнього тієру.
-    Якщо markup_tiers відсутній або порожній — повертає глобальний
-    markup_percent / markup_fixed (стара логіка без тієрів).
-
-    Аргументи:
-        price_uah (float): ціна товару постачальника у гривнях
-        cfg (dict):        запис із CUSTOM_MARKUP для поточного домену
-
-    Повертає:
-        (float, float): (markup_percent, markup_fixed)
+    Повертає (markup_percent, markup_fixed) залежно від ціни товару та конфігурації.
     """
+    # 1. Перевіряємо індивідуальні націнки (item_overrides)
+    if offer_id:
+        overrides = cfg.get("item_overrides", {})
+        if offer_id in overrides:
+            rule = overrides[offer_id]
+            # Якщо вказано percent або fixed — повертаємо їх, інакше дефолтні значення
+            pct = rule.get("percent", 1.0)
+            fix = rule.get("fixed", 0)
+            return pct, fix
+
+    # 2. Стандартна тієрна логіка
     tiers = cfg.get('markup_tiers')
-    if tiers:                                 # None або [] → стара логіка
+    if tiers:
         for max_price, pct, fixed in tiers:
             if price_uah <= max_price:
                 return pct, fixed
-        # Ціна вища за всі тієри — беремо останній
         return tiers[-1][1], tiers[-1][2]
-    # Тієрів немає — стара плоска логіка
-    return cfg['markup_percent'], cfg['markup_fixed']
+        
+    return cfg.get('markup_percent', 1.0), cfg.get('markup_fixed', 0)
 
 
 # ==============================================================================
@@ -1328,9 +1147,17 @@ def process():
 
                 # Крок 3: тієрна наценка (домен гарантовано є — перевірено на старті)
                 cfg                = CUSTOM_MARKUP[domain]
-                m_percent, m_fixed = get_markup(price_uah, cfg)   # обирає тієр за ціною
+                m_percent, m_fixed = get_markup(price_uah, cfg, offer_id)   # обирає тієр за ціною або індивідуальну націнку
 
                 price     = round(price_uah * m_percent + m_fixed)
+                
+                # Перевірка мінімального заробітку
+                min_profit = cfg.get("min_profit_uah")
+                if min_profit is not None:
+                    actual_profit = price - price_uah
+                    if actual_profit < min_profit:
+                        price = round(price_uah + min_profit)
+                        
                 old_price = round(price * OLD_PRICE_MULT)
 
                 # Фільтр мінімальної ціни
@@ -1377,6 +1204,14 @@ def process():
                 # Опис
                 desc_raw = get_description(offer)
                 desc     = ru_to_ua(clean_description(desc_raw, name_ua, vendor))
+
+                # --- ЗАСТОСУВАННЯ РУЧНИХ ПЕРЕВИЗНАЧЕНЬ (OVERRIDES) ---
+                if offer_id in PRODUCT_OVERRIDES:
+                    override_data = PRODUCT_OVERRIDES[offer_id]
+                    if "name_ua" in override_data:
+                        name_ua = override_data["name_ua"]
+                    if "description_ua" in override_data:
+                        desc = override_data["description_ua"]
 
                 # Категорія
                 orig_cat = offer.findtext('categoryId') or ''
