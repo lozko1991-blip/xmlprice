@@ -2,6 +2,7 @@
 # 
 # Щоб додати мінімальний заробіток, додайте рядок (наприклад, для 120 грн):
 #     "min_profit_uah": 120,
+# Якщо вказано 0 або параметр відсутній - мінімальна націнка не застосовується.
 #
 # Щоб додати індивідуальні націнки на конкретні товари:
 #     "item_overrides": {
@@ -11,6 +12,7 @@
 
 CUSTOM_MARKUP = {
     "dropt.in.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.20,  # резерв (якщо markup_tiers видалити)
         "markup_fixed":   40,
         "markup_tiers": [
@@ -24,6 +26,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "opt-drop.com": {
+        "min_profit_uah": 0,
         "markup_percent": 1.35,
         "markup_fixed":   40,
         "markup_tiers": [
@@ -36,6 +39,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "kievopt.com.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.0,   # без наценки — ціна постачальника як є
         "markup_fixed":   0,
         "markup_tiers": [
@@ -48,6 +52,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "dwn.royaltoys.com.ua": {   # домен з url.split('/')[2] — саме dwn.royaltoys.com.ua
+        "min_profit_uah": 0,
         "markup_percent": 1.01,
         "markup_fixed":   5,
         "markup_tiers": [
@@ -60,6 +65,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "feed.lugi.com.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.15,
         "markup_fixed":   50,
         "markup_tiers": [
@@ -72,6 +78,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "dropom.com.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.35,
         "markup_fixed":   40,
         "markup_tiers": [
@@ -84,6 +91,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "posudograd.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.0,
         "markup_fixed":   40,
         "min_price_raw":  70,      # мінімум від ціни постачальника
@@ -97,6 +105,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "i-posud.com.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.15,
         "markup_fixed":   40,
         "min_price_raw":  70,      # мінімум від ціни постачальника
@@ -110,6 +119,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "www.websklad.biz.ua": {    # URL має www. — ключ теж має бути з www.
+        "min_profit_uah": 0,
         "markup_percent": 1.0,
         "markup_fixed":   30,
         "markup_tiers": [
@@ -122,6 +132,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "www.shkatulka.in.ua": {    # URL має www. — ключ теж має бути з www.
+        "min_profit_uah": 0,
         "markup_percent": 1.30,
         "markup_fixed":   40,
         "markup_tiers": [
@@ -134,6 +145,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "forus.com.ua": {           # URL без www. — ключ без www.
+        "min_profit_uah": 0,
         "markup_percent": 1.15,
         "markup_fixed":   40,
         "min_price_final": 130,   # мінімум від фінальної ціни (після наценки)
@@ -147,6 +159,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "aveon.net.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.25,
         "markup_fixed":   50,
         "markup_tiers": [
@@ -159,6 +172,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "sonechko233.com.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.25,
         "markup_fixed":   50,
         "markup_tiers": [
@@ -171,6 +185,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "crm.yavshoke.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.35,
         "markup_fixed":   50,
         "markup_tiers": [
@@ -180,6 +195,7 @@ CUSTOM_MARKUP = {
         ],
     },
     "api.dropshipping.ua": {
+        "min_profit_uah": 0,
         "markup_percent": 1.35,
         "markup_fixed":   50,
         "markup_tiers": [
