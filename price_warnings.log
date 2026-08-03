@@ -51,7 +51,6 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1021298-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020172-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020170-13 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=1020356-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020921-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020327-13 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1020346-13 — пропускаємо
@@ -67,8 +66,6 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=322270-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=757165-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=440589-01 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=433622-01 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=826056-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=871780-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1102641-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1102642-01 — пропускаємо
@@ -86,8 +83,8 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1091472-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=831192-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=992345-01 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=1101689-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1102278-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1101689-01 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-17 price=8.53 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=7.39 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=6.83 UAH < 10.0 грн — пропускаємо
@@ -103,9 +100,6 @@
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.78 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_MS-001 price=1.5 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_KS-001 price=1.5 UAH < 10.0 грн — пропускаємо
-[НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16699 raw='0'
-[НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17056 raw='0'
-[НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17057 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] forus.com.ua offer=1100_111260 raw='0'
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5202600 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5231097 — пропускаємо
@@ -183,7 +177,6 @@
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5261833 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5261834 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_456105 raw='0.00'
