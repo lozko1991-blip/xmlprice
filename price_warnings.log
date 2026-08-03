@@ -100,6 +100,9 @@
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.78 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_MS-001 price=1.5 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_KS-001 price=1.5 UAH < 10.0 грн — пропускаємо
+[НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16699 raw='0'
+[НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17056 raw='0'
+[НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17057 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] forus.com.ua offer=1100_111260 raw='0'
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5202600 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5231097 — пропускаємо
@@ -177,6 +180,7 @@
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5261833 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5261834 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
+[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_456105 raw='0.00'
