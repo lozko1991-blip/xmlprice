@@ -4,7 +4,19 @@ from datetime import datetime
 import re
 import time
 from html import unescape
-from collections import defaultdict, Counter
+import json
+
+TRANSLATIONS_DICT = {}
+def load_translations_cache():
+    global TRANSLATIONS_DICT
+    path = os.path.join(os.path.dirname(__file__), "translations.json")
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                TRANSLATIONS_DICT = json.load(f)
+            print(f"[INFO] Завантажено {len(TRANSLATIONS_DICT)} перекладів характеристик.")
+        except Exception as e:
+            print(f"[WARN] Помилка читання translations.json: {e}")
 
 # ==============================================================================
 # 1. КОНФІГУРАЦІЯ
@@ -452,7 +464,10 @@ def get_params(offer):
 
         name = (p.get('name') or '').strip()
         if name:
-            result.append((name, val))
+            # Переклад через локальний словник (якщо є)
+            name_ua = TRANSLATIONS_DICT.get(name, name)
+            val_ua = TRANSLATIONS_DICT.get(val, val)
+            result.append((name_ua, val_ua))
 
     return result
 
