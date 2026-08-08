@@ -1,5 +1,3 @@
-[ПІДОЗРІЛА ЦІНА] dropt.in.ua offer=1000_17541 price=1.0 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] dropt.in.ua offer=1000_18027 price=1.0 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_13357 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_13764 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_14977 — пропускаємо
@@ -113,6 +111,8 @@
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_16699 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17056 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17057 raw='0'
+[ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4501214 price=7.0 UAH < 10.0 грн — пропускаємо
+[ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4501215 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4508298 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1025910391 price=8.0 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5263019 — пропускаємо
