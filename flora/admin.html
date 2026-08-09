@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ Панель Управління — Karina Floristry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-ivory: #FAF6F3;
+      --bg-warm: #FFFBF9;
+      --rose-deep: #C25975;
+      --rose-dark: #8F2D46;
+      --rose-light: #F4D8E1;
+      --rose-blush: #F7EBEF;
+      --text-main: #2E1F23;
+      --text-muted: #8C787C;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-ivory);
+      color: var(--text-main);
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .admin-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 60px rgba(194, 89, 117, 0.12);
+      border: 1px solid var(--rose-light);
+      padding: 40px;
+    }
+    .auth-box {
+      max-width: 420px;
+      margin: 60px auto;
+      text-align: center;
+      background: #FFFFFF;
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+      border: 1px solid var(--rose-light);
+    }
+    h1, h2, h3, h4 { font-family: 'Cormorant Garamond', serif; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+    .btn-primary { background: var(--rose-deep); color: #FFFFFF; }
+    .btn-primary:hover { background: var(--rose-dark); }
+    .btn-outline { background: #FFFFFF; border: 1px solid var(--rose-light); color: var(--text-main); }
+    .btn-outline:hover { background: var(--rose-blush); }
+    .btn-danger { background: #E74C3C; color: #FFFFFF; }
+    .btn-sm { padding: 8px 18px; font-size: 0.85rem; }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid var(--rose-light);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: var(--bg-ivory);
+    }
+    .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--rose-deep); background: #FFFFFF; }
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid var(--rose-blush); overflow-x: auto; }
+    .tab-btn { padding: 12px 20px; background: none; border: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+    .tab-btn.active { color: var(--rose-dark); border-bottom-color: var(--rose-deep); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .card-item { background: var(--bg-ivory); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--rose-light); margin-bottom: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .admin-container { padding: 24px 16px; } }
+  </style>
+</head>
+<body>
+
+  <div id="authScreen" class="auth-box">
+    <h2 style="font-size: 2.2rem; margin-bottom: 8px;">🔐 Вхід в Адмінку</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Karina Floristry — Управління сайтом</p>
+    <form onsubmit="handleAuth(event)">
+      <div class="form-group">
+        <label class="form-label">Логін</label>
+        <input type="text" id="loginInput" class="form-input" placeholder="admin_2026" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Пароль</label>
+        <input type="password" id="passwordInput" class="form-input" placeholder="AdMin__2026" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Увійти в Панель</button>
+    </form>
+    <div style="margin-top: 20px;">
+      <a href="index.html" style="color: var(--rose-deep); text-decoration: none; font-size: 0.88rem;">← Повернутися на сайт</a>
+    </div>
+  </div>
+
+  <div id="dashboardScreen" class="admin-container" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--rose-light);">
+      <h1 style="font-size: 2.2rem;">⚙️ Панель Управління Сайтом</h1>
+      <div style="display: flex; gap: 12px;">
+        <a href="index.html" class="btn btn-outline btn-sm">🌐 Переглянути сайт</a>
+        <button class="btn btn-danger btn-sm" onclick="logout()">Вийти</button>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tabNotifications', this)">📩 Контакти & Telegram</button>
+      <button class="tab-btn" onclick="switchTab('tabServices', this)">🛍 Послуги (Товари)</button>
+      <button class="tab-btn" onclick="switchTab('tabPhotos', this)">🖼 Альбоми & Фото</button>
+      <button class="tab-btn" onclick="switchTab('tabMarketing', this)">📈 Google & Facebook</button>
+      <button class="tab-btn" onclick="switchTab('tabContent', this)">✏️ Тексти & Шрифти</button>
+    </div>
+
+    <!-- TAB 1 -->
+    <div class="tab-content active" id="tabNotifications">
+      <h3 style="font-size: 1.4rem; margin-bottom: 16px;">Telegram Bot Сповіщення</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Telegram Bot Token</label>
+          <input type="text" id="cfgTelegramToken" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telegram Chat ID</label>
+          <input type="text" id="cfgTelegramChatId" class="form-input">
+        </div>
+      </div>
+      <h3 style="font-size: 1.4rem; margin-top: 10px; margin-bottom: 16px;">Контакти на сайті</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Номер телефону</label>
+          <input type="text" id="cfgPhone" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email адреса</label>
+          <input type="email" id="cfgEmail" class="form-input">
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2 -->
+    <div class="tab-content" id="tabServices">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.5rem;">🛍 Каталог Послуг</h3>
+        <button class="btn btn-primary btn-sm" onclick="addNewServicePrompt()">+ Додати послугу</button>
+      </div>
+      <div id="adminServicesContainer"></div>
+    </div>
+
+    <!-- TAB 3 -->
+    <div class="tab-content" id="tabPhotos">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.5rem;">🖼 Галерея та Фотографії</h3>
+        <button class="btn btn-primary btn-sm" onclick="addNewPhotoPrompt()">+ Додати фото</button>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Головне фото Hero</label>
+          <input type="text" id="cfgHeroPhoto" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Фото блоку "Про мене"</label>
+          <input type="text" id="cfgAboutPhoto" class="form-input">
+        </div>
+      </div>
+      <div id="adminGalleryContainer"></div>
+    </div>
+
+    <!-- TAB 4 -->
+    <div class="tab-content" id="tabMarketing">
+      <h3 style="font-size: 1.4rem; margin-bottom: 16px;">Рекламні Коди & Пікселі</h3>
+      <div class="form-group">
+        <label class="form-label">Google Site Verification / Meta / Analytics</label>
+        <textarea id="cfgGoogleCode" class="form-textarea" rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Facebook / Instagram Pixel Script</label>
+        <textarea id="cfgFacebookPixel" class="form-textarea" rows="4"></textarea>
+      </div>
+    </div>
+
+    <!-- TAB 5 -->
+    <div class="tab-content" id="tabContent">
+      <div class="form-group">
+        <label class="form-label">Шрифт Заголовків</label>
+        <select id="cfgFontFamily" class="form-select">
+          <option value="'Cormorant Garamond', serif">Cormorant Garamond (Класичний serif)</option>
+          <option value="'Playfair Display', serif">Playfair Display (Романтичний serif)</option>
+          <option value="'Montserrat', sans-serif">Montserrat (Чіткий sans-serif)</option>
+          <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Преміум)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Заголовок Hero</label>
+        <input type="text" id="cfgHeroTitle" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Підзаголовок Hero</label>
+        <textarea id="cfgHeroSubtitle" class="form-textarea" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Заголовок "Про мене"</label>
+        <input type="text" id="cfgAboutTitle" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Текст "Про мене"</label>
+        <textarea id="cfgAboutLead" class="form-textarea" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--rose-light); padding-top: 20px;">
+      <button class="btn btn-primary" onclick="saveSettings()">Зберегти та Застосувати ✨</button>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_SERVICES = [{"id": "s1", "tag": "Популярне", "title": "Майстер-класи для дітей та дорослих", "description": "Захоплюючі виїзні майстер-класи зі складання живих букетів та композицій. Ідеально для затишних вечорів у кафе, ресторанах, на день народження чи корпоратив.", "slogan": "", "price": "Індивідуально", "priceNote": "/ від кількості гостей", "highlight": false}, {"id": "s2", "tag": "Для Бізнесу (B2B)", "title": "B2B Навчання для квіткових магазинів", "description": "Персональний викликовий майстер-клас для власників та флористів. Оптимізуємо техніку збірки, вчимо комбінувати кольори та підвищуємо чек.", "slogan": "«Навчимо ваших працівників створювати красу і приносити вам шалений прибуток!»", "price": "від 2 000 грн", "priceNote": "+ витрати на квіти", "highlight": true}, {"id": "s3", "tag": "Особливий День", "title": "Весільна флористика та декор", "description": "Комплексне квіткове оформлення вашого весілля. Створюю казку: від вишуканого букета нареченої до виїзної арки та столів гостей.", "slogan": "", "price": "від 5 000 грн", "priceNote": "+ квіти", "highlight": false}, {"id": "s4", "tag": "VIP / WOW Ефект", "title": "WOW-доставка великих букетів", "description": "Незабутній сюрприз для особливих дат! Спеціалізуюся на створенні гігантських композицій від 1000 троянд з особистим врученням.", "slogan": "", "price": "VIP Запит", "priceNote": "/ індивідуальний розрахунок", "highlight": false}];
+    const DEFAULT_GALLERY = [{"src": "images/photo_1.jpg", "title": "Майстер-клас з флористики #1", "cat": "mk", "albumName": "Майстер-класи"}, {"src": "images/photo_2.jpg", "title": "Атмосфера на майстер-класі #2", "cat": "mk", "albumName": "Майстер-класи"}, {"src": "images/photo_3.jpg", "title": "Процес створення букета #3", "cat": "mk", "albumName": "Майстер-класи"}, {"src": "images/photo_4.jpg", "title": "Корпоративне навчання #4", "cat": "mk", "albumName": "Майстер-класи"}, {"src": "images/photo_5.jpg", "title": "Деталі композиції #5", "cat": "mk", "albumName": "Майстер-класи"}, {"src": "images/photo_6.jpg", "title": "Весільне оформлення #6", "cat": "wedding", "albumName": "Весільний декор"}, {"src": "images/photo_7.jpg", "title": "Квіткова виїзна фотозона #7", "cat": "wedding", "albumName": "Весільний декор"}, {"src": "images/photo_8.jpg", "title": "Ніжний букет нареченої #8", "cat": "wedding", "albumName": "Весільний декор"}, {"src": "images/photo_9.jpg", "title": "Гігантський WOW-букет #9", "cat": "wedding", "albumName": "Весільний декор"}, {"src": "images/photo_10.jpg", "title": "Розкішна композиція #10", "cat": "wedding", "albumName": "Весільний декор"}, {"src": "images/photo_11.jpg", "title": "Особиста WOW-доставка #11", "cat": "wedding", "albumName": "Весільний декор"}];
+
+    const DEFAULT_CONFIG = {
+      telegramToken: '',
+      telegramChatId: '',
+      phone: '+38 (097) 123-45-67',
+      email: 'karina.flowers@gmail.com',
+      googleCode: '',
+      facebookPixel: '',
+      fontFamily: "'Cormorant Garamond', serif",
+      heroTitle: 'Створюю <span style="color: var(--rose-deep); font-style: italic;">витончені емоції</span> з живих квітів',
+      heroSubtitle: "Виїзні майстер-класи для дітей та дорослих, B2B навчання для квіткових магазинів, весільний декор та VIP WOW-букети від 1000 троянд.",
+      aboutTitle: "Привіт! Я — Карінка 💕",
+      aboutLead: "Вже понад 5 років я живу флористикою. Для мене квіти — це не просто робота, це справжнє мистецтво, мова почуттів та любов з першого погляду.",
+      heroPhoto: "images/photo_3.jpg",
+      aboutPhoto: "images/photo_1.jpg",
+      services: DEFAULT_SERVICES,
+      gallery: DEFAULT_GALLERY
+    };
+
+    let siteConfig = { ...DEFAULT_CONFIG };
+
+    function loadConfig() {
+      const saved = localStorage.getItem('karina_admin_config');
+      if (saved) {
+        try { siteConfig = { ...DEFAULT_CONFIG, ...JSON.parse(saved) }; } catch(e) {}
+      }
+    }
+
+    function handleAuth(e) {
+      e.preventDefault();
+      const login = document.getElementById('loginInput').value.trim();
+      const pass = document.getElementById('passwordInput').value.trim();
+      if (login === 'admin_2026' && pass === 'AdMin__2026') {
+        sessionStorage.setItem('admin_authenticated', 'true');
+        showDashboard();
+      } else {
+        alert('Невірний логін або пароль!');
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem('admin_authenticated');
+      document.getElementById('authScreen').style.display = 'block';
+      document.getElementById('dashboardScreen').style.display = 'none';
+    }
+
+    function showDashboard() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('dashboardScreen').style.display = 'block';
+
+      document.getElementById('cfgTelegramToken').value = siteConfig.telegramToken || '';
+      document.getElementById('cfgTelegramChatId').value = siteConfig.telegramChatId || '';
+      document.getElementById('cfgPhone').value = siteConfig.phone || '';
+      document.getElementById('cfgEmail').value = siteConfig.email || '';
+      document.getElementById('cfgGoogleCode').value = siteConfig.googleCode || '';
+      document.getElementById('cfgFacebookPixel').value = siteConfig.facebookPixel || '';
+      document.getElementById('cfgFontFamily').value = siteConfig.fontFamily || "'Cormorant Garamond', serif";
+      document.getElementById('cfgHeroTitle').value = siteConfig.heroTitle || '';
+      document.getElementById('cfgHeroSubtitle').value = siteConfig.heroSubtitle || '';
+      document.getElementById('cfgAboutTitle').value = siteConfig.aboutTitle || '';
+      document.getElementById('cfgAboutLead').value = siteConfig.aboutLead || '';
+      document.getElementById('cfgHeroPhoto').value = siteConfig.heroPhoto || '';
+      document.getElementById('cfgAboutPhoto').value = siteConfig.aboutPhoto || '';
+
+      renderServicesTab();
+      renderPhotosTab();
+    }
+
+    function switchTab(tabId, btnElem) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btnElem.classList.add('active');
+    }
+
+    function renderServicesTab() {
+      const container = document.getElementById('adminServicesContainer');
+      container.innerHTML = '';
+      siteConfig.services.forEach((serv, i) => {
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <strong>Послуга #${i+1}: ${serv.title}</strong>
+            <button class="btn btn-danger btn-sm" onclick="siteConfig.services.splice(${i},1); renderServicesTab();">Видалити</button>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Назва</label><input type="text" class="form-input" value="${serv.title}" onchange="siteConfig.services[${i}].title=this.value"></div>
+            <div class="form-group"><label class="form-label">Ціна</label><input type="text" class="form-input" value="${serv.price}" onchange="siteConfig.services[${i}].price=this.value"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Опис</label><textarea class="form-textarea" rows="2" onchange="siteConfig.services[${i}].description=this.value">${serv.description}</textarea></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function addNewServicePrompt() {
+      siteConfig.services.push({ title: "Нова послуга", price: "від 1 000 грн", description: "Опис послуги...", highlight: false });
+      renderServicesTab();
+    }
+
+    function renderPhotosTab() {
+      const container = document.getElementById('adminGalleryContainer');
+      container.innerHTML = '';
+      siteConfig.gallery.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <strong>Фото #${i+1}: ${item.title}</strong>
+            <button class="btn btn-danger btn-sm" onclick="siteConfig.gallery.splice(${i},1); renderPhotosTab();">Видалити</button>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Назва</label><input type="text" class="form-input" value="${item.title}" onchange="siteConfig.gallery[${i}].title=this.value"></div>
+            <div class="form-group"><label class="form-label">Шлях / URL</label><input type="text" class="form-input" value="${item.src}" onchange="siteConfig.gallery[${i}].src=this.value"></div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function addNewPhotoPrompt() {
+      const title = prompt('Назва фото:', 'Новий букет');
+      const src = prompt('Шлях до фото:', 'images/photo_1.jpg');
+      if (title && src) { siteConfig.gallery.push({ title, src, cat: 'mk' }); renderPhotosTab(); }
+    }
+
+    function saveSettings() {
+      siteConfig.telegramToken = document.getElementById('cfgTelegramToken').value.trim();
+      siteConfig.telegramChatId = document.getElementById('cfgTelegramChatId').value.trim();
+      siteConfig.phone = document.getElementById('cfgPhone').value.trim();
+      siteConfig.email = document.getElementById('cfgEmail').value.trim();
+      siteConfig.googleCode = document.getElementById('cfgGoogleCode').value.trim();
+      siteConfig.facebookPixel = document.getElementById('cfgFacebookPixel').value.trim();
+      siteConfig.fontFamily = document.getElementById('cfgFontFamily').value;
+      siteConfig.heroTitle = document.getElementById('cfgHeroTitle').value.trim();
+      siteConfig.heroSubtitle = document.getElementById('cfgHeroSubtitle').value.trim();
+      siteConfig.aboutTitle = document.getElementById('cfgAboutTitle').value.trim();
+      siteConfig.aboutLead = document.getElementById('cfgAboutLead').value.trim();
+      siteConfig.heroPhoto = document.getElementById('cfgHeroPhoto').value.trim();
+      siteConfig.aboutPhoto = document.getElementById('cfgAboutPhoto').value.trim();
+
+      localStorage.setItem('karina_admin_config', JSON.stringify(siteConfig));
+      alert('Налаштування збережено! ✨');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadConfig();
+      if (sessionStorage.getItem('admin_authenticated') === 'true') showDashboard();
+    });
+  </script>
+</body>
+</html>
