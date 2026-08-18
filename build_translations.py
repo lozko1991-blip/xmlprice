@@ -105,31 +105,7 @@ def translate_batch_and_save(texts, translations):
         save_translations(translations)
         time.sleep(1)
     
-    translator = GoogleTranslator(source='ru', target='uk')
-    
-    # deep-translator підтримує переклад списку рядків
-    # Але щоб уникнути лімітів та переривань, розіб'ємо на малі пачки по 50
-    results = []
-    chunk_size = 50
-    for i in range(0, len(texts), chunk_size):
-        chunk = texts[i:i+chunk_size]
-        print(f"  Переклад слів {i+1}..{min(i+chunk_size, len(texts))} з {len(texts)}")
-        try:
-            translated = translator.translate_batch(chunk)
-            results.extend(translated)
-        except Exception as e:
-            print(f"  Помилка перекладу: {e}. Переходимо на поштучний переклад пачки...")
-            # Поштучний фолбек
-            for word in chunk:
-                try:
-                    res = translator.translate(word)
-                    results.append(res)
-                except Exception as ex:
-                    print(f"    Не вдалось перекласти '{word}': {ex}")
-                    results.append(word) # залишаємо оригінал
-        time.sleep(1) # пауза між запитами
-        
-    return results
+    return
 
 def main():
     translations = load_translations()

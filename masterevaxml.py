@@ -1,3 +1,4 @@
+from collections import defaultdict, Counter
 import requests
 import lxml.etree as ET
 from datetime import datetime
@@ -871,6 +872,9 @@ def process():
     category_errors  = []
 
     print("--- СТАРТ ОБРОБКИ ---")
+    
+    # Завантаження кешу перекладів
+    load_translations_cache()
 
     # Перевірка конфігу наценок ПЕРЕД будь-якими запитами — fail fast
     validate_markup_config()
@@ -1452,7 +1456,7 @@ def process():
         thin_removed = len(thin_cats) - empty_removed
         print(
             f"\n[КАТЕГОРІЇ] Видалено {len(thin_cats)} категорій "
-            f"({empty_removed} порожніх + {thin_removed} з ≤{MIN_OFFERS_PER_CATEGORY} товарів), "
+            f"({empty_removed} порожніх + {thin_removed} з <={MIN_OFFERS_PER_CATEGORY} товарів), "
             f"{thin_offers_removed} товарів видалено"
         )
     else:

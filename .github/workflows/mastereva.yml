@@ -5,15 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'index.html'
       - 'masterevaxml.py'
-      - 'process_xml.py'
-      - 'feed.xml'
-      - '**.html'
-      - '**.py'
-      - '**.xml'
-    paths-ignore:
-      - 'flora/**'
+      - 'markup_config.py'
+      - 'content_overrides.py'
+      - 'translations.json'
+      - 'blacklist.txt'
+      - '.github/workflows/mastereva.yml'
 
   schedule:
     - cron: '0 */4 * * *'

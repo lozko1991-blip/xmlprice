@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+!price_warnings.log
+
+# Large generated XML (served via GitHub Pages, >100MB exceeds GitHub limit)
+Masterevanew.xml
+
+# Analysis & backup scratch files
+masterevaxml_BACKUP*.py
+top15_yavshoke.txt
+top30_categories.xlsx
+yavshoke_top15_result.txt
+yavshoke_top30_categories.csv
+yavshoke_top30_result.txt
+verify_output.txt
+debug_*.txt
+debug_*.py
+output_log.txt
