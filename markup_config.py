@@ -13,7 +13,7 @@
 CUSTOM_MARKUP = {
     "dropt.in.ua": {
         "min_profit_uah": 100,
-        "markup_percent": 1.20,  # резерв (якщо markup_tiers видалити)
+        "markup_percent": 1.27,  # резерв (якщо markup_tiers видалити)
         "markup_fixed":   60,
         "markup_tiers": [
             #  (до якої ціни,  %,     фікс.грн)     ← редагуйте цифри тут
