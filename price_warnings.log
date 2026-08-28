@@ -2,8 +2,10 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_13764 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_14977 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15452 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_15741 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_17150 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_18356 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_18454 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] opt-drop.com offer=2222_20334 price=5.05 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_21438 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_102170 — пропускаємо
@@ -12,7 +14,6 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_103907 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_104221 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_104327 — пропускаємо
-[БЕЗ ФОТО] opt-drop.com offer=2222_105948 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_106065 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_106360 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_108268 — пропускаємо
@@ -85,6 +86,7 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=703038-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=776512-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=167559-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1009699-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=910566-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=909044-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=093308-01 — пропускаємо
@@ -114,10 +116,10 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=320129-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=900654-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=911322-01 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=1117645-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=725018-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=911363-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1117646-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=651965-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1092565-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1117649-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=809251-01 — пропускаємо
@@ -125,6 +127,7 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=917119-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=809248-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1117650-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=554213-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=900629-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=796524-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1088677-01 — пропускаємо
@@ -158,6 +161,7 @@
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4508298 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1025910391 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
+[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_29837 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
