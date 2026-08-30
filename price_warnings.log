@@ -6,7 +6,6 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_17150 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_18356 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] opt-drop.com offer=2222_20334 price=5.05 UAH < 10.0 грн — пропускаємо
-[БЕЗ ФОТО] opt-drop.com offer=2222_21218 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_21438 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_102170 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_102171 — пропускаємо
@@ -147,32 +146,12 @@
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17056 raw='0'
 [НЕМОЖЛИВО РОЗПАРСИТИ] www.shkatulka.in.ua offer=1111_17057 raw='0'
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271402 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271806 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271729 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271727 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271728 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4501214 price=7.0 UAH < 10.0 грн — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271805 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271807 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271808 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271800 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4508298 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1025910391 price=8.0 UAH < 10.0 грн — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271786 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271789 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271792 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271795 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271798 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271787 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271790 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271793 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271796 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271799 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271785 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271788 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271791 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271794 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271797 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271661 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271662 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
