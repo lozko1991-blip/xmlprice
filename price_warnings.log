@@ -13,13 +13,13 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_104946 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_106065 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_106360 — пропускаємо
-[БЕЗ ФОТО] opt-drop.com offer=2222_106767 — пропускаємо
-[БЕЗ ФОТО] opt-drop.com offer=2222_106912 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_108268 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_108269 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_108443 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_108444 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_109092 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_109157 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_109581 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=297825-05 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=288375-05 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=297824-05 — пропускаємо
@@ -72,7 +72,6 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=250694-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=674222-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=909044-01 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=756729-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=093308-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=377180-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=908019-01 — пропускаємо
@@ -83,6 +82,7 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1119055-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1102646-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1102647-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=790562-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=915445-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=320129-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1090004-01 — пропускаємо
@@ -185,9 +185,3 @@
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_29837 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_678961 price=8.0 UAH < 10.0 грн — пропускаємо
-[НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_456105 raw='0.00'
-[БЕЗ ФОТО] api.dropshipping.ua offer=3000_748379 — пропускаємо
-[БЕЗ ФОТО] api.dropshipping.ua offer=3000_761069 — пропускаємо
-[БЕЗ ФОТО] api.dropshipping.ua offer=3000_761070 — пропускаємо
-[БЕЗ ФОТО] api.dropshipping.ua offer=3000_918104 — пропускаємо
-[НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_990307 raw='0.00'
