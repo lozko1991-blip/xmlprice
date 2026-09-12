@@ -120,16 +120,19 @@
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1025910391 price=8.0 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5274130 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5274131 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5276226 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5276227 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5276228 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5276229 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5276230 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5276231 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5274118 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5274119 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
+[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_29837 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_678961 price=8.0 UAH < 10.0 грн — пропускаємо
-[НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_456105 raw='0.00'
-[БЕЗ ФОТО] api.dropshipping.ua offer=3000_748379 — пропускаємо
-[БЕЗ ФОТО] api.dropshipping.ua offer=3000_761069 — пропускаємо
-[БЕЗ ФОТО] api.dropshipping.ua offer=3000_761070 — пропускаємо
 [БЕЗ ФОТО] api.dropshipping.ua offer=3000_918104 — пропускаємо
 [НЕМОЖЛИВО РОЗПАРСИТИ] api.dropshipping.ua offer=3000_990307 raw='0.00'
