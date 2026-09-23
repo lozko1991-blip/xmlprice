@@ -5,9 +5,13 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_15006 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15017 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15030 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_15074 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15129 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15242 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_15378 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15379 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_15386 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_15446 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15452 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_15752 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_17797 — пропускаємо
@@ -17,6 +21,7 @@
 [БЕЗ ФОТО] opt-drop.com offer=2222_102171 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] opt-drop.com offer=2222_102280 price=7.07 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_102985 — пропускаємо
+[БЕЗ ФОТО] opt-drop.com offer=2222_103073 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_103189 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_103239 — пропускаємо
 [БЕЗ ФОТО] opt-drop.com offer=2222_103907 — пропускаємо
@@ -116,6 +121,7 @@
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4508298 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1025910391 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
+[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_29837 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
