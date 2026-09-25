@@ -493,6 +493,17 @@ def get_article(offer):
     return article[:255] if article else ''
 
 
+def normalize_sync_article(art):
+    """
+    Нормалізує артикул для порівняння між постачальниками (Шкатулка та Dropt).
+    Видаляє хвостові модифікатори виду /9, /00, /1 тощо.
+    """
+    if not art:
+        return ""
+    art_str = str(art).strip().upper()
+    return re.sub(r'/\d+$', '', art_str)
+
+
 def fetch_nbu_rates():
     """
     Отримує актуальні курси НБУ.
@@ -855,6 +866,81 @@ def get_markup(price_uah, cfg, offer_id=None):
     return cfg.get('markup_percent', 1.0), cfg.get('markup_fixed', 0)
 
 
+def build_dropt_catalog(dropt_root, currency_rates, domain="dropt.in.ua"):
+    """
+    Будує словник каталогу Dropt для синхронізації наявності та цін товарів Шкатулки.
+    Ключ: нормалізований базовий артикул (без хвостових /9, /00 тощо).
+    """
+    catalog = {}
+    cfg = CUSTOM_MARKUP.get(domain, {})
+    
+    for offer in dropt_root.xpath(".//offer"):
+        raw_art = get_article(offer)
+        base_art = normalize_sync_article(raw_art)
+        if not base_art:
+            continue
+            
+        avail = get_availability(offer)
+        qty, _ = get_qty(offer)
+        
+        price_nodes = offer.xpath('./price')
+        if not price_nodes or not (price_nodes[0].text or '').strip():
+            catalog[base_art] = {
+                "id": offer.get('id', ''),
+                "available": False,
+                "qty": 0,
+                "price_uah": 0.0,
+                "price": 0,
+                "old_price": 0,
+            }
+            continue
+            
+        raw_p = parse_price(price_nodes[0].text)
+        if raw_p is None:
+            catalog[base_art] = {
+                "id": offer.get('id', ''),
+                "available": False,
+                "qty": 0,
+                "price_uah": 0.0,
+                "price": 0,
+                "old_price": 0,
+            }
+            continue
+            
+        currency_id = (offer.findtext('currencyId') or 'UAH').strip().upper()
+        price_uah, _ = convert_to_uah(raw_p, currency_id, currency_rates, domain, offer.get('id', ''))
+        if price_uah is None:
+            catalog[base_art] = {
+                "id": offer.get('id', ''),
+                "available": False,
+                "qty": 0,
+                "price_uah": 0.0,
+                "price": 0,
+                "old_price": 0,
+            }
+            continue
+            
+        m_percent, m_fixed = get_markup(price_uah, cfg, offer.get('id', ''))
+        final_price = round(price_uah * m_percent + m_fixed)
+        min_profit = cfg.get("min_profit_uah")
+        if min_profit is not None:
+            actual_profit = final_price - price_uah
+            if actual_profit < min_profit:
+                final_price = round(price_uah + min_profit)
+                
+        final_old_price = round(final_price * OLD_PRICE_MULT)
+        
+        catalog[base_art] = {
+            "id": offer.get('id', ''),
+            "available": avail,
+            "qty": qty if avail else 0,
+            "price_uah": price_uah,
+            "price": final_price,
+            "old_price": final_old_price,
+        }
+    return catalog
+
+
 # ==============================================================================
 # 3. ГОЛОВНА ФУНКЦІЯ
 # ==============================================================================
@@ -976,6 +1062,16 @@ def process():
                 else:
                     print(f"[ПОМИЛКА ФІДУ] {domain}: {e}")
                     report_stats[domain] = {"feed_error": last_error}
+
+    # --------------------------------------------------------------------------
+    # КРОК 2.5: Індексація каталогу Dropt для синхронізації зі Шкатулкою
+    # --------------------------------------------------------------------------
+    dropt_catalog = {}
+    for prefix, id_prefix, url, domain, root, currency_rates in feeds:
+        if domain == "dropt.in.ua":
+            dropt_catalog = build_dropt_catalog(root, currency_rates, domain)
+            print(f"[СИНХРОНІЗАЦІЯ] Створено каталог Dropt для Шкатулки: {len(dropt_catalog)} товарів")
+            break
 
     # --------------------------------------------------------------------------
     # КРОК 3: ПРОХІД 1 — збір всіх offer id для виявлення дублікатів
@@ -1117,67 +1213,91 @@ def process():
                 continue
 
             # -- Перевірка 3: наявність --
-            # Використовуємо get_availability() яка враховує available і in_stock
-            if not get_availability(offer):
-                count_no += 1
-                continue
+            # Для Шкатулки синхронізуємо наявність та залишок з Dropt
+            if domain == "www.shkatulka.in.ua" and dropt_catalog:
+                base_art = normalize_sync_article(article)
+                if not base_art or base_art not in dropt_catalog:
+                    # Товар відсутній у каталозі Dropt — знімаємо з наявності (вимога користувача)
+                    count_no += 1
+                    continue
+                dropt_item = dropt_catalog[base_art]
+                if not dropt_item["available"]:
+                    # Товар закінчився на складі Dropt — знімаємо з наявності
+                    count_no += 1
+                    continue
 
-            # -- Кількість на складі --
-            qty, used_default = get_qty(offer)
-            if used_default:
-                count_default_qty += 1
+                # Кількість на складі з Dropt
+                qty = dropt_item["qty"]
+            else:
+                # Використовуємо get_availability() яка враховує available і in_stock
+                if not get_availability(offer):
+                    count_no += 1
+                    continue
 
-            # -- Перевірка 4: ціна --
-            # offer.xpath('./price') — тільки ПРЯМИЙ нащадок поточного offer
-            # Захист від Lugi де price стоїть після картинок
-            price_nodes = offer.xpath('./price')
-            if not price_nodes or not (price_nodes[0].text or '').strip():
-                count_price_err += 1
-                continue
-            p_node = price_nodes[0]
+                # -- Кількість на складі --
+                qty, used_default = get_qty(offer)
+                if used_default:
+                    count_default_qty += 1
 
-            # Перевірка price from="true" (ціна з діапазону — мінімальна)
-            if p_node.get('from', 'false').lower() == 'true':
-                price_warnings.append(
-                    f"[ЦІНА З ДІАПАЗОНУ] {domain} offer={offer_id} "
-                    f"price='{p_node.text}' — мінімальна ціна з діапазону"
-                )
-
+            p_node = None
             try:
-                # Крок 1: парсинг рядка ціни
-                raw_p = parse_price(p_node.text)
-                if raw_p is None:
-                    price_warnings.append(
-                        f"[НЕМОЖЛИВО РОЗПАРСИТИ] {domain} offer={offer_id} "
-                        f"raw='{p_node.text}'"
-                    )
-                    count_price_err += 1
-                    continue
+                if domain == "www.shkatulka.in.ua" and dropt_catalog:
+                    # Для Шкатулки беремо актуальні розраховані ціни з Dropt
+                    price_uah = dropt_item["price_uah"]
+                    price     = dropt_item["price"]
+                    old_price = dropt_item["old_price"]
+                    cfg       = CUSTOM_MARKUP.get("dropt.in.ua", {})
+                else:
+                    # -- Перевірка 4: ціна --
+                    # offer.xpath('./price') — тільки ПРЯМИЙ нащадок поточного offer
+                    # Захист від Lugi де price стоїть після картинок
+                    price_nodes = offer.xpath('./price')
+                    if not price_nodes or not (price_nodes[0].text or '').strip():
+                        count_price_err += 1
+                        continue
+                    p_node = price_nodes[0]
 
-                # Крок 2: конвертація в гривні
-                currency_id     = (offer.findtext('currencyId') or 'UAH').strip().upper()
-                price_uah, warn = convert_to_uah(raw_p, currency_id, currency_rates, domain, offer_id)
+                    # Перевірка price from="true" (ціна з діапазону — мінімальна)
+                    if p_node.get('from', 'false').lower() == 'true':
+                        price_warnings.append(
+                            f"[ЦІНА З ДІАПАЗОНУ] {domain} offer={offer_id} "
+                            f"price='{p_node.text}' — мінімальна ціна з діапазону"
+                        )
 
-                if warn:
-                    price_warnings.append(warn)
-                if price_uah is None:
-                    count_price_err += 1
-                    continue
+                    # Крок 1: парсинг рядка ціни
+                    raw_p = parse_price(p_node.text)
+                    if raw_p is None:
+                        price_warnings.append(
+                            f"[НЕМОЖЛИВО РОЗПАРСИТИ] {domain} offer={offer_id} "
+                            f"raw='{p_node.text}'"
+                        )
+                        count_price_err += 1
+                        continue
 
-                # Крок 3: тієрна наценка (домен гарантовано є — перевірено на старті)
-                cfg                = CUSTOM_MARKUP[domain]
-                m_percent, m_fixed = get_markup(price_uah, cfg, offer_id)   # обирає тієр за ціною або індивідуальну націнку
+                    # Крок 2: конвертація в гривні
+                    currency_id     = (offer.findtext('currencyId') or 'UAH').strip().upper()
+                    price_uah, warn = convert_to_uah(raw_p, currency_id, currency_rates, domain, offer_id)
 
-                price     = round(price_uah * m_percent + m_fixed)
-                
-                # Перевірка мінімального заробітку
-                min_profit = cfg.get("min_profit_uah")
-                if min_profit is not None:
-                    actual_profit = price - price_uah
-                    if actual_profit < min_profit:
-                        price = round(price_uah + min_profit)
-                        
-                old_price = round(price * OLD_PRICE_MULT)
+                    if warn:
+                        price_warnings.append(warn)
+                    if price_uah is None:
+                        count_price_err += 1
+                        continue
+
+                    # Крок 3: тієрна наценка (домен гарантовано є — перевірено на старті)
+                    cfg                = CUSTOM_MARKUP[domain]
+                    m_percent, m_fixed = get_markup(price_uah, cfg, offer_id)   # обирає тієр за ціною або індивідуальну націнку
+
+                    price     = round(price_uah * m_percent + m_fixed)
+                    
+                    # Перевірка мінімального заробітку
+                    min_profit = cfg.get("min_profit_uah")
+                    if min_profit is not None:
+                        actual_profit = price - price_uah
+                        if actual_profit < min_profit:
+                            price = round(price_uah + min_profit)
+                            
+                    old_price = round(price * OLD_PRICE_MULT)
 
                 # Фільтр мінімальної ціни
                 # min_price_raw   — поріг від ціни постачальника (до наценки)
