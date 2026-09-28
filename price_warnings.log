@@ -39,6 +39,7 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=867003-05 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=295336-04 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=397320-04 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=291797-04 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1016176-10 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1080623-12 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1080619-12 — пропускаємо
@@ -74,8 +75,6 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=1120795-17 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1120796-17 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1120789-17 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=1120790-17 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=1120781-17 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1120780-17 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1120797-17 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1120794-17 — пропускаємо
@@ -111,9 +110,15 @@
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5278442 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_4508298 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1025910391 price=8.0 UAH < 10.0 грн — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279762 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279844 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279848 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279845 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279846 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279847 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279849 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279850 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5279851 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_30635 price=6.0 UAH < 10.0 грн — пропускаємо
-[ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_206564 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_32884 price=9.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_29837 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] api.dropshipping.ua offer=3000_435799 price=9.0 UAH < 10.0 грн — пропускаємо
