@@ -22,12 +22,9 @@
 [DISABLED_SUPPLIERS]
 
 [DISABLED_CATEGORIES]
-# dropt.in.ua : Павербанки
-# shkatulka Павербанки
 
 [DISABLED_KEYWORDS]
-# dropt.in.ua : повербанк
-# shkatulka powerbank
+
 
 [STOP_ITEMS]
 HP33530G
