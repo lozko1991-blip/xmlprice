@@ -73,7 +73,8 @@ RETRY_BACKOFF_MAX   = 120      # стеля паузи між повторами
 #            (500, 1.20, 40)  — ні, 800 > 500
 #            (1000, 1.17, 35) — так! → ціна = round(800 * 1.17 + 35) = 971 грн
 from markup_config import CUSTOM_MARKUP
-from content_overrides import PRODUCT_OVERRIDES
+from content_overrides import PRODUCT_OVERRIDES, get_product_override, get_product_clones
+from copy import deepcopy
 
 # Захист від підозрілих цін
 MAX_PRICE_UAH      = 500_000
@@ -1345,12 +1346,14 @@ def process():
                 desc     = ru_to_ua(clean_description(desc_raw, name_ua, vendor))
 
                 # --- ЗАСТОСУВАННЯ РУЧНИХ ПЕРЕВИЗНАЧЕНЬ (OVERRIDES) ---
-                if offer_id in PRODUCT_OVERRIDES:
-                    override_data = PRODUCT_OVERRIDES[offer_id]
-                    if "name_ua" in override_data:
-                        name_ua = override_data["name_ua"]
-                    if "description_ua" in override_data:
-                        desc = override_data["description_ua"]
+                override_data = get_product_override(offer_id=offer_id, raw_id=raw_id, article=article)
+                if override_data:
+                    new_name = override_data.get("name_ua") or override_data.get("name")
+                    if new_name:
+                        name_ua = str(new_name).strip()
+                    new_desc = override_data.get("description_ua") or override_data.get("description") or override_data.get("desc")
+                    if new_desc:
+                        desc = clean_description(new_desc, name_ua, vendor)
 
                 # Категорія
                 orig_cat = offer.findtext('categoryId') or ''
@@ -1468,6 +1471,49 @@ def process():
 
                 processed_offers.append(new_off)
                 count_ok += 1
+
+                # --- СТВОРЕННЯ ДУБЛІВ (КЛОНІВ) ТОВАРУ ---
+                clone_cfgs = get_product_clones(offer_id=offer_id, raw_id=raw_id, article=article)
+                for clone_cfg in clone_cfgs:
+                    clone_off = deepcopy(new_off)
+                    suffix = clone_cfg.get("id_suffix", "clone")
+                    clone_id = f"{offer_id}_{suffix}"
+                    clone_off.set("id", clone_id)
+
+                    # Новий артикул
+                    new_art = clone_cfg.get("article")
+                    if new_art:
+                        art_node = clone_off.find("article")
+                        if art_node is not None:
+                            art_node.text = str(new_art)
+                        else:
+                            ET.SubElement(clone_off, "article").text = str(new_art)
+
+                    # Нова назва
+                    new_clone_name = clone_cfg.get("name_ua") or clone_cfg.get("name")
+                    if new_clone_name:
+                        name_node = clone_off.find("name_ua")
+                        if name_node is not None:
+                            name_node.text = str(new_clone_name)[:250]
+
+                    # Новий опис (якщо задано окремо для дубля)
+                    new_clone_desc = clone_cfg.get("description_ua") or clone_cfg.get("description")
+                    if new_clone_desc:
+                        desc_node = clone_off.find("description_ua")
+                        clean_c_desc = clean_description(new_clone_desc, new_clone_name or name_ua, vendor)
+                        if desc_node is not None:
+                            desc_node.text = ET.CDATA(clean_c_desc)
+
+                    # Заміна конкретних характеристик (наприклад ємність батареї)
+                    override_params = clone_cfg.get("params")
+                    if override_params and isinstance(override_params, dict):
+                        for p in clone_off.findall("param"):
+                            p_name = p.get("name")
+                            if p_name in override_params:
+                                p.text = str(override_params[p_name])
+
+                    processed_offers.append(clone_off)
+                    count_ok += 1
 
             except Exception as e:
                 price_warnings.append(
