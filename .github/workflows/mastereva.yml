@@ -11,6 +11,8 @@ on:
       - 'overrides.txt'
       - 'translations.json'
       - 'blacklist.txt'
+      - 'feed_passport_validator.py'
+      - 'tests/**'
       - '.github/workflows/mastereva.yml'
 
   schedule:
@@ -41,6 +43,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests lxml
+
+      - name: Run TDD Test Suite & Passport Verification
+        run: python -m unittest discover tests
 
       - name: Run Master Eva Script
         run: python masterevaxml.py

@@ -929,7 +929,7 @@ def build_dropt_catalog(dropt_root, currency_rates, domain="dropt.in.ua"):
             if actual_profit < min_profit:
                 final_price = round(price_uah + min_profit)
                 
-        final_old_price = round(final_price * OLD_PRICE_MULT)
+        final_old_price = max(round(final_price * OLD_PRICE_MULT), final_price + 1)
         
         catalog[base_art] = {
             "id": offer.get('id', ''),
@@ -1298,7 +1298,7 @@ def process():
                         if actual_profit < min_profit:
                             price = round(price_uah + min_profit)
                             
-                    old_price = round(price * OLD_PRICE_MULT)
+                    old_price = max(round(price * OLD_PRICE_MULT), price + 1)
 
                 # Фільтр мінімальної ціни
                 # min_price_raw   — поріг від ціни постачальника (до наценки)
