@@ -1438,6 +1438,17 @@ def process():
                     if not has_size:
                         ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
 
+                # Застосування параметрів з override_data якщо вказані
+                if override_data:
+                    p_overrides = override_data.get("params")
+                    if p_overrides and isinstance(p_overrides, dict):
+                        existing_nodes = {p.get("name"): p for p in new_off.findall("param")}
+                        for p_name, p_val in p_overrides.items():
+                            if p_name in existing_nodes:
+                                existing_nodes[p_name].text = str(p_val)
+                            else:
+                                ET.SubElement(new_off, "param", name=p_name[:100]).text = str(p_val)[:255]
+
                 # -- Статистика якості даних для звіту --
                 # Назва: чи була оригінально українською у фіді (тег name_ua)
                 has_orig_name_ua = bool((offer.findtext('name_ua') or '').strip())
@@ -1504,13 +1515,15 @@ def process():
                         if desc_node is not None:
                             desc_node.text = ET.CDATA(clean_c_desc)
 
-                    # Заміна конкретних характеристик (наприклад ємність батареї)
+                    # Заміна або додавання характеристик (наприклад ємність батареї)
                     override_params = clone_cfg.get("params")
                     if override_params and isinstance(override_params, dict):
-                        for p in clone_off.findall("param"):
-                            p_name = p.get("name")
-                            if p_name in override_params:
-                                p.text = str(override_params[p_name])
+                        existing_nodes = {p.get("name"): p for p in clone_off.findall("param")}
+                        for p_name, p_val in override_params.items():
+                            if p_name in existing_nodes:
+                                existing_nodes[p_name].text = str(p_val)
+                            else:
+                                ET.SubElement(clone_off, "param", name=p_name[:100]).text = str(p_val)[:255]
 
                     processed_offers.append(clone_off)
                     count_ok += 1

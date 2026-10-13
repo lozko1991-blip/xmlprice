@@ -81,5 +81,26 @@ class TestFullOverrideAndCloneFlow(unittest.TestCase):
         self.assertEqual(processed[1].findtext("price"), "541")
         self.assertEqual(processed[1].find("param").text, "5000 мА*год")
 
+    def test_clone_creates_new_param_when_missing(self):
+        # Base element without any params
+        base = ET.Element("offer", id="2222_106619")
+        clones = get_product_clones(article="sp10144")
+        self.assertTrue(len(clones) > 0)
+        clone_cfg = clones[0]
+        clone_off = deepcopy(base)
+        override_params = clone_cfg.get("params")
+        if override_params and isinstance(override_params, dict):
+            existing_nodes = {p.get("name"): p for p in clone_off.findall("param")}
+            for p_name, p_val in override_params.items():
+                if p_name in existing_nodes:
+                    existing_nodes[p_name].text = str(p_val)
+                else:
+                    ET.SubElement(clone_off, "param", name=p_name).text = str(p_val)
+        
+        param_elem = clone_off.find("param")
+        self.assertIsNotNone(param_elem)
+        self.assertEqual(param_elem.get("name"), "Ємність акумулятора")
+        self.assertEqual(param_elem.text, "5000 мА*год")
+
 if __name__ == '__main__':
     unittest.main()
