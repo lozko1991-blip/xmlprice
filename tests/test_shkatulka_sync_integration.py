@@ -44,9 +44,9 @@ class TestShkatulkaSyncIntegration(unittest.TestCase):
         self.assertTrue(d_item["available"])
         self.assertEqual(d_item["price_uah"], 293.48)
         self.assertEqual(d_item["qty"], 10)
-        # Verify calculated price matches Dropt's formula (293.48 * 1.20 + 50 = 402)
-        self.assertEqual(d_item["price"], 402)
-        self.assertEqual(d_item["old_price"], 502)
+        # Verify calculated price matches Dropt's formula (293.48 * 1.20 + 100 = 452)
+        self.assertEqual(d_item["price"], 452)
+        self.assertEqual(d_item["old_price"], 565)
 
     def test_matched_unavailable_shkatulka_offer(self):
         shk_xml = """

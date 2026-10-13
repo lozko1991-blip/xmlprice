@@ -8,6 +8,7 @@ on:
       - 'masterevaxml.py'
       - 'markup_config.py'
       - 'content_overrides.py'
+      - 'overrides.txt'
       - 'translations.json'
       - 'blacklist.txt'
       - '.github/workflows/mastereva.yml'
