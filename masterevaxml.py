@@ -39,9 +39,7 @@ SOURCES = [
     ("1100", "1100",  "https://forus.com.ua/vugruzka/forus_opt_prom_stock.xml"),
     ("1200", "1200",  "https://aveon.net.ua/products_feed.xml?hash_tag=7b71fadcc4a12f03cf26a304da032fba&sales_notes=&product_ids=&label_ids=&exclude_fields=&html_description=0&yandex_cpa=&process_presence_sure=&languages=uk&group_ids="),
     ("1300", "1300",  "https://sonechko233.com.ua/products_feed.xml?hash_tag=220ed1761695cce1df21b74fc555efcd&sales_notes=&product_ids=&label_ids=&exclude_fields=&html_description=0&yandex_cpa=&process_presence_sure=&languages=uk%2Cru&extra_fields=&group_ids="),
-    ("2000", "2000",  "https://crm.yavshoke.ua/media/export/bt_opt_price.xml"),
-    ("2000", "2000",  "https://crm.yavshoke.ua/media/export/posuda_opt_price.xml"),
-    ("2000", "2000",  "https://crm.yavshoke.ua/media/export/top_aliexpress_opt_price.xml"),
+    ("2000", "2000",  "https://crm.yavshoke.ua/media/export/all_drop_opt_price.xml"),
     ("3000", "3000",  "https://api.dropshipping.ua/api/feeds/bestsellers.xml"),
     ("3000", "3000",  "https://api.dropshipping.ua/api/feeds/4452.xml"),
 ]
