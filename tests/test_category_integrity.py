@@ -64,5 +64,26 @@ class TestCategoryIntegrity(unittest.TestCase):
         errors = validate_offer_element(offer, valid_categories=valid_cats)
         self.assertEqual(errors, [])
 
+    def test_yavshoke_leaf_category_pruning_under_10_offers(self):
+        """Leaf categories for Yavshoke (< 10 offers) must be pruned, while parents and other suppliers are protected."""
+        from masterevaxml import is_thin_category
+        # Yavshoke leaf category with < 10 offers should be pruned
+        self.assertTrue(is_thin_category("2000123", 0, is_parent=False))
+        self.assertTrue(is_thin_category("2000123", 5, is_parent=False))
+        self.assertTrue(is_thin_category("2000123", 9, is_parent=False))
+        
+        # Yavshoke leaf category with >= 10 offers should be kept
+        self.assertFalse(is_thin_category("2000123", 10, is_parent=False))
+        self.assertFalse(is_thin_category("2000123", 25, is_parent=False))
+        
+        # Yavshoke parent category should NEVER be pruned, even if count < 10
+        self.assertFalse(is_thin_category("2000123", 0, is_parent=True))
+        self.assertFalse(is_thin_category("2000123", 5, is_parent=True))
+        
+        # Other suppliers leaf category uses standard threshold <= 3
+        self.assertTrue(is_thin_category("1000123", 3, is_parent=False))
+        self.assertFalse(is_thin_category("1000123", 4, is_parent=False))
+        self.assertFalse(is_thin_category("1000123", 0, is_parent=True))
+
 if __name__ == '__main__':
     unittest.main()

@@ -49,6 +49,21 @@ SOURCES = [
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
 MIN_PRICE_THRESHOLD = 199      # мінімальна ціна в грн
 MIN_OFFERS_PER_CATEGORY = 3   # категорії з ≤ N прямих товарів видаляються (якщо не батьківські)
+
+def is_thin_category(cat_id, count, is_parent=False):
+    """
+    Визначає, чи є категорія тонкою/порожньою для подальшого видалення.
+    - Батьківські категорії (is_parent=True) ніколи не видаляються.
+    - Для Yavshoke (префікс '2000'): видаляються дочірні категорії з < 10 товарів.
+    - Для інших постачальників: видаляються дочірні категорії з <= MIN_OFFERS_PER_CATEGORY товарів.
+    """
+    if is_parent:
+        return False
+    if str(cat_id).startswith("2000"):
+        return count < 10
+    return count <= MIN_OFFERS_PER_CATEGORY
+
+
 DESC_LIMIT          = 700      # максимальна довжина опису
 DEFAULT_QTY         = 2        # кількість якщо постачальник не вказав або вказав 0
 REQUEST_DELAY       = 6        # затримка між запитами в секундах (щоб не отримати 429)
@@ -1636,12 +1651,11 @@ def process():
         offer.findtext('categoryId') for offer in valid_offers
     )
 
-    # Тонкі/порожні категорії: ≤ порогу І не батьківські
+    # Тонкі/порожні категорії (Yavshoke < 10, інші <= 3, батьківські захищені)
     thin_cats = {
         cat_id
         for cat_id in final_categories
-        if cat_direct_counts.get(cat_id, 0) <= MIN_OFFERS_PER_CATEGORY
-        and cat_id not in parent_ids
+        if is_thin_category(cat_id, cat_direct_counts.get(cat_id, 0), cat_id in parent_ids)
     }
 
     if thin_cats:
@@ -1665,7 +1679,7 @@ def process():
         thin_removed = len(thin_cats) - empty_removed
         print(
             f"\n[КАТЕГОРІЇ] Видалено {len(thin_cats)} категорій "
-            f"({empty_removed} порожніх + {thin_removed} з <={MIN_OFFERS_PER_CATEGORY} товарів), "
+            f"({empty_removed} порожніх + {thin_removed} тонких), "
             f"{thin_offers_removed} товарів видалено"
         )
     else:
