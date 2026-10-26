@@ -93,5 +93,26 @@ class TestPriceAndMarkupSafety(unittest.TestCase):
                 f"Old price ({p_old}) is not greater than price ({p})"
             )
 
+    def test_yavshoke_markup_config_tiers_and_min_price(self):
+        """Yavshoke configuration must enforce 40%+50 UAH tiers and min_price_final 400 UAH."""
+        cfg = CUSTOM_MARKUP.get("crm.yavshoke.ua")
+        self.assertIsNotNone(cfg)
+        self.assertEqual(cfg.get("min_price_final"), 400)
+        self.assertEqual(cfg.get("min_profit_uah"), 100)
+        
+        tiers = cfg.get("markup_tiers", [])
+        self.assertEqual(len(tiers), 3)
+        self.assertEqual(tiers[0], (1000, 1.40, 50))
+        self.assertEqual(tiers[1], (3000, 1.35, 50))
+        self.assertEqual(tiers[2], (999999, 1.30, 50))
+        
+        # Test tier outputs
+        pct, fix = get_markup(500.0, cfg)
+        self.assertEqual((pct, fix), (1.40, 50))
+        pct, fix = get_markup(2000.0, cfg)
+        self.assertEqual((pct, fix), (1.35, 50))
+        pct, fix = get_markup(5000.0, cfg)
+        self.assertEqual((pct, fix), (1.30, 50))
+
 if __name__ == '__main__':
     unittest.main()
