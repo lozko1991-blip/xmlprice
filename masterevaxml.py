@@ -49,7 +49,7 @@ SOURCES = [
 OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
 MIN_PRICE_THRESHOLD = 199      # мінімальна ціна в грн
 MIN_OFFERS_PER_CATEGORY = 3   # категорії з ≤ N прямих товарів видаляються (якщо не батьківські)
-DESC_LIMIT          = 1000     # максимальна довжина опису
+DESC_LIMIT          = 700      # максимальна довжина опису
 DEFAULT_QTY         = 2        # кількість якщо постачальник не вказав або вказав 0
 REQUEST_DELAY       = 6        # затримка між запитами в секундах (щоб не отримати 429)
 MAX_FETCH_ATTEMPTS  = 5        # скільки разів пробувати завантажити фід
@@ -210,11 +210,26 @@ def clean_description(text, name_ua, vendor):
 
     # Обрізаємо безпечно — не розрізаємо HTML-тег посередині
     if len(text) > DESC_LIMIT:
-        cut_pos = text.rfind('>', 0, DESC_LIMIT)
-        if cut_pos > 0:
-            text = text[:cut_pos + 1] + "..."
+        budget = DESC_LIMIT - 10
+        best_pos = -1
+        for m in re.finditer(r'[\.!\?](?=\s|<|$)', text[:budget]):
+            if m.end() >= 50:
+                best_pos = m.end()
+        if best_pos > 0:
+            text = text[:best_pos].strip()
         else:
-            text = text[:DESC_LIMIT] + "..."
+            cut_pos = max(text.rfind(' ', 0, budget), text.rfind('>', 0, budget))
+            if cut_pos > 50:
+                text = text[:cut_pos].strip()
+            else:
+                text = text[:budget].strip()
+
+        # Закриваємо відкриті HTML-теги
+        for tag in ('li', 'ul', 'div', 'p'):
+            open_count = len(re.findall(rf'<{tag}\b[^>]*>', text, re.IGNORECASE))
+            close_count = len(re.findall(rf'</{tag}>', text, re.IGNORECASE))
+            if open_count > close_count:
+                text += f"</{tag}>" * (open_count - close_count)
 
     text = text.strip()
 

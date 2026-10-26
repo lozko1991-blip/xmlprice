@@ -56,5 +56,29 @@ class TestXmlSanitizationAndCdata(unittest.TestCase):
         self.assertEqual(ru_to_ua("съезд"), "сезд")
         self.assertEqual(ru_to_ua("ёлка"), "елка")
 
+    def test_description_truncated_at_sentence_boundary_under_700_chars(self):
+        """Long description must be truncated to <= 700 chars ending with a complete sentence period."""
+        sentences = [
+            "Це перше чудове розгорнуте речення про наш товар для дому та всі його переваги.",
+            "Це друге речення, яке описує унікальні характеристики виробу та матеріали преміальної якості.",
+            "Третє речення містить детальну інформацію про надійність, довговічність та тривалий термін використання.",
+            "Четверте речення розповідає про надзвичайну легкість у догляді та максимальну практичність у повсякденному побуті.",
+            "П'яте речення деталізує точні габарити, якість складання, ергономічність та комплектацію заводської поставки.",
+            "Шосте речення надає професійні рекомендації експертів щодо оптимальних умов щоденної експлуатації виробу.",
+            "Сьоме речення повідомляє про офіційні гарантійні зобов'язання виробника товару для кожного покупця.",
+            "Восьме речення підсумовує всі ключові переваги даного виробу для найвибагливішого українського споживача.",
+            "Дев'яте речення додає фінальний штрих до загального гармонійного опису представленого товару на сайті."
+        ]
+        long_html = "<p>" + " ".join(sentences) + "</p>"
+        self.assertGreater(len(long_html), 700)
+        
+        cleaned = clean_description(long_html, "Тестовий товар", "Brand")
+        self.assertLessEqual(len(cleaned), 700)
+        
+        # Must end cleanly with a closing tag, and the text before closing tag must end with a period
+        plain_text = cleaned.replace("</p>", "").replace("<p>", "").strip()
+        self.assertTrue(plain_text.endswith("."), f"Description should end with a period, got: {plain_text[-30:]}")
+        self.assertTrue(cleaned.endswith("</p>"))
+
 if __name__ == '__main__':
     unittest.main()
