@@ -76,5 +76,22 @@ class TestDuplicateAndBlacklistInvariants(unittest.TestCase):
         self.assertTrue(bl.is_category_disabled("101", "Павербанки та зарядки", "dropt.in.ua", "1000"))
         self.assertFalse(bl.is_category_disabled("102", "Чохли для телефонів", "dropt.in.ua", "1000"))
 
+    def test_blacklist_yavshoke_rolety_and_tarelky(self):
+        """Verify that real blacklist.txt filters rolety and tarelky categories and keywords for yavshoke."""
+        from masterevaxml import load_blacklist
+        bl, _ = load_blacklist()
+        
+        # Test categories
+        self.assertTrue(bl.is_category_disabled("40863", "Ролеты", "crm.yavshoke.ua", "2000"))
+        self.assertTrue(bl.is_category_disabled("42165", "Ролеты открытого типа", "crm.yavshoke.ua", "2000"))
+        self.assertTrue(bl.is_category_disabled("42166", "Ролеты закрытого типа", "crm.yavshoke.ua", "2000"))
+        self.assertTrue(bl.is_category_disabled("15041", "Тарелки и пиалы", "crm.yavshoke.ua", "2000"))
+        self.assertTrue(bl.is_category_disabled("15055", "Детские тарелки и пиалы", "crm.yavshoke.ua", "2000"))
+        
+        # Test keywords
+        self.assertTrue(bl.is_offer_disabled("2000_1", "Рулонна ролета 60х160", "art1", "crm.yavshoke.ua", "2000"))
+        self.assertTrue(bl.is_offer_disabled("2000_2", "Глибока тарілка 20 см", "art2", "crm.yavshoke.ua", "2000"))
+        self.assertTrue(bl.is_offer_disabled("2000_3", "Оригінальна тарелка фарфор", "art3", "crm.yavshoke.ua", "2000"))
+
 if __name__ == '__main__':
     unittest.main()
