@@ -102,15 +102,20 @@ In `markup_config.py` under `"crm.yavshoke.ua"`:
 
 ## 6. Product Parameters & Data Hygiene for EVA
 1. **Grouped Products (`group_id`):**
-   - Each variant retains its unique `id` and is output as a standalone valid `<offer id="2000_{id}">`.
+   - Each variant retains its unique `id` and is output as a standalone valid `<offer id="2000_{id}">` (matching EVA requirement: every modification has a unique offer id).
    - If the raw offer contains `group_id`, attribute `group_id="2000_{raw_group_id}"` is preserved on `<offer>` for marketplace variant grouping.
 2. **Default Vendor / Brand:**
    - If vendor is empty, missing, or `"NoBrand"`, set vendor to `"Brand"`.
    - Ensure brand is included in `name_ua` if not already present.
-3. **Mandatory Color Parameter:**
-   - If parameter `"Колір"` (or `"Цвет"`) is missing, append `<param name="Колір">Комбінований</param>`.
-4. **Neutral Characteristic "Вид":**
-   - For Yavshoke items (`2000_`), if parameter `"Вид"` (or `"Тип"`) is missing, append `<param name="Вид">Сучасний</param>`.
+3. **Neutral Fallback Characteristics (when product has no params):**
+   - When an offer has no characteristics from the supplier, populate the neutral set:
+     * `<param name="Стан">Новий</param>`
+     * `<param name="Колір">Комбінований</param>`
+     * `<param name="Вид">Сучасний</param>`
+     * `<param name="Вага">-</param>`
+     * `<param name="Розмір Size">-</param>`
+4. **Color Parameter for Existing Params:**
+   - If an offer has parameters but lacks `"Колір"` (or `"Цвет"`), append `<param name="Колір">Комбінований</param>`.
 
 ---
 
