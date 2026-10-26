@@ -1344,7 +1344,9 @@ def process():
                     continue
 
                 # -- Збірка полів товару через нормалізуючі функції --
-                vendor  = fix_text(offer.findtext('vendor') or '') or 'NoBrand'
+                vendor  = fix_text(offer.findtext('vendor') or '') or 'Brand'
+                if vendor.lower() in ('nobrand', 'no brand', 'no_brand'):
+                    vendor = 'Brand'
                 name_ua = ru_to_ua(get_name(offer))
 
                 # Якщо назва порожня або занадто коротка — пропускаємо товар
@@ -1353,7 +1355,7 @@ def process():
                     continue
 
                 # Додаємо бренд в назву якщо його там нема
-                if vendor != 'NoBrand' and vendor.lower() not in name_ua.lower():
+                if vendor != 'Brand' and vendor.lower() not in name_ua.lower():
                     name_ua = f"{name_ua} {vendor}"
 
                 # Опис
@@ -1397,6 +1399,9 @@ def process():
                 # Порядок тегів відповідає прикладу з документації EVA
                 # https://sellersupport.eva.ua/article/pidhotovka-prays-listu-xml
                 new_off = ET.Element("offer", id=offer_id, available="true")
+                raw_group = offer.get("group_id")
+                if raw_group:
+                    new_off.set("group_id", f"{id_prefix}_{raw_group}" if id_prefix else raw_group)
 
                 ET.SubElement(new_off, "price").text          = str(price)
                 ET.SubElement(new_off, "price_old").text      = str(old_price)
@@ -1435,16 +1440,17 @@ def process():
                 # Параметри через нормалізуючу функцію
                 params = get_params(offer)
                 if not params:
-                    # Якщо параметрів нема — додаємо базові
+                    # Якщо параметрів нема — додаємо базові нейтральні
                     ET.SubElement(new_off, "param", name="Стан").text  = "Новий"
                     ET.SubElement(new_off, "param", name="Колір").text = "Комбінований"
+                    ET.SubElement(new_off, "param", name="Вид").text   = "Сучасний"
                     ET.SubElement(new_off, "param", name="Вага").text  = "-"
                     ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
                 else:
                     for p_name, p_val in params:
                         ET.SubElement(new_off, "param", name=p_name[:100]).text = p_val[:255]
-                    # Додаємо Розмір Size якщо його нема серед існуючих параметрів
                     existing_names = [p[0].lower() for p in params]
+                    # Додаємо Розмір Size якщо його нема серед існуючих параметрів
                     has_size = any(
                         w in n
                         for n in existing_names
@@ -1452,6 +1458,15 @@ def process():
                     )
                     if not has_size:
                         ET.SubElement(new_off, "param", name="Розмір Size").text = "-"
+
+                    # Додаємо Колір якщо його нема серед існуючих параметрів
+                    has_color = any(
+                        w in n
+                        for n in existing_names
+                        for w in ('колір', 'цвет', 'color')
+                    )
+                    if not has_color:
+                        ET.SubElement(new_off, "param", name="Колір").text = "Комбінований"
 
                 # Застосування параметрів з override_data якщо вказані
                 if override_data:

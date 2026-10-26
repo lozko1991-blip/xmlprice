@@ -166,5 +166,34 @@ class TestFeedPassportValidator(unittest.TestCase):
         errors = self.validate_feed_structure(bad_root)
         self.assertTrue(len(errors) > 0)
 
+    def test_neutral_fallback_params_and_group_id(self):
+        """Verify fallback parameters include 'Вид: Сучасний' and vendor 'Brand'."""
+        xml = """
+        <offer id="2000_1001" available="true" group_id="2000_555">
+            <price>450</price>
+            <price_old>563</price_old>
+            <currencyId>UAH</currencyId>
+            <stock_quantity>10</stock_quantity>
+            <categoryId>2000101</categoryId>
+            <picture>https://example.com/pic.jpg</picture>
+            <vendor>Brand</vendor>
+            <name_ua>Сучасний товар для дому Brand</name_ua>
+            <description_ua><![CDATA[<p>Опис товару з нейтральними параметрами для маркетплейсу.</p>]]></description_ua>
+            <param name="Стан">Новий</param>
+            <param name="Колір">Комбінований</param>
+            <param name="Вид">Сучасний</param>
+            <param name="Вага">-</param>
+            <param name="Розмір Size">-</param>
+        </offer>
+        """
+        offer = ET.fromstring(xml)
+        errors = self.validate_offer_element(offer, valid_categories={"2000101"})
+        self.assertEqual(errors, [])
+        self.assertEqual(offer.get("group_id"), "2000_555")
+        self.assertEqual(offer.findtext("vendor"), "Brand")
+        params_dict = {p.get("name"): p.text for p in offer.findall("param")}
+        self.assertEqual(params_dict.get("Вид"), "Сучасний")
+        self.assertEqual(params_dict.get("Колір"), "Комбінований")
+
 if __name__ == '__main__':
     unittest.main()
