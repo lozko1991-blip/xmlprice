@@ -19,3 +19,6 @@ verify_output.txt
 debug_*.txt
 debug_*.py
 output_log.txt
+
+# Excel error reports
+*.xlsx

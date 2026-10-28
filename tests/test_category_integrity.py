@@ -85,5 +85,55 @@ class TestCategoryIntegrity(unittest.TestCase):
         self.assertFalse(is_thin_category("1000123", 4, is_parent=False))
         self.assertFalse(is_thin_category("1000123", 0, is_parent=True))
 
+    def test_load_eva_category_mapping(self):
+        """Verify that docs/eva_category_mapping.csv loads correctly and contains valid mapped records."""
+        from masterevaxml import load_eva_category_mapping
+        mapping = load_eva_category_mapping()
+        self.assertGreater(len(mapping), 1000)
+        
+        # Test mapped leaf category
+        self.assertIn("200014975", mapping)
+        self.assertEqual(mapping["200014975"]["status"], "MAPPED")
+        self.assertEqual(mapping["200014975"]["eva_id"], "100933")
+        self.assertEqual(mapping["200014975"]["eva_name"], "Сковорода")
+        
+        # Test NO_EVA_CATEGORY
+        self.assertIn("30004048", mapping)
+        self.assertEqual(mapping["30004048"]["status"], "NO_EVA_CATEGORY")
+        self.assertEqual(mapping["30004048"]["eva_id"], "")
+
+    def test_eva_category_element_transformation(self):
+        """Verify that category elements receive eva_id and eva_name correctly according to EVA spec."""
+        from masterevaxml import load_eva_category_mapping
+        mapping = load_eva_category_mapping()
+
+        # Simulated final_categories
+        c_mapped = ET.Element("category", id="200014975")
+        c_mapped.text = "Сковороды"
+        
+        c_no_eva = ET.Element("category", id="30004048")
+        c_no_eva.text = "Жіночі ремені"
+
+        # Apply mapping logic as in Step 7
+        for c in [c_mapped, c_no_eva]:
+            cid = c.get('id')
+            if cid in mapping:
+                info = mapping[cid]
+                eva_id = info.get('eva_id')
+                if eva_id and info.get('status') == 'MAPPED':
+                    c.set('eva_id', str(eva_id))
+                    eva_name = info.get('eva_name')
+                    if eva_name:
+                        c.text = eva_name
+                else:
+                    c.attrib.pop('eva_id', None)
+
+        # Asserts
+        self.assertEqual(c_mapped.get("eva_id"), "100933")
+        self.assertEqual(c_mapped.text, "Сковорода")
+        
+        self.assertIsNone(c_no_eva.get("eva_id"))
+        self.assertEqual(c_no_eva.text, "Жіночі ремені")
+
 if __name__ == '__main__':
     unittest.main()

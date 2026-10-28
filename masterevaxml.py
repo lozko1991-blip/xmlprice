@@ -1,3 +1,5 @@
+import os
+import csv
 from collections import defaultdict, Counter
 import requests
 import lxml.etree as ET
@@ -18,6 +20,41 @@ def load_translations_cache():
             print(f"[INFO] Завантажено {len(TRANSLATIONS_DICT)} перекладів характеристик.")
         except Exception as e:
             print(f"[WARN] Помилка читання translations.json: {e}")
+
+EVA_CATEGORY_MAPPING = {}
+def load_eva_category_mapping(csv_path=None):
+    """
+    Завантажує мапінг категорій під маркетплейс EVA з docs/eva_category_mapping.csv.
+    Повертає словник {cat_id: {'eva_id': str, 'eva_name': str, 'status': str, 'notes': str}}.
+    """
+    global EVA_CATEGORY_MAPPING
+    if csv_path is None:
+        csv_path = os.path.join(os.path.dirname(__file__), "docs", "eva_category_mapping.csv")
+
+    mapping = {}
+    if not os.path.exists(csv_path):
+        print(f"[УВАГА] Файл мапінгу категорій EVA не знайдено: {csv_path}")
+        return mapping
+
+    try:
+        with open(csv_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                cat_id = row.get("cat_id", "").strip()
+                if cat_id:
+                    mapping[cat_id] = {
+                        "eva_id": row.get("eva_id", "").strip(),
+                        "eva_name": row.get("eva_name", "").strip(),
+                        "status": row.get("status", "").strip(),
+                        "notes": row.get("notes", "").strip()
+                    }
+        EVA_CATEGORY_MAPPING = mapping
+        mapped_count = sum(1 for v in mapping.values() if v.get("status") == "MAPPED" and v.get("eva_id"))
+        print(f"[INFO] Завантажено {len(mapping)} правил мапінгу категорій EVA ({mapped_count} MAPPED).")
+    except Exception as e:
+        print(f"[ПОМИЛКА] Помилка читання {csv_path}: {e}")
+
+    return mapping
 
 # ==============================================================================
 # 1. КОНФІГУРАЦІЯ
@@ -991,6 +1028,9 @@ def process():
     # Завантаження кешу перекладів
     load_translations_cache()
 
+    # Завантаження мапінгу категорій EVA
+    eva_category_mapping = load_eva_category_mapping()
+
     # Перевірка конфігу наценок ПЕРЕД будь-якими запитами — fail fast
     validate_markup_config()
 
@@ -1695,8 +1735,24 @@ def process():
     ET.SubElement(currencies, "currency", id="UAH", rate="1")
 
     cats_n = ET.SubElement(shop, "categories")
+    mapped_cats_count = 0
     for c in final_categories.values():
+        cid = c.get('id')
+        if cid in eva_category_mapping:
+            info = eva_category_mapping[cid]
+            eva_id = info.get('eva_id')
+            if eva_id and info.get('status') == 'MAPPED':
+                c.set('eva_id', str(eva_id))
+                eva_name = info.get('eva_name')
+                if eva_name:
+                    c.text = eva_name
+                mapped_cats_count += 1
+            else:
+                c.attrib.pop('eva_id', None)
         cats_n.append(c)
+
+    if mapped_cats_count > 0:
+        print(f"\n[КАТЕГОРІЇ EVA] Успішно присвоєно атрибут eva_id для {mapped_cats_count} категорій")
 
     offers_n = ET.SubElement(shop, "offers")
     for o in valid_offers:
@@ -1766,6 +1822,7 @@ def process():
     md.append(f"| Видалено через дублі (всередині постачальника) | {len(inner_duplicates)} |")
     md.append(f"| Видалено через blacklist | {sum(blacklist_hits.values())} |")
     md.append(f"| Видалено через відсутню категорію | {len(category_errors)} |")
+    md.append(f"| Категорій зі зв'язкою eva_id | {mapped_cats_count} |")
     md.append(f"| Попереджень по цінах | {len(price_warnings)} |\n")
 
     md.append("## По постачальниках")

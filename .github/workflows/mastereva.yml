@@ -13,6 +13,7 @@ on:
       - 'blacklist.txt'
       - 'feed_passport_validator.py'
       - 'tests/**'
+      - 'docs/**'
       - '.github/workflows/mastereva.yml'
 
   schedule:
