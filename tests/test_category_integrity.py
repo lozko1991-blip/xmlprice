@@ -211,5 +211,34 @@ class TestCategoryIntegrity(unittest.TestCase):
             self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
             self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
 
+    def test_supplier_7777_category_mapping_integrity(self):
+        """Supplier 7777 (Posudograd) must have complete, verified category mapping under EVA."""
+        from masterevaxml import load_eva_category_mapping
+        mapping = load_eva_category_mapping()
+
+        rules_7777 = {k: v for k, v in mapping.items() if str(k).startswith("7777")}
+        self.assertEqual(len(rules_7777), 106, "Supplier 7777 must have exactly 106 mapped rules")
+
+        # Test core tableware mapping
+        self.assertEqual(rules_7777["7777218"]["eva_id"], "100942")  # Тарілки
+        self.assertEqual(rules_7777["777782"]["eva_id"], "100935")   # Келихи
+        self.assertEqual(rules_7777["777771"]["eva_id"], "100946")   # Стакани
+        self.assertEqual(rules_7777["7777267"]["eva_id"], "113857")  # Каструлі
+        self.assertEqual(rules_7777["7777258"]["eva_id"], "102201")  # Чайники для плити
+        self.assertEqual(rules_7777["7777256"]["eva_id"], "113755")  # Термоси і пляшки
+        self.assertEqual(rules_7777["7777310"]["eva_id"], "112110")  # Статуетки і фігурки
+        self.assertEqual(rules_7777["7777311"]["eva_id"], "112311")  # Новорічний декор
+        self.assertEqual(rules_7777["7777306"]["eva_id"], "118709")  # Набори для ванної кімнати
+
+        # Test parent categories
+        for pid in ["777719", "7777272", "777796", "777737", "7777304", "777791", "7777294", "7777252"]:
+            self.assertEqual(rules_7777[pid]["status"], "PARENT")
+            self.assertEqual(rules_7777[pid]["eva_id"], "")
+
+        # Test out-of-scope non-EVA categories
+        for no_eva_id in ["7777209", "777774"]:
+            self.assertEqual(rules_7777[no_eva_id]["status"], "NO_EVA_CATEGORY")
+            self.assertEqual(rules_7777[no_eva_id]["eva_id"], "")
+
 if __name__ == '__main__':
     unittest.main()
