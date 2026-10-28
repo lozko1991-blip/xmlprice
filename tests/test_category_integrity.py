@@ -173,5 +173,43 @@ class TestCategoryIntegrity(unittest.TestCase):
             self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
             self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
 
+    def test_supplier_1200_category_resolver(self):
+        """Verify that umbrella category items of supplier 1200 resolve to accurate EVA categories."""
+        from masterevaxml import resolve_supplier_1200_category
+
+        # Kitchen tech & cookware
+        self.assertEqual(resolve_supplier_1200_category("Електрична м'ясорубка Rainberg RB-5412", orig_cat="30018858"), "1200122805")
+        self.assertEqual(resolve_supplier_1200_category("Блендер стаціонарний Denx DX2072", orig_cat="30018858"), "1200121456")
+        self.assertEqual(resolve_supplier_1200_category("Електрочайник Rainberg RB-888 1.8 л", orig_cat="30018858"), "1200121458")
+        self.assertEqual(resolve_supplier_1200_category("Аерофритюрниця мультипіч Zepline 6 л", orig_cat="30018858"), "1200122868")
+        self.assertEqual(resolve_supplier_1200_category("Набір каструль 12 предметів з нержавіючої сталі", orig_cat="30018858"), "1200113858")
+        self.assertEqual(resolve_supplier_1200_category("Набір кухонних ножів на підставці", orig_cat="30018858"), "1200101097")
+
+        # Beauty tech
+        self.assertEqual(resolve_supplier_1200_category("Машинка для стрижки волосся VGR V-030", orig_cat="30014688"), "1200104152")
+        self.assertEqual(resolve_supplier_1200_category("Тример для бороди та носа Kemei", orig_cat="30014688"), "1200104154")
+        self.assertEqual(resolve_supplier_1200_category("Фен для волосся професійний 2200W", orig_cat="30014688"), "1200122876")
+        self.assertEqual(resolve_supplier_1200_category("Електричний вібромасажер пістолет", orig_cat="30014688"), "1200116273")
+
+        # Home & garden
+        self.assertEqual(resolve_supplier_1200_category("Відпарювач для одягу ручний парова праска", orig_cat="30017053"), "1200110856")
+        self.assertEqual(resolve_supplier_1200_category("Настільна LED лампа з акумулятором", orig_cat="30018536"), "1200117861")
+
+        # Kids & toys
+        self.assertEqual(resolve_supplier_1200_category("Ігрова консоль SUP Game Box 400 in 1", orig_cat="30017064"), "1200122677")
+        self.assertEqual(resolve_supplier_1200_category("3D-ручка з LCD-дисплеєм для дітей", orig_cat="30017064"), "1200117852")
+        self.assertEqual(resolve_supplier_1200_category("Дитячий шезлонг гойдалка з заколисуванням", orig_cat="30017064"), "1200121859")
+
+        # Non-EVA categories
+        self.assertEqual(resolve_supplier_1200_category("Автомобільний компресор для підкачування шин", orig_cat="30017035"), "120030017035")
+        self.assertEqual(resolve_supplier_1200_category("Уцінка. Пошкоджена упаковка", orig_cat="108482107"), "1200108482107")
+
+    def test_supplier_1200_virtual_categories_protected(self):
+        """Virtual categories of 1200 must not be pruned by is_thin_category."""
+        from masterevaxml import is_thin_category, _SUPPLIER_1200_VIRTUAL_CATEGORIES
+        for v_id in _SUPPLIER_1200_VIRTUAL_CATEGORIES:
+            self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
+            self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
+
 if __name__ == '__main__':
     unittest.main()
