@@ -85,6 +85,141 @@ OLD_PRICE_MULT      = 1.25     # old_price = price × 1.25 для всіх
 MIN_PRICE_THRESHOLD = 199      # мінімальна ціна в грн
 MIN_OFFERS_PER_CATEGORY = 3   # категорії з ≤ N прямих товарів видаляються (якщо не батьківські)
 
+_SUPPLIER_3000_VIRTUAL_CATEGORIES = {
+    '3000101230': 'Ляльки та пупси',
+    '3000101509': 'Пенали шкільні',
+    '3000100228': 'Спреї та місти для тіла',
+    '3000100953': 'Столовий посуд та тарілки',
+    '3000100586': 'Антисептики для рук',
+    '3000108202': 'Повідці для собак',
+    '3000104154': 'Навушники та гарнітури',
+}
+
+def resolve_supplier_3000_category(name, vendor, desc=""):
+    """
+    Класифікує та перепризначає незрозумілу кореневу категорію 836 постачальника 3000
+    у профільні категорії EVA (парфумерія, іграшки, рюкзаки, пенали, посуд тощо).
+    """
+    nl = (name or '').lower()
+    vl = (vendor or '').lower()
+    dl = (desc or '').lower()
+    
+    # 1. Шкільні пенали
+    if any(k in nl for k in ['пенал шкільний', 'пенал для дівчинки', 'пенал для хлопчика', 'пенал дитячий', 'пенал з принтом', 'пенал']):
+        return '3000101509'
+
+    # 2. Ігрові фігурки, роботи, трансформери
+    if any(k in nl for k in ['funko pop', 'funko', 'ігрова фігурка', 'колекційна фігурка', 'фігурка серії', 'фігурка funko', 'фігурка базз', 'фігурка дісней', 'фігурка марвел', 'черепашок-ніндзя', 'фігурка sonic', 'фігурка fortnite', 'фігурка roblox', 'dinoster', 'sbabam', '#sbabam', 'робот-трансформер', 'робот трансформер', 'superthings', 'ooshies']) or vl in ['funko', 'dinoster', '#sbabam', 'pop top', 'superthings']:
+        return '300012136'
+    
+    # 3. Ляльки та пупси
+    if any(k in nl for k in ['лялька', 'кукла', 'l.o.l. surprise', 'bloopies', 'barbie', 'пупс', 'baby born', 'ляльковий', 'набір з лялькою', 'rainbow high']) or vl in ['bloopies', 'l.o.l. surprise!', 'rainbow high']:
+        return '3000101230'
+        
+    # 4. М'які іграшки
+    if any(k in nl for k in ['м\'яка іграшка', 'м’яка іграшка', 'плюшева іграшка', 'плюшевий', 'squishmallows', 'м\'яка колекційна', 'мягкая игрушка']) or vl == 'squishmallows':
+        return '300012144'
+        
+    # 5. Іграшкові машинки та моделі
+    if any(k in nl for k in ['автомодель', 'машинка', 'technodrive', 'technopark', 'модель - автобус', 'модель - автомобіль', 'модель літака', 'трек хот вілс', 'hot wheels', 'радіокерована машинка', 'машинка на р/к', 'металева модель', 'ks drive', 'bburago']) or vl in ['technodrive', 'technopark', 'ks drive', 'bburago']:
+        return '300019385'
+
+    # 6. Спреї та місти для тіла
+    if any(k in nl for k in ['спрей для тела', 'спрей для тіла', 'парфюмированний спрей', 'парфумований спрей', 'body mist']):
+        return '3000100228'
+
+    # 7. Столовий посуд (чашки, тарілки)
+    if any(k in nl for k in ['чашка', 'кружка', 'блюдо', 'тарілка', 'бокал', 'стакан', 'посуд']):
+        return '3000100953'
+
+    # 8. Новорічні гірлянди та декор
+    if any(k in nl for k in ['гірлянда', 'новорічн', 'різдвян', 'ялинка', 'новорічний декор']) or vl == 'garlando':
+        return '300037919'
+
+    # 9. Жіноча парфумерія
+    if any(k in nl for k in ['женская парфюмированная вода', 'жіноча парфумована вода', 'туалетна вода жіноча', 'женская туалетная вода', 'парфумована вода для жінок', 'for her', 'for women', 'pour femme']) or ('victoria\'s secret' in nl and 'спрей' not in nl) or ('parfum' in nl and ('жен' in nl or 'women' in nl)):
+        return '300032010'
+
+    # 10. Чоловіча парфумерія
+    if any(k in nl for k in ['мужская туалетная вода', 'чоловіча туалетна вода', 'мужская парфюмированная вода', 'чоловіча парфумована вода', 'for him', 'for men', 'pour homme']) or ('parfum' in nl and ('муж' in nl or 'men' in nl)):
+        return '300032011'
+        
+    # 11. Унісекс парфумерія
+    if any(k in nl for k in ['унисекс парфюмированная вода', 'парфумована вода унісекс', 'pheromone', 'парфуми', 'парфумована вода', 'туалетна вода']):
+        return '300032010'
+
+    # 12. Зоотовари (повідці, нашийники, іграшки)
+    if any(k in nl for k in ['повідець', 'повідець-рулетка', 'поводок']):
+        return '3000108202'
+    if any(k in nl for k in ['нашийник', 'waudog nylon', 'нашийник блокер', 'ошейник']) and any(k in nl for k in ['собак', 'котів', 'тварин', 'waudog']):
+        return '300015537'
+    if any(k in nl for k in ['іграшка для собак', 'іграшка для котів', 'лежанка для']):
+        return '30003427'
+
+    # 13. Сумки, рюкзаки, гаманці
+    if any(k in nl for k in ['жіноча сумка', 'сумка жіноча', 'сумка на плече', 'сумка крос-боді', 'клатч жіночий']) or vl in ['borsacomoda', 'lanpad', 'david jones']:
+        return '30004728'
+    if any(k in nl for k in ['рюкзак', 'ранець']):
+        return '30002328'
+    if any(k in nl for k in ['сумка-бананка', 'поясна сумка', 'бананка', 'сумка-чохол для телефону', 'сумка через плече', 'чоловіча сумка', 'сумка чоловіча']):
+        return '30002321'
+    if any(k in nl for k in ['господарська сумка', 'сумка для покупок', 'шоппер', 'сумка шоппер']):
+        return '300014952'
+    if any(k in nl for k in ['дорожня сумка', 'сумка дорожня']):
+        return '30002319'
+    if any(k in nl for k in ['гаманець', 'кошелек', 'портмоне', 'картхолдер', 'затиск для купюр', 'візитниця', 'обкладинка для водійських', 'обкладинка для паспорта']):
+        return '30004050'
+    if any(k in nl for k in ['косметичка', 'несесер']):
+        return '30004387'
+    if any(k in nl for k in ['брелок', 'ключниця']):
+        return '30004055'
+
+    # 14. Побутова хімія та прибирання
+    if any(k in nl for k in ['для прибирання', 'антижир', 'видалення жиру', 'для миття посуду', 'посудомийн', 'prima soft', 'чищення сантехніки', 'сантехнік', 'миючий засіб']):
+        if 'посудомийн' in nl or 'посуду' in nl:
+            return '300010099'
+        return '300010091'
+    if any(k in nl for k in ['засіб для прання', 'гель для прання', 'порошок для прання', 'ополіскувач для білизни', 'плямовивідник']):
+        return '300010093'
+    if any(k in nl for k in ['паста для рук', 'антимазут', 'концентрат для видалення', 'промисловий засіб']):
+        return '300010101'
+    if any(k in nl for k in ['антисептик для рук', 'дезінфікуючий засіб для рук']):
+        return '3000100586'
+    if any(k in nl for k in ['мило для рук', 'мило-піна', 'рідке мило']):
+        return '300010094'
+
+    # 15. Дитяча творчість та настільні розваги
+    if any(k in nl for k in ['набір для дитячої творчості', 'набір для творчості', 'слайм', 'кінетичний пісок', 'алмазна мозаїка', 'малювання', 'nebulous stars', 'гліттер', 'паєтки', 'розвивальна іграшка']) or vl in ['nebulous stars', 'vtech', 'kiddi smart', 'lipaka']:
+        return '300012140'
+    if any(k in nl for k in ['настільна гра', 'головоломка', 'пазл', 'кубик рубіка', 'rubik']):
+        return '300012143'
+
+    # 16. Фітнес та спорт
+    if any(k in nl for k in ['easyfit', 'гантель', 'еспандер', 'гриф', 'турнік', 'ролик масажний', 'петля гумова', 'м\'яч для фітнеса', 'килимок для йоги']) or vl == 'easyfit':
+        if 'килимок' in nl or 'йог' in nl or 'ролик' in nl:
+            return '30009607'
+        if 'скакалка' in nl:
+            return '30009609'
+        if 'еспандер' in nl or 'петля' in nl:
+            return '30009613'
+        if 'гантел' in nl:
+            return '30009608'
+        return '30009622'
+
+    # 17. Текстиль та особисті речі
+    if any(k in nl for k in ['навушники', 'bluetooth навушники']):
+        return '3000104154'
+    if any(k in nl for k in ['подушка', 'анатомічна подушка']):
+        return '30003128'
+    if any(k in nl for k in ['рушник', 'рушники']):
+        return '30003136'
+    if any(k in nl for k in ['постільна білизна', 'простирадло']):
+        return '30003137'
+
+    # За замовчуванням (інструменти, ремені, будівельні матеріали тощо)
+    return '3000836'
+
+
 def is_thin_category(cat_id, count, is_parent=False):
     """
     Визначає, чи є категорія тонкою/порожньою для подальшого видалення.
@@ -93,6 +228,8 @@ def is_thin_category(cat_id, count, is_parent=False):
     - Для інших постачальників: видаляються дочірні категорії з <= MIN_OFFERS_PER_CATEGORY товарів.
     """
     if is_parent:
+        return False
+    if str(cat_id) in _SUPPLIER_3000_VIRTUAL_CATEGORIES:
         return False
     if str(cat_id).startswith("2000"):
         return count < 10
@@ -1214,6 +1351,13 @@ def process():
 
             final_categories[new_id] = cat
 
+    # Реєструємо віртуальні підкатегорії постачальника 3000 у списку категорій
+    for v_id, v_name in _SUPPLIER_3000_VIRTUAL_CATEGORIES.items():
+        if v_id not in final_categories:
+            v_cat = ET.Element("category", id=v_id)
+            v_cat.text = v_name
+            final_categories[v_id] = v_cat
+
     # --------------------------------------------------------------------------
     # КРОК 5: ПРОХІД 2 — основна обробка товарів
     # --------------------------------------------------------------------------
@@ -1257,6 +1401,8 @@ def process():
             article = get_article(offer)
             orig_cat = offer.findtext('categoryId') or ''
             cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
+            if prefix == '3000' and orig_cat == '836':
+                cat_id = resolve_supplier_3000_category(get_name(offer), offer.findtext('vendor') or '', '')
             cat_element = final_categories.get(cat_id)
             cat_name = cat_element.text if cat_element is not None else ""
             offer_name = get_name(offer)
@@ -1428,6 +1574,8 @@ def process():
                 # Категорія
                 orig_cat = offer.findtext('categoryId') or ''
                 cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
+                if prefix == '3000' and orig_cat == '836':
+                    cat_id = resolve_supplier_3000_category(name_ua, vendor, desc)
 
                 # Якщо категорія відсутня у списку категорій постачальника -
                 # переносимо товар у фіксовану категорію "Інші товари [Постачальник]"

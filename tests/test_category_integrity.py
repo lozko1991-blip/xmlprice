@@ -135,5 +135,43 @@ class TestCategoryIntegrity(unittest.TestCase):
         self.assertIsNone(c_no_eva.get("eva_id"))
         self.assertEqual(c_no_eva.text, "Жіночі ремені")
 
+
+    def test_supplier_3000_category_resolver(self):
+        """Verify that mixed category 836 items of supplier 3000 resolve to accurate EVA categories."""
+        from masterevaxml import resolve_supplier_3000_category
+        
+        # Perfume
+        self.assertEqual(resolve_supplier_3000_category("Женская парфюмированная вода Chanel Coco Mademoiselle 100 мл", "Chanel"), "300032010")
+        self.assertEqual(resolve_supplier_3000_category("Мужская туалетная вода Lacoste Rouge 100 мл", "Lacoste"), "300032011")
+        
+        # Figures and Dolls
+        self.assertEqual(resolve_supplier_3000_category("Ігрова фігурка FUNKO POP! - Чіка", "Funko"), "300012136")
+        self.assertEqual(resolve_supplier_3000_category("Лялька BLOOPIES – РУСАЛОНЬКА ЛАВЛІ", "Bloopies"), "3000101230")
+        self.assertEqual(resolve_supplier_3000_category("М'яка іграшка Squishmallows Котик", "Squishmallows"), "300012144")
+        
+        # School & Bags
+        self.assertEqual(resolve_supplier_3000_category("Пенал шкільний з принтом Nike для хлопчика", "No brand"), "3000101509")
+        self.assertEqual(resolve_supplier_3000_category("Рюкзак шкільний дитячий Stranger Things 36х27 см", "No brand"), "30002328")
+        self.assertEqual(resolve_supplier_3000_category("Сумка-бананка дитяча з принтом Brawl Stars", "No brand"), "30002321")
+        
+        # Cleaning & Tableware
+        self.assertEqual(resolve_supplier_3000_category("Концентрат для видалення жиру та нагару Primaterra", "Primaterra"), "300010091")
+        self.assertEqual(resolve_supplier_3000_category("Тарілка порцелянова новорічна 23 см", "Yiwu"), "3000100953")
+        
+        # Pets
+        self.assertEqual(resolve_supplier_3000_category("Повідець для собак нейлоновий WAUDOG Nylon", "Waudog"), "3000108202")
+        self.assertEqual(resolve_supplier_3000_category("Нашийник блокер протипаразитарний для собак", "NoBrand"), "300015537")
+        
+        # Tools & Non-EVA goods
+        self.assertEqual(resolve_supplier_3000_category("Валик игольчатий аерационний SIGMA 8313221", "Sigma"), "3000836")
+        self.assertEqual(resolve_supplier_3000_category("Ремінь шкіряний чоловічий чорний", "Vintage"), "3000836")
+
+    def test_supplier_3000_virtual_categories_protected(self):
+        """Virtual categories must not be pruned by is_thin_category."""
+        from masterevaxml import is_thin_category, _SUPPLIER_3000_VIRTUAL_CATEGORIES
+        for v_id in _SUPPLIER_3000_VIRTUAL_CATEGORIES:
+            self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
+            self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
+
 if __name__ == '__main__':
     unittest.main()
