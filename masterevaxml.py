@@ -220,6 +220,56 @@ def resolve_supplier_3000_category(name, vendor, desc=""):
     return '3000836'
 
 
+_SUPPLIER_9999_VIRTUAL_CATEGORIES = {
+    '9999121883': 'Надувні меблі й аксесуари',
+    '9999100547': 'Манікюрні набори',
+    '9999100820': 'Воскоплави',
+    '9999100896': 'Банки та ємності',
+    '9999104075': 'Дитяча декоративна косметика',
+    '9999118705': 'Дозатори для мила',
+    '9999122405': 'Млинниці',
+    '9999106303': 'Жіноча парфумерія',
+    '9999113658': 'Преси, горіхоли',
+    '9999116267': 'Дитячі самокати',
+}
+
+def resolve_supplier_9999_category(name, vendor="", desc=""):
+    """
+    Класифікує та перепризначає незрозумілу кореневу категорію 99999 постачальника 9999 (WebSklad)
+    у профільні категорії EVA (манікюрні набори, дитяча косметика, надувні меблі, воскоплави тощо).
+    """
+    nl = (name or '').lower()
+    vl = (vendor or '').lower()
+    dl = (desc or '').lower()
+
+    if any(k in nl for k in ['набір для манікюру', 'манікюрний набір', 'педикюр', 'кніпсер']):
+        return '9999100547'
+    if any(k in nl for k in ['дитячої косметики', 'дитяча косметика', 'makeup набір для дівчаток', 'косметика kuromi', 'косметика для дітей']):
+        return '9999104075'
+    if any(k in nl for k in ['воскоплав', 'pro-wax']):
+        return '9999100820'
+    if any(k in nl for k in ['air sofa', 'надувне крісло', 'надувний матрас', 'надувное кресло']):
+        return '9999121883'
+    if any(k in nl for k in ['дозатор для мила', 'magic soap']):
+        return '9999118705'
+    if any(k in nl for k in ['млинець', 'млинниця']):
+        return '9999122405'
+    if any(k in nl for k in ['victoria secret', 'victorias secret', 'спрей для тіла']):
+        return '9999106303'
+    if any(k in nl for k in ['самокат']):
+        return '9999116267'
+    if any(k in nl for k in ['фотоапарат', 'фотокамера']):
+        return '9999389440355'
+    if any(k in nl for k in ['підсвічування для дзеркала', 'лампочки для дзеркала']):
+        return '9999782384383'
+    if any(k in nl for k in ['набір контейнерів', 'контейнер для заморожування']):
+        return '9999100896'
+    if any(k in nl for k in ['прес для часнику', 'часнодавка']):
+        return '9999113658'
+
+    return '999999999'
+
+
 def is_thin_category(cat_id, count, is_parent=False):
     """
     Визначає, чи є категорія тонкою/порожньою для подальшого видалення.
@@ -229,7 +279,7 @@ def is_thin_category(cat_id, count, is_parent=False):
     """
     if is_parent:
         return False
-    if str(cat_id) in _SUPPLIER_3000_VIRTUAL_CATEGORIES:
+    if str(cat_id) in _SUPPLIER_3000_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_9999_VIRTUAL_CATEGORIES:
         return False
     if str(cat_id).startswith("2000"):
         return count < 10
@@ -1358,6 +1408,13 @@ def process():
             v_cat.text = v_name
             final_categories[v_id] = v_cat
 
+    # Реєструємо віртуальні підкатегорії постачальника 9999 у списку категорій
+    for v_id, v_name in _SUPPLIER_9999_VIRTUAL_CATEGORIES.items():
+        if v_id not in final_categories:
+            v_cat = ET.Element("category", id=v_id)
+            v_cat.text = v_name
+            final_categories[v_id] = v_cat
+
     # --------------------------------------------------------------------------
     # КРОК 5: ПРОХІД 2 — основна обробка товарів
     # --------------------------------------------------------------------------
@@ -1403,6 +1460,8 @@ def process():
             cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
             if prefix == '3000' and orig_cat == '836':
                 cat_id = resolve_supplier_3000_category(get_name(offer), offer.findtext('vendor') or '', '')
+            elif prefix == '9999' and orig_cat == '99999':
+                cat_id = resolve_supplier_9999_category(get_name(offer), offer.findtext('vendor') or '', '')
             cat_element = final_categories.get(cat_id)
             cat_name = cat_element.text if cat_element is not None else ""
             offer_name = get_name(offer)
@@ -1576,6 +1635,8 @@ def process():
                 cat_id   = f"{prefix}{orig_cat}" if prefix else orig_cat
                 if prefix == '3000' and orig_cat == '836':
                     cat_id = resolve_supplier_3000_category(name_ua, vendor, desc)
+                elif prefix == '9999' and orig_cat == '99999':
+                    cat_id = resolve_supplier_9999_category(name_ua, vendor, desc)
 
                 # Якщо категорія відсутня у списку категорій постачальника -
                 # переносимо товар у фіксовану категорію "Інші товари [Постачальник]"
