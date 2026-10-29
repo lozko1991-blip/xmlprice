@@ -751,5 +751,65 @@ class TestCategoryIntegrity(unittest.TestCase):
         self.assertEqual(rules_kievopt['1090']['status'], 'NO_EVA_CATEGORY')  # Акустические системы
         self.assertEqual(rules_kievopt['1149']['status'], 'NO_EVA_CATEGORY')  # Коврики для мыши
 
+    def test_supplier_yavshoke_category_mapping_integrity(self):
+        """Supplier yavshoke must have complete, verified category mapping under EVA (1059 rules in 20 parts)."""
+        import csv
+        import json
+        import os
+
+        csv_path = os.path.join(os.path.dirname(__file__), '..', 'docs', 'eva_category_mapping.csv')
+        rules_yav = {}
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for r in reader:
+                if r.get('supplier') == 'yavshoke':
+                    rules_yav[r['cat_id']] = r
+
+        self.assertEqual(len(rules_yav), 1059, f"Supplier yavshoke must have exactly 1059 rules, got {len(rules_yav)}")
+
+        # Verify leaf node validity against eva_compact_catalog.json
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'scratch', 'eva_compact_catalog.json')
+        if os.path.exists(catalog_path):
+            with open(catalog_path, 'r', encoding='utf-8') as f:
+                valid_leaves = set(json.load(f).keys())
+            for cid, info in rules_yav.items():
+                if info.get('status') == 'MAPPED':
+                    eva_id = info.get('eva_id', '')
+                    self.assertIn(eva_id, valid_leaves, f"Yavshoke category {cid} maps to invalid leaf {eva_id}")
+
+        # Verify top active mapped categories
+        self.assertEqual(rules_yav['200014975']['eva_id'], '100933')  # Сковороды
+        self.assertEqual(rules_yav['200014928']['eva_id'], '113857')  # Кастрюли по штучно
+        self.assertEqual(rules_yav['200015041']['eva_id'], '100942')  # Тарелки и пиалы
+        self.assertEqual(rules_yav['200014365']['eva_id'], '100943')  # Чашки и кружки
+        self.assertEqual(rules_yav['200014792']['eva_id'], '100935')  # Бокалы и фужеры
+        self.assertEqual(rules_yav['200014793']['eva_id'], '100946')  # Стаканы
+        self.assertEqual(rules_yav['200014974']['eva_id'], '114003')  # Формы для выпечки и противни
+        self.assertEqual(rules_yav['200014348']['eva_id'], '121458')  # Электрочайники
+        self.assertEqual(rules_yav['200014877']['eva_id'], '101013')  # Кухонные ножи
+        self.assertEqual(rules_yav['200013080']['eva_id'], '100957')  # Разделочные доски
+        self.assertEqual(rules_yav['200013067']['eva_id'], '100911')  # Банки и ёмкости
+        self.assertEqual(rules_yav['200042325']['eva_id'], '100360')  # Кигуруми детские
+
+        # Verify home textile & bedding
+        self.assertEqual(rules_yav['200013121']['eva_id'], '100875')  # Комплекты постельного белья
+        self.assertEqual(rules_yav['200013114']['eva_id'], '100876')  # Одеяла
+        self.assertEqual(rules_yav['200013118']['eva_id'], '119352')  # Электропростыни
+        self.assertEqual(rules_yav['200010917']['eva_id'], '100373')  # Одеяла детские
+        self.assertEqual(rules_yav['200013102']['eva_id'], '100363')  # Детское постельное белье
+
+        # Verify rescued categories (umbrellas, confectionery, pet supplies)
+        self.assertEqual(rules_yav['200016943']['eva_id'], '100341')  # Зонты -> Парасолі
+        self.assertEqual(rules_yav['200017506']['eva_id'], '113904')  # Кондитерские инструменты
+        self.assertEqual(rules_yav['200042252']['eva_id'], '121893')  # Свитера и футболки для животных
+        self.assertEqual(rules_yav['200042245']['eva_id'], '121898')  # Поводки, ошейники, шлейки
+
+        # Verify legitimate NO_EVA_CATEGORY rules
+        self.assertEqual(rules_yav['200042402']['status'], 'NO_EVA_CATEGORY')  # Худи 3D
+        self.assertEqual(rules_yav['200013459']['status'], 'NO_EVA_CATEGORY')  # Мыши компьютерные
+        self.assertEqual(rules_yav['200041485']['status'], 'NO_EVA_CATEGORY')  # Эротическое белье 18+
+        self.assertEqual(rules_yav['200042231']['status'], 'NO_EVA_CATEGORY')  # Военная форма
+        self.assertEqual(rules_yav['200040863']['status'], 'NO_EVA_CATEGORY')  # Ролеты
+
 if __name__ == '__main__':
     unittest.main()
