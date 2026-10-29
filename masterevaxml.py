@@ -1096,7 +1096,8 @@ def resolve_supplier_1100_category(name, vendor="", desc="", orig_cat=""):
         return '1100104257'
 
     # Fallback
-    return f"1100{orig_cat}" if orig_cat and orig_cat != '99999' else '1100104056'
+    clean_cat = orig_cat[4:] if orig_cat.startswith('1100') else orig_cat
+    return f"1100{clean_cat}" if clean_cat and clean_cat != '99999' else '1100104056'
 
 def is_thin_category(cat_id, count, is_parent=False):
     """

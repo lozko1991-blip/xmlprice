@@ -366,7 +366,7 @@ class TestCategoryIntegrity(unittest.TestCase):
         mapping = load_eva_category_mapping()
 
         rules_1100 = {k: v for k, v in mapping.items() if str(k).startswith("1100") and k != "1100"}
-        self.assertEqual(len(rules_1100), 318, "Supplier 1100 must have exactly 318 mapped rules (199 base + 119 virtual)")
+        self.assertEqual(len(rules_1100), 344, "Supplier 1100 must have exactly 344 mapped rules (225 base + 119 virtual)")
 
         # Verify critical base categories
         self.assertEqual(rules_1100["1100007108"]["eva_id"], "100943")  # Оригінальні чашки та кружки -> Чашки
