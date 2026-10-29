@@ -360,5 +360,88 @@ class TestCategoryIntegrity(unittest.TestCase):
             self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
             self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
 
+    def test_supplier_1100_category_mapping_integrity(self):
+        """Supplier 1100 (Forus) must have complete, verified category mapping under EVA."""
+        from masterevaxml import load_eva_category_mapping
+        mapping = load_eva_category_mapping()
+
+        rules_1100 = {k: v for k, v in mapping.items() if str(k).startswith("1100") and k != "1100"}
+        self.assertEqual(len(rules_1100), 318, "Supplier 1100 must have exactly 318 mapped rules (199 base + 119 virtual)")
+
+        # Verify critical base categories
+        self.assertEqual(rules_1100["1100007108"]["eva_id"], "100943")  # Оригінальні чашки та кружки -> Чашки
+        self.assertEqual(rules_1100["110000791"]["eva_id"], "100879")   # Подушки інтер'єрні -> Подушка
+        self.assertEqual(rules_1100["1100007170"]["eva_id"], "100890")  # Прикольні фартухи -> Фартух
+        self.assertEqual(rules_1100["110000710"]["eva_id"], "101257")   # Косметички -> Косметички
+        self.assertEqual(rules_1100["1100007265"]["eva_id"], "117952")  # Маски для сну -> Маски для сну
+        self.assertEqual(rules_1100["1100007266"]["eva_id"], "104003")  # Домашні капці жіночі
+        self.assertEqual(rules_1100["1100007133"]["eva_id"], "122918")  # Жіночі сумки
+        self.assertEqual(rules_1100["1100007135"]["eva_id"], "122020")  # Рюкзаки
+        self.assertEqual(rules_1100["1100007130"]["eva_id"], "121869")  # Оригінальні скарбнички -> Скарбнички
+        self.assertEqual(rules_1100["110000775"]["eva_id"], "112153")   # Фоторамки
+        self.assertEqual(rules_1100["1100007104"]["eva_id"], "112356")  # Світлодіодні гірлянди
+        self.assertEqual(rules_1100["1100007380"]["eva_id"], "112112")  # Металеві таблички
+        self.assertEqual(rules_1100["1100007310"]["eva_id"], "104207")  # Настільні ігри
+        self.assertEqual(rules_1100["1100007329"]["eva_id"], "100289")  # Піжами кігурумі -> Піжами жіночі
+        self.assertEqual(rules_1100["1100007318"]["eva_id"], "113707")  # Форми для яєць -> Форми
+        self.assertEqual(rules_1100["110000776"]["eva_id"], "118709")   # Все для ванни -> Набори для ванної кімнати
+        self.assertEqual(rules_1100["1100007289"]["eva_id"], "118709")  # Ванні приналежності -> Набори для ванної кімнати
+
+        # Test non-EVA categories
+        for no_eva_id in ["110000720", "110000790", "1100007272", "1100007346", "1100007362"]:
+            self.assertEqual(rules_1100[no_eva_id]["status"], "NO_EVA_CATEGORY")
+            self.assertEqual(rules_1100[no_eva_id]["eva_id"], "")
+
+    def test_supplier_1100_category_resolver(self):
+        """Test keyword-based resolver for Supplier 1100 umbrella and composite categories."""
+        from masterevaxml import resolve_supplier_1100_category
+
+        # Kitchen utensils & knives
+        self.assertEqual(resolve_supplier_1100_category("Магнітна рейка для ножів 38 см", orig_cat="00722"), "1100104063")
+        self.assertEqual(resolve_supplier_1100_category("Ніж кухонний шеф 20 см", orig_cat="00722"), "1100101013")
+        self.assertEqual(resolve_supplier_1100_category("Набір ножів кухонних 6 предметів", orig_cat="00722"), "1100101097")
+        self.assertEqual(resolve_supplier_1100_category("Ножиці кухонні багатофункціональні", orig_cat="007268"), "1100100996")
+        self.assertEqual(resolve_supplier_1100_category("Дошка обробна бамбукова", orig_cat="00722"), "1100100984")
+        self.assertEqual(resolve_supplier_1100_category("Тертка багатофункціональна 4в1", orig_cat="007268"), "1100105454")
+        self.assertEqual(resolve_supplier_1100_category("Кухарська лопатка силіконова", orig_cat="007268"), "1100113657")
+        self.assertEqual(resolve_supplier_1100_category("Набір силіконових кришок 6 шт", orig_cat="007268"), "1100100995")
+        self.assertEqual(resolve_supplier_1100_category("Силіконові форми для випікання пасок (3шт.)", orig_cat="99999"), "1100114003")
+        self.assertEqual(resolve_supplier_1100_category("Набір посуду похідний Cooking Set DS-301", orig_cat="99999"), "1100113858")
+
+        # Barware & drinks
+        self.assertEqual(resolve_supplier_1100_category("Чашка керамічна Закохане ведмежа", orig_cat="99999"), "1100100943")
+        self.assertEqual(resolve_supplier_1100_category("Камені для віскі Whiskey Stones 9 шт", orig_cat="007138"), "1100114012")
+        self.assertEqual(resolve_supplier_1100_category("Термос металевий з ситечком 500 мл", orig_cat="007132"), "1100113755")
+        self.assertEqual(resolve_supplier_1100_category("Фляга велика сувенірна в шкіряному чохлі", orig_cat="00785"), "1100113805")
+
+        # Home, decor, bathroom
+        self.assertEqual(resolve_supplier_1100_category("Голографічний зоряний проектор нічник", orig_cat="99999"), "1100102253")
+        self.assertEqual(resolve_supplier_1100_category("Світлодіодна гірлянда роса 10 м", orig_cat="007104"), "1100112356")
+        self.assertEqual(resolve_supplier_1100_category("Панно декор картини на стіну квітуче кохання", orig_cat="99999"), "1100112107")
+        self.assertEqual(resolve_supplier_1100_category("Кошик для білизни та іграшок", orig_cat="99999"), "1100104205")
+        self.assertEqual(resolve_supplier_1100_category("Ваза керамічна Ginger рожева", orig_cat="99999"), "1100104309")
+        self.assertEqual(resolve_supplier_1100_category("Шторка для ванної кімнати водонепроникна", orig_cat="00776"), "1100118709")
+        self.assertEqual(resolve_supplier_1100_category("Дозатор для рідкого мила сенсорний", orig_cat="00776"), "1100118705")
+
+        # Beauty, health, gadgets
+        self.assertEqual(resolve_supplier_1100_category("Маска для сну з охолоджуючим гелем", orig_cat="007265"), "1100117952")
+        self.assertEqual(resolve_supplier_1100_category("Електричний вібромасажер ударний", orig_cat="00721"), "1100116273")
+        self.assertEqual(resolve_supplier_1100_category("Вакуумний очищувач пор для обличчя", orig_cat="00721"), "1100104266")
+        self.assertEqual(resolve_supplier_1100_category("Бездротовий зарядний пристрій Fast Charge", orig_cat="00787"), "1100122716")
+        self.assertEqual(resolve_supplier_1100_category("Тримач для смартфона на торпеду авто", orig_cat="00714"), "1100117906")
+
+        # Games & toys
+        self.assertEqual(resolve_supplier_1100_category("Покерний набір на 100 фішок у жерстяній коробці", orig_cat="99999"), "1100104207")
+        self.assertEqual(resolve_supplier_1100_category("Гра кубики камасутра для дорослих 18+", orig_cat="007208"), "1100112560")
+        self.assertEqual(resolve_supplier_1100_category("Карнавальний костюм Діда Мороза з бородою", orig_cat="007328"), "1100121896")
+
+    def test_supplier_1100_virtual_categories_protected(self):
+        """Virtual categories of 1100 must not be pruned by is_thin_category."""
+        from masterevaxml import is_thin_category, _SUPPLIER_1100_VIRTUAL_CATEGORIES
+        self.assertEqual(len(_SUPPLIER_1100_VIRTUAL_CATEGORIES), 119, "1100 must have exactly 119 virtual categories")
+        for v_id in _SUPPLIER_1100_VIRTUAL_CATEGORIES:
+            self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
+            self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
+
 if __name__ == '__main__':
     unittest.main()
