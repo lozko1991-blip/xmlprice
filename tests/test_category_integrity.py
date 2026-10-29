@@ -443,5 +443,97 @@ class TestCategoryIntegrity(unittest.TestCase):
             self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
             self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
 
+
+    def test_supplier_3333_category_mapping_integrity(self):
+        """Supplier 3333 (Lugi) must have complete, verified category mapping under EVA."""
+        from masterevaxml import load_eva_category_mapping
+        mapping = load_eva_category_mapping()
+
+        rules_3333 = {k: v for k, v in mapping.items() if str(k).startswith("3333") and k != "3333"}
+        self.assertEqual(len(rules_3333), 253, "Supplier 3333 must have exactly 253 mapped rules (247 base + 6 virtual)")
+
+        # Verify critical corrected categories
+        self.assertEqual(rules_3333["3333149"]["eva_id"], "122926")  # Палатки -> Намети й аксесуари (not child toilet stool!)
+        self.assertEqual(rules_3333["333316"]["eva_id"], "104152")   # Машинки для стрижки -> Машинки для стрижки (not toy cars!)
+        self.assertEqual(rules_3333["333397"]["eva_id"], "101008")   # Весы кухонные -> Мірний посуд (not bathroom scales!)
+        self.assertEqual(rules_3333["333366"]["eva_id"], "100967")   # Сервизы -> Столові сервізи (not oven mitts!)
+        self.assertEqual(rules_3333["333349"]["eva_id"], "101013")   # Наборы кухонных ножей -> Ніж кухонний (valid ID!)
+        self.assertEqual(rules_3333["333357"]["eva_id"], "100943")   # Чашки -> Чашки
+        self.assertEqual(rules_3333["333363"]["eva_id"], "113857")   # Кастрюли -> Каструлі, ковші
+        self.assertEqual(rules_3333["3333273"]["eva_id"], "100878")  # Коврики -> Килимок
+        self.assertEqual(rules_3333["3333265"]["eva_id"], "101714")  # Хозяйственные товары -> Швабри
+        self.assertEqual(rules_3333["3333128"]["eva_id"], "104056")  # Органайзеры -> Органайзери для зберігання
+        self.assertEqual(rules_3333["3333145"]["eva_id"], "122706")  # Смарт часы -> Смарт-годинники
+        self.assertEqual(rules_3333["333347"]["eva_id"], "101077")   # Наборы для специй -> Приладдя для спецій
+        self.assertEqual(rules_3333["333342"]["eva_id"], "113755")   # Термосы для детей -> Термоси та термокухлі
+        self.assertEqual(rules_3333["3333326"]["eva_id"], "100952")  # Подносы -> Підноси
+        self.assertEqual(rules_3333["333331"]["status"], "NO_EVA_CATEGORY")   # Настінні годинники
+        self.assertEqual(rules_3333["3333100"]["status"], "NO_EVA_CATEGORY")  # Камера спостереження
+
+    def test_supplier_3333_category_resolver(self):
+        """Test keyword-based resolver for Supplier 3333 composite categories."""
+        from masterevaxml import resolve_supplier_3333_category
+
+        # Table placemats vs floor mats in 273
+        self.assertEqual(
+            resolve_supplier_3333_category("Сервірувальні серветки з бамбука під тарілки", "", "", "273"),
+            "3333_v1"
+        )
+        self.assertEqual(
+            resolve_supplier_3333_category("Килимок для ванної кімнати на присосках", "", "", "273"),
+            "3333273"
+        )
+
+        # Cleaning accessories vs mops in 265
+        self.assertEqual(
+            resolve_supplier_3333_category("Скребок для миття скла та вікон", "", "", "265"),
+            "3333_v2"
+        )
+        self.assertEqual(
+            resolve_supplier_3333_category("Комплект совок та щітка для сміття", "", "", "265"),
+            "3333_v3"
+        )
+        self.assertEqual(
+            resolve_supplier_3333_category("Швабра з віджимом з мікрофібри", "", "", "265"),
+            "3333265"
+        )
+
+        # Jewelry boxes in organizers 128
+        self.assertEqual(
+            resolve_supplier_3333_category("Скринька для прикрас з еко шкіри 2 яруси", "", "", "128"),
+            "3333_v4"
+        )
+        self.assertEqual(
+            resolve_supplier_3333_category("Шафа для взуття портативна пластикова", "", "", "128"),
+            "3333128"
+        )
+
+        # Cookware sets in pots 63
+        self.assertEqual(
+            resolve_supplier_3333_category("Набір посуду для приготування 12 предметів", "", "", "63"),
+            "3333_v5"
+        )
+        self.assertEqual(
+            resolve_supplier_3333_category("Каструля емальована 2 літри", "", "", "63"),
+            "333363"
+        )
+
+        # Cheese boards in dishes 182
+        self.assertEqual(
+            resolve_supplier_3333_category("Набір для нарізки сиру з ножами", "", "", "182"),
+            "3333_v6"
+        )
+        self.assertEqual(
+            resolve_supplier_3333_category("Блюдо сервірувальне порцелянове", "", "", "182"),
+            "3333182"
+        )
+
+    def test_supplier_3333_virtual_categories_protected(self):
+        """Supplier 3333 virtual categories must not be pruned by is_thin_category."""
+        from masterevaxml import is_thin_category, _SUPPLIER_3333_VIRTUAL_CATEGORIES
+        self.assertEqual(len(_SUPPLIER_3333_VIRTUAL_CATEGORIES), 6)
+        for v_id in _SUPPLIER_3333_VIRTUAL_CATEGORIES:
+            self.assertFalse(is_thin_category(v_id, 0), f"Virtual category {v_id} must not be thin")
+
 if __name__ == '__main__':
     unittest.main()

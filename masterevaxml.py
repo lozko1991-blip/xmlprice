@@ -1099,6 +1099,58 @@ def resolve_supplier_1100_category(name, vendor="", desc="", orig_cat=""):
     clean_cat = orig_cat[4:] if orig_cat.startswith('1100') else orig_cat
     return f"1100{clean_cat}" if clean_cat and clean_cat != '99999' else '1100104056'
 
+
+_SUPPLIER_3333_VIRTUAL_CATEGORIES = {
+    '3333_v1': 'Сервірувальні серветки та підставки для столу',
+    '3333_v2': 'Швабри для вікон та скребки',
+    '3333_v3': 'Комплект совок та щітка',
+    '3333_v4': 'Скриньки, футляри, скрині',
+    '3333_v5': 'Набори посуду для приготування їжі',
+    '3333_v6': 'Дошка обробна / для сиру',
+}
+
+def resolve_supplier_3333_category(name, vendor="", desc="", orig_cat=""):
+    """
+    Інтелектуальний роутер категорій для постачальника 3333 (Lugi / lugi.com.ua).
+    Розбирає збірні категорії на точні листові гілки EVA.
+    """
+    n = (name or "").lower()
+    clean_cat = orig_cat[4:] if orig_cat.startswith('3333') else orig_cat
+
+    # 1. Category 273: Коврики для кухни и ванной
+    if clean_cat == '273':
+        if 'сервірувальн' in n or 'сервировочн' in n or 'під тарілк' in n or 'под тарелк' in n or ('бамбук' in n and ('килим' in n or 'салфет' in n)):
+            return '3333_v1' # 101149 Скатертини та серветки
+        return '3333273' # 100878 Килимок
+
+    # 2. Category 265: Хозяйственные товары
+    if clean_cat == '265':
+        if 'вікон' in n or 'окон' in n or 'скребок' in n or 'скла' in n:
+            return '3333_v2' # 118652 Швабри для вікон та скребки
+        if 'совок' in n or 'щітк' in n or 'щетк' in n or 'віник' in n or 'веник' in n:
+            return '3333_v3' # 118654 Комплект совок та щітка
+        return '3333265' # 101714 Швабри
+
+    # 3. Category 128: Органайзеры
+    if clean_cat == '128':
+        if 'скриньк' in n or 'шкатулк' in n or 'прикрас' in n or 'украшен' in n or 'годинник' in n or 'часов' in n:
+            return '3333_v4' # 112154 Скриньки, футляри, скрині
+        return '3333128' # 104056 Органайзери для зберігання
+
+    # 4. Category 63: Кастрюли
+    if clean_cat == '63':
+        if 'набір посуду' in n or 'набор посуды' in n or 'набір каструль' in n or 'набор кастрюль' in n or 'предмет' in n:
+            return '3333_v5' # 113858 Набори посуду для приготування їжі
+        return '333363' # 113857 Каструлі, ковші
+
+    # 5. Category 182: Блюда
+    if clean_cat == '182':
+        if 'сир' in n or 'сыр' in n:
+            return '3333_v6' # 100984 Дошка обробна / для сиру
+        return '3333182' # 100942 Тарілки та салатники
+
+    return f"3333{clean_cat}"
+
 def is_thin_category(cat_id, count, is_parent=False):
     """
     Визначає, чи є категорія тонкою/порожньою для подальшого видалення.
@@ -1108,7 +1160,7 @@ def is_thin_category(cat_id, count, is_parent=False):
     """
     if is_parent:
         return False
-    if str(cat_id) in _SUPPLIER_3000_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_9999_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1200_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1100_VIRTUAL_CATEGORIES:
+    if str(cat_id) in _SUPPLIER_3000_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_9999_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1200_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1100_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_3333_VIRTUAL_CATEGORIES:
         return False
     if str(cat_id).startswith("2000"):
         return count < 10
@@ -2252,6 +2304,12 @@ def process():
             final_categories[v_id] = v_cat
 
     # Реєструємо віртуальні підкатегорії постачальника 1100 у списку категорій
+    for v_id, v_name in _SUPPLIER_3333_VIRTUAL_CATEGORIES.items():
+        if v_id not in final_categories:
+            v_cat = ET.Element("category", id=v_id)
+            v_cat.text = v_name
+            final_categories[v_id] = v_cat
+
     for v_id, v_name in _SUPPLIER_1100_VIRTUAL_CATEGORIES.items():
         if v_id not in final_categories:
             v_cat = ET.Element("category", id=v_id)
@@ -2309,6 +2367,8 @@ def process():
                 cat_id = resolve_supplier_1200_category(get_name(offer), offer.findtext('vendor') or '', '', orig_cat)
             elif prefix == '1100':
                 cat_id = resolve_supplier_1100_category(get_name(offer), offer.findtext('vendor') or '', '', orig_cat)
+            elif prefix == '3333':
+                cat_id = resolve_supplier_3333_category(get_name(offer), offer.findtext('vendor') or '', '', orig_cat)
             cat_element = final_categories.get(cat_id)
             cat_name = cat_element.text if cat_element is not None else ""
             offer_name = get_name(offer)
@@ -2488,6 +2548,8 @@ def process():
                     cat_id = resolve_supplier_1200_category(name_ua, vendor, desc, orig_cat)
                 elif prefix == '1100':
                     cat_id = resolve_supplier_1100_category(name_ua, vendor, desc, orig_cat)
+                elif prefix == '3333':
+                    cat_id = resolve_supplier_3333_category(name_ua, vendor, desc, orig_cat)
 
                 # Якщо категорія відсутня у списку категорій постачальника -
                 # переносимо товар у фіксовану категорію "Інші товари [Постачальник]"
