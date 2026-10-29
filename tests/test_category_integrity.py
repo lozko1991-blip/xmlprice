@@ -732,6 +732,13 @@ class TestCategoryIntegrity(unittest.TestCase):
         self.assertEqual(rules_kievopt['2102']['eva_id'], '122918')   # Женские сумки
         self.assertEqual(rules_kievopt['4915']['eva_id'], '111752')   # Поясна сумка (бананка)
         self.assertEqual(rules_kievopt['2754']['eva_id'], '100876')   # Электропростыни, одеяла -> Ковдри
+        self.assertEqual(rules_kievopt['1907']['eva_id'], '107703')   # Дорожная сумка
+        self.assertEqual(rules_kievopt['1973']['eva_id'], '119354')   # Рюкзак-переноска
+        self.assertEqual(rules_kievopt['5318']['eva_id'], '104015')   # Сухой корм для собак
+        self.assertEqual(rules_kievopt['5344']['eva_id'], '104009')   # Сухой корм для котов
+        self.assertEqual(rules_kievopt['5418']['eva_id'], '104026')   # Игрушки для собак
+        self.assertEqual(rules_kievopt['5417']['eva_id'], '104012')   # Игрушки для кошек
+        self.assertEqual(rules_kievopt['5352']['eva_id'], '104208')   # Подгузники для животных -> Пелюшки для собак
 
         # Verify legitimate NO_EVA_CATEGORY rules for IT components / consumables / PC peripherals
         self.assertEqual(rules_kievopt['1215']['status'], 'NO_EVA_CATEGORY')  # Картриджи
