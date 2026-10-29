@@ -229,6 +229,14 @@ class TestCategoryIntegrity(unittest.TestCase):
         self.assertEqual(rules_7777["7777310"]["eva_id"], "112110")  # Статуетки і фігурки
         self.assertEqual(rules_7777["7777311"]["eva_id"], "112311")  # Новорічний декор
         self.assertEqual(rules_7777["7777306"]["eva_id"], "118709")  # Набори для ванної кімнати
+        self.assertEqual(rules_7777["7777197"]["eva_id"], "100902")  # Хлібниці
+        self.assertEqual(rules_7777["7777261"]["eva_id"], "104063")  # Підставки та планки для ножів
+        self.assertEqual(rules_7777["7777230"]["eva_id"], "100929")  # Пароварки, скороварки
+        self.assertEqual(rules_7777["7777122"]["eva_id"], "100982")  # Марміти
+        self.assertEqual(rules_7777["7777195"]["eva_id"], "113803")  # Барні аксесуари
+        self.assertEqual(rules_7777["7777262"]["eva_id"], "101077")  # Млини для спецій
+        self.assertEqual(rules_7777["7777277"]["eva_id"], "101009")  # Миски для змішування
+        self.assertEqual(rules_7777["7777281"]["eva_id"], "112560")  # Еротичні настільні ігри
 
         # Test parent categories
         for pid in ["777719", "7777272", "777796", "777737", "7777304", "777791", "7777294", "7777252"]:
