@@ -685,5 +685,51 @@ class TestCategoryIntegrity(unittest.TestCase):
         for v_id in _SUPPLIER_4444_VIRTUAL_CATEGORIES:
             self.assertFalse(is_thin_category(v_id, 0), f"Virtual category {v_id} must not be thin")
 
+    def test_supplier_kievopt_category_mapping_integrity(self):
+        """Supplier kievopt must have complete, verified category mapping under EVA (824 rules)."""
+        import csv
+        import json
+        import os
+
+        csv_path = os.path.join(os.path.dirname(__file__), '..', 'docs', 'eva_category_mapping.csv')
+        rules_kievopt = {}
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for r in reader:
+                if r.get('supplier') == 'kievopt':
+                    rules_kievopt[r['cat_id']] = r
+
+        self.assertEqual(len(rules_kievopt), 824, f"Supplier kievopt must have exactly 824 rules, got {len(rules_kievopt)}")
+
+        # Verify leaf node validity against eva_sheet_cache.json
+        cache_path = os.path.join(os.path.dirname(__file__), '..', 'scratch', 'eva_sheet_cache.json')
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                valid_leaf_ids = {item['id'] for item in json.load(f)}
+            for cid, info in rules_kievopt.items():
+                if info.get('status') == 'MAPPED':
+                    eva_id = info.get('eva_id', '')
+                    self.assertIn(eva_id, valid_leaf_ids, f"Kievopt category {cid} maps to invalid leaf {eva_id}")
+
+        # Verify key mapped categories
+        self.assertEqual(rules_kievopt['1082']['eva_id'], '122715')   # Чехлы для мобильных телефонов
+        self.assertEqual(rules_kievopt['4615']['eva_id'], '105310')   # Картины по номерам
+        self.assertEqual(rules_kievopt['1425']['eva_id'], '104207')   # Настольные игры
+        self.assertEqual(rules_kievopt['1419']['eva_id'], '105338')   # Конструкторы
+        self.assertEqual(rules_kievopt['1424']['eva_id'], '101231')   # Мягкие игрушки
+        self.assertEqual(rules_kievopt['1435']['eva_id'], '101241')   # Подгузники и пеленки
+        self.assertEqual(rules_kievopt['1092']['eva_id'], '122717')   # Наушники и гарнитуры
+        self.assertEqual(rules_kievopt['1300']['eva_id'], '122876')   # Фены
+        self.assertEqual(rules_kievopt['1288']['eva_id'], '121458')   # Электрочайники
+        self.assertEqual(rules_kievopt['1060']['eva_id'], '122716')   # Блоки питания для ноутбуков
+        self.assertEqual(rules_kievopt['4193']['eva_id'], '100933')   # Сковородки - NEW!
+        self.assertEqual(rules_kievopt['6583']['eva_id'], '120713')   # Шарики для сухого бассейна
+
+        # Verify legitimate NO_EVA_CATEGORY rules for IT components / consumables
+        self.assertEqual(rules_kievopt['1215']['status'], 'NO_EVA_CATEGORY')  # Картриджи
+        self.assertEqual(rules_kievopt['1100']['status'], 'NO_EVA_CATEGORY')  # Корпуса ПК
+        self.assertEqual(rules_kievopt['1067']['status'], 'NO_EVA_CATEGORY')  # Внутренние SSD
+        self.assertEqual(rules_kievopt['1096']['status'], 'NO_EVA_CATEGORY')  # Процессоры
+
 if __name__ == '__main__':
     unittest.main()
