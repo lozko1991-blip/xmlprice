@@ -173,40 +173,84 @@ class TestCategoryIntegrity(unittest.TestCase):
             self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
             self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
 
+    def test_supplier_1200_category_mapping_integrity(self):
+        """Supplier 1200 (Aveon) must have complete, verified category mapping under EVA."""
+        from masterevaxml import load_eva_category_mapping
+        mapping = load_eva_category_mapping()
+
+        rules_1200 = {k: v for k, v in mapping.items() if str(k).startswith("1200") and k != "1200"}
+        self.assertEqual(len(rules_1200), 137, "Supplier 1200 must have exactly 137 rules (47 base + 90 virtual)")
+
+        # Test refined virtual categories
+        self.assertEqual(rules_1200["1200122857"]["eva_id"], "122857") # Тостери
+        self.assertEqual(rules_1200["1200104003"]["eva_id"], "104003") # Домашні капці жіночі
+        self.assertEqual(rules_1200["1200122267"]["eva_id"], "122267") # Акумуляторні пилососи
+        self.assertEqual(rules_1200["1200100833"]["eva_id"], "100833") # Електричні зубні щітки
+        self.assertEqual(rules_1200["1200101257"]["eva_id"], "101257") # Косметички
+        self.assertEqual(rules_1200["1200119856"]["eva_id"], "119856") # Музичні інструменти
+        self.assertEqual(rules_1200["1200100547"]["eva_id"], "100547") # Манікюрні набори
+
+        # Test non-EVA categories
+        for no_eva in ["120030017035", "1200108482107", "120070180736", "120099320587", "1200108117197"]:
+            self.assertEqual(rules_1200[no_eva]["status"], "NO_EVA_CATEGORY")
+            self.assertEqual(rules_1200[no_eva]["eva_id"], "")
+
     def test_supplier_1200_category_resolver(self):
         """Verify that umbrella category items of supplier 1200 resolve to accurate EVA categories."""
         from masterevaxml import resolve_supplier_1200_category
 
         # Kitchen tech & cookware
         self.assertEqual(resolve_supplier_1200_category("Електрична м'ясорубка Rainberg RB-5412", orig_cat="30018858"), "1200122805")
-        self.assertEqual(resolve_supplier_1200_category("Блендер стаціонарний Denx DX2072", orig_cat="30018858"), "1200121456")
-        self.assertEqual(resolve_supplier_1200_category("Електрочайник Rainberg RB-888 1.8 л", orig_cat="30018858"), "1200121458")
-        self.assertEqual(resolve_supplier_1200_category("Аерофритюрниця мультипіч Zepline 6 л", orig_cat="30018858"), "1200122868")
+        self.assertEqual(resolve_supplier_1200_category("Заглибний блендер Denx DX2072", orig_cat="30018858"), "1200121456")
+        self.assertEqual(resolve_supplier_1200_category("Електричний дисковий скляний чайник Crownberg CB 9121", orig_cat="30018858"), "1200121458")
+        self.assertEqual(resolve_supplier_1200_category("Аерофритюрниця електрична Zepline 6 л", orig_cat="30018858"), "1200122868")
         self.assertEqual(resolve_supplier_1200_category("Набір каструль 12 предметів з нержавіючої сталі", orig_cat="30018858"), "1200113858")
         self.assertEqual(resolve_supplier_1200_category("Набір кухонних ножів на підставці", orig_cat="30018858"), "1200101097")
+        self.assertEqual(resolve_supplier_1200_category("Тостер Sokany HJT-008S на 2 скибочки", orig_cat="30018858"), "1200122857")
+        self.assertEqual(resolve_supplier_1200_category("Кавомашина крапельна CB-1568 з двома чашками", orig_cat="30018858"), "1200121557")
+        self.assertEqual(resolve_supplier_1200_category("Електрична плита Crownberg CB-1327 настільна інфрачервона", orig_cat="30018858"), "1200122853")
+        self.assertEqual(resolve_supplier_1200_category("Притискний контактний електричний настільний гриль", orig_cat="30018858"), "1200121552")
+        self.assertEqual(resolve_supplier_1200_category("Набір контейнерів для їжі 7 предметів FOOD Storage", orig_cat="30018858"), "1200100911")
+        self.assertEqual(resolve_supplier_1200_category("Кухонний набір ZP кухонне начиння 12 предметів", orig_cat="30018858"), "1200101094")
 
         # Beauty tech
         self.assertEqual(resolve_supplier_1200_category("Машинка для стрижки волосся VGR V-030", orig_cat="30014688"), "1200104152")
-        self.assertEqual(resolve_supplier_1200_category("Тример для бороди та носа Kemei", orig_cat="30014688"), "1200104154")
-        self.assertEqual(resolve_supplier_1200_category("Фен для волосся професійний 2200W", orig_cat="30014688"), "1200122876")
-        self.assertEqual(resolve_supplier_1200_category("Електричний вібромасажер пістолет", orig_cat="30014688"), "1200116273")
+        self.assertEqual(resolve_supplier_1200_category("Тример для носа та вух Kemei", orig_cat="30014688"), "1200104154")
+        self.assertEqual(resolve_supplier_1200_category("Професійний фен для сушіння та укладання волосся VGR V-431", orig_cat="30014688"), "1200122876")
+        self.assertEqual(resolve_supplier_1200_category("Масажер для тіла", orig_cat="30014688"), "1200116273")
+        self.assertEqual(resolve_supplier_1200_category("Вакуумний апарат для чищення пор Beauty Skin Care", orig_cat="30014688"), "1200104266")
+        self.assertEqual(resolve_supplier_1200_category("Електрична зубна щітка Shuke SK-601 акумуляторна", orig_cat="30014688"), "1200100833")
+        self.assertEqual(resolve_supplier_1200_category("Манікюрний набір 18 предметів у футлярі", orig_cat="30014688"), "1200100547")
+        self.assertEqual(resolve_supplier_1200_category("Органайзер для косметики 2 секції YM206", orig_cat="30014688"), "1200101257")
 
-        # Home & garden
-        self.assertEqual(resolve_supplier_1200_category("Відпарювач для одягу ручний парова праска", orig_cat="30017053"), "1200110856")
-        self.assertEqual(resolve_supplier_1200_category("Настільна LED лампа з акумулятором", orig_cat="30018536"), "1200117861")
+        # Home, garden, slippers & tools
+        self.assertEqual(resolve_supplier_1200_category("Відпарювач для одягу вертикальний ручний", orig_cat="30017053"), "1200110856")
+        self.assertEqual(resolve_supplier_1200_category("Настільна LED лампа акумуляторна з USB", orig_cat="30018536"), "1200117861")
+        self.assertEqual(resolve_supplier_1200_category("Shoozy капці шльопанці жіночі", orig_cat="108118382"), "1200104003")
+        self.assertEqual(resolve_supplier_1200_category("Автомобільний портативний бездротовий акумуляторний пилосос 2 in1", orig_cat="30017035"), "1200122267")
+        self.assertEqual(resolve_supplier_1200_category("Троянда в колбі з LED-підсвіткою Велика NoA52 (Нічник)", orig_cat="99320587"), "1200102253")
 
         # Kids & toys
-        self.assertEqual(resolve_supplier_1200_category("Ігрова консоль SUP Game Box 400 in 1", orig_cat="30017064"), "1200122677")
+        self.assertEqual(resolve_supplier_1200_category("Ігрова приставка SUP Game Box 400 in 1", orig_cat="30017064"), "1200122677")
         self.assertEqual(resolve_supplier_1200_category("3D-ручка з LCD-дисплеєм для дітей", orig_cat="30017064"), "1200117852")
         self.assertEqual(resolve_supplier_1200_category("Дитячий шезлонг гойдалка з заколисуванням", orig_cat="30017064"), "1200121859")
+        self.assertEqual(resolve_supplier_1200_category("Набір скетч-маркерів 168 шт. для малювання двосторонніх Touch", orig_cat="30017064"), "1200105923")
+        self.assertEqual(resolve_supplier_1200_category("Караоке-мікрофон Wster WS-669 бездротовий", orig_cat="70180736"), "1200119856")
+
+        # Sport & tourism
+        self.assertEqual(resolve_supplier_1200_category("Душ туристичний Camp Shower похідний переносний", orig_cat="30017047"), "1200122925")
+        self.assertEqual(resolve_supplier_1200_category("Намет автоматичний 2-місний ЗЕЛЕНИЙ", orig_cat="30017047"), "1200122926")
 
         # Non-EVA categories
         self.assertEqual(resolve_supplier_1200_category("Автомобільний компресор для підкачування шин", orig_cat="30017035"), "120030017035")
         self.assertEqual(resolve_supplier_1200_category("Уцінка. Пошкоджена упаковка", orig_cat="108482107"), "1200108482107")
+        self.assertEqual(resolve_supplier_1200_category("Портативна Bluetooth колонка Boombox", orig_cat="70180736"), "120070180736")
+        self.assertEqual(resolve_supplier_1200_category("Вібратор-яйце Spark of love", orig_cat="99320587"), "120099320587")
 
     def test_supplier_1200_virtual_categories_protected(self):
         """Virtual categories of 1200 must not be pruned by is_thin_category."""
         from masterevaxml import is_thin_category, _SUPPLIER_1200_VIRTUAL_CATEGORIES
+        self.assertEqual(len(_SUPPLIER_1200_VIRTUAL_CATEGORIES), 90, "1200 must have exactly 90 virtual categories")
         for v_id in _SUPPLIER_1200_VIRTUAL_CATEGORIES:
             self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
             self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
