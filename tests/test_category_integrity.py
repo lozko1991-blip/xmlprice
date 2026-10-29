@@ -248,5 +248,73 @@ class TestCategoryIntegrity(unittest.TestCase):
             self.assertEqual(rules_7777[no_eva_id]["status"], "NO_EVA_CATEGORY")
             self.assertEqual(rules_7777[no_eva_id]["eva_id"], "")
 
+    def test_supplier_9999_category_mapping_integrity(self):
+        """Supplier 9999 (WebSklad) must have complete, verified category mapping under EVA."""
+        from masterevaxml import load_eva_category_mapping
+        mapping = load_eva_category_mapping()
+
+        rules_9999 = {k: v for k, v in mapping.items() if str(k).startswith("9999")}
+        self.assertEqual(len(rules_9999), 140, "Supplier 9999 must have exactly 140 rules (115 base + 25 virtual)")
+
+        # Test refined categories
+        self.assertEqual(rules_9999["9999507759522"]["eva_id"], "122875")  # Ваги кухонні -> Інша дрібна техніка
+        self.assertEqual(rules_9999["99992194088440"]["eva_id"], "119658") # Павербанки -> Універсальні мобільні батареї
+        self.assertEqual(rules_9999["99993581823412"]["eva_id"], "105920") # Наметы детские -> Намети, тунелі
+        self.assertEqual(rules_9999["99994107734731"]["eva_id"], "122267") # Пылесосы авто -> Акумуляторні пилососи
+        self.assertEqual(rules_9999["99992884069620"]["eva_id"], "119856") # Мікрофони -> Музичні інструменти
+        self.assertEqual(rules_9999["99991429839245"]["eva_id"], "100954") # Столові прилади -> Столові прилади
+
+        # Test new virtual categories
+        self.assertEqual(rules_9999["9999114012"]["eva_id"], "114012") # Камені для віскі
+        self.assertEqual(rules_9999["9999104012"]["eva_id"], "104012") # Іграшки для котів
+        self.assertEqual(rules_9999["9999121552"]["eva_id"], "121552") # Грилі електричні
+        self.assertEqual(rules_9999["9999121273"]["eva_id"], "121273") # Сушарки для одягу
+        self.assertEqual(rules_9999["9999121279"]["eva_id"], "121279") # Портативні дитячі принтери
+        self.assertEqual(rules_9999["9999122279"]["eva_id"], "122279") # Набори для пікніка
+        self.assertEqual(rules_9999["9999121556"]["eva_id"], "121556") # Морозивниці
+        self.assertEqual(rules_9999["9999102254"]["eva_id"], "102254") # Гаджети для догляду за обличчям
+        self.assertEqual(rules_9999["9999113805"]["eva_id"], "113805") # Набори для бару
+        self.assertEqual(rules_9999["9999102253"]["eva_id"], "102253") # Нічник
+        self.assertEqual(rules_9999["9999122278"]["eva_id"], "122278") # Туристичні ножі
+        self.assertEqual(rules_9999["9999122875"]["eva_id"], "122875") # Інша дрібна техніка
+        self.assertEqual(rules_9999["9999100911"]["eva_id"], "100911") # Харчові контейнери
+        self.assertEqual(rules_9999["9999120714"]["eva_id"], "120714") # Іграшкова зброя
+        self.assertEqual(rules_9999["9999122925"]["eva_id"], "122925") # Портативний душ
+
+        # Test non-EVA categories
+        for no_eva in ["99993330400428", "99994183355383", "99992722838145", "99993813542800", "9999459200474"]:
+            self.assertEqual(rules_9999[no_eva]["status"], "NO_EVA_CATEGORY")
+            self.assertEqual(rules_9999[no_eva]["eva_id"], "")
+
+    def test_supplier_9999_category_resolver(self):
+        """WebSklad fallback resolver must map products to correct virtual categories."""
+        from masterevaxml import resolve_supplier_9999_category
+
+        self.assertEqual(resolve_supplier_9999_category("Камені для віскі Whiskey Stones 9 шт"), "9999114012")
+        self.assertEqual(resolve_supplier_9999_category("Інтерактивна іграшка для котика трекбол з м'ячиком"), "9999104012")
+        self.assertEqual(resolve_supplier_9999_category("Контактний гриль електричний RAF"), "9999121552")
+        self.assertEqual(resolve_supplier_9999_category("Сушарка для одягу підвісна електрична"), "9999121273")
+        self.assertEqual(resolve_supplier_9999_category("Портативний міні термопринтер для телефону"), "9999121279")
+        self.assertEqual(resolve_supplier_9999_category("Набір для пікніка Camping Casual на 4 персони"), "9999122279")
+        self.assertEqual(resolve_supplier_9999_category("Автоматична морозивниця Camry для десертів"), "9999121556")
+        self.assertEqual(resolve_supplier_9999_category("Косметологічна LED-маска для омолодження шкіри обличчя"), "9999102254")
+        self.assertEqual(resolve_supplier_9999_category("Алкогольна рулетка з чарками Casino Night"), "9999113805")
+        self.assertEqual(resolve_supplier_9999_category("Електрична мухобойка пастка 3 в 1 з УФ-лампою"), "9999102253")
+        self.assertEqual(resolve_supplier_9999_category("Мультитул-ніж Leatherman кишеньковий"), "9999122278")
+        self.assertEqual(resolve_supplier_9999_category("Апарат для приготування цукрової солодкої вати"), "9999122875")
+        self.assertEqual(resolve_supplier_9999_category("Набір сталевих судочків з кришками"), "9999100911")
+        self.assertEqual(resolve_supplier_9999_category("Дитячий кулемет з мильними бульбашками Gatling"), "9999120714")
+        self.assertEqual(resolve_supplier_9999_category("Лійка 4в1 масажна душова лійка з фільтром"), "9999122925")
+
+        # Unknown / non-matching product
+        self.assertEqual(resolve_supplier_9999_category("Перфоратор бочковий Grand ПЕ-1900"), "999999999")
+
+    def test_supplier_9999_virtual_categories_protected(self):
+        """Virtual categories of 9999 must not be pruned by is_thin_category."""
+        from masterevaxml import is_thin_category, _SUPPLIER_9999_VIRTUAL_CATEGORIES
+        for v_id in _SUPPLIER_9999_VIRTUAL_CATEGORIES:
+            self.assertFalse(is_thin_category(v_id, 1, is_parent=False))
+            self.assertFalse(is_thin_category(v_id, 0, is_parent=False))
+
 if __name__ == '__main__':
     unittest.main()
