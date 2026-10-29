@@ -1151,6 +1151,172 @@ def resolve_supplier_3333_category(name, vendor="", desc="", orig_cat=""):
 
     return f"3333{clean_cat}"
 
+
+_SUPPLIER_4444_VIRTUAL_CATEGORIES = {
+    '4444_v1': 'Відпарювачі',
+    '4444_v2': 'Пароочисники',
+    '4444_v3': 'Машинки для зістригання ковтунців',
+    '4444_v4': 'Електричні кавоварки',
+    '4444_v5': 'Кавомолки',
+    '4444_v6': 'Термоси та термокухлі',
+    '4444_v7': 'Сковорода',
+    '4444_v8': 'Каструлі, ковші',
+    '4444_v9': 'Ніж кухонний',
+    '4444_v10': 'Дошка обробна',
+    '4444_v11': 'Ваги для підлоги',
+    '4444_v12': 'Акумулятори та батарейки',
+    '4444_v13': 'Фени та фени-щітки',
+    '4444_v14': 'Плойки та стайлери',
+    '4444_v15': 'Машинки для стрижки',
+    '4444_v16': 'Електробритви',
+    '4444_v17': 'Блендери',
+    '4444_v18': "Електричні м'ясорубки",
+    '4444_v19': 'Грилі електричні',
+    '4444_v20': 'Нічник',
+    '4444_v21': 'Ліхтарі та аксесуари',
+    '4444_v22': 'Акумуляторні пилососи',
+    '4444_v23': 'Тримачі',
+    '4444_v24': 'Зарядні пристрої',
+    '4444_v25': 'Плед',
+    '4444_v26': 'Вішалка',
+    '4444_v27': 'Смарт-годинники',
+    '4444_v28': 'Музичні інструменти',
+    '4444_v29': 'Мʼякі іграшки',
+    '4444_v30': 'Електричні масажери',
+}
+
+def resolve_supplier_4444_category(name, vendor="", desc="", orig_cat=""):
+    """
+    Інтелектуальний роутер категорій для постачальника 4444 (Dropom / dropom.com.ua).
+    Розбирає збірні та змішані категорії на точні листові гілки EVA.
+    """
+    n = (name or "").lower()
+    clean_cat = orig_cat[4:] if orig_cat.startswith('4444') else orig_cat
+
+    # 1. Category 132827487: Велика збірна категорія різного призначення
+    if clean_cat in ('132827487', '99999'):
+        if 'пилосос' in n or 'пылесос' in n:
+            return '4444_v22'
+        if 'фен' in n:
+            return '4444_v13'
+        if 'плойк' in n or 'стайлер' in n or 'утюжок' in n or 'гофре' in n or 'випрямляч' in n:
+            return '4444_v14'
+        if ('машинк' in n and 'стриж' in n) or 'тример' in n or 'триммер' in n:
+            return '4444_v15'
+        if 'бритв' in n or 'епілятор' in n:
+            return '4444_v16'
+        if 'блендер' in n or 'подрібнювач' in n or 'измельчитель' in n:
+            return '4444_v17'
+        if "м'ясоруб" in n or 'мясоруб' in n:
+            return '4444_v18'
+        if 'гриль' in n or 'вафельниц' in n or 'бутербродниц' in n or 'сендвічниц' in n or 'фритюрниц' in n or 'аерогриль' in n or 'млинниц' in n:
+            return '4444_v19'
+        if 'кавоварк' in n or 'турка' in n or 'кофеварк' in n:
+            return '4444_v4'
+        if 'масажер' in n or 'массажер' in n:
+            return '4444_v30'
+        if 'нічник' in n or 'ночник' in n or 'настільна ламп' in n or 'настольная ламп' in n or 'світильник' in n:
+            return '4444_v20'
+        if 'ліхтар' in n or 'фонар' in n:
+            return '4444_v21'
+        if 'годинник' in n or 'часы' in n or ('смарт' in n and 'watch' in n):
+            return '4444_v27'
+        if 'мікрофон' in n or 'микрофон' in n or 'караоке' in n or 'колонк' in n:
+            return '4444_v28'
+        if 'іграшк' in n or 'игрушк' in n or 'гусак' in n or 'гусь' in n or 'плюшев' in n:
+            return '4444_v29'
+        if 'ваги' in n or 'весы' in n:
+            return '4444_v11'
+        if 'батаре' in n or 'акумулятор' in n or 'аккумулятор' in n:
+            return '4444_v12'
+        if 'вішалк' in n or 'вешалк' in n or 'плечик' in n or ('полиц' in n and 'взутт' in n) or ('полка' in n and 'обув' in n):
+            return '4444_v26'
+        if 'грілк' in n or 'грелк' in n or 'плед' in n or 'подушк' in n or 'ковдр' in n:
+            return '4444_v25'
+        if 'катишк' in n or 'котунц' in n or 'lint' in n:
+            return '4444_v3'
+        if 'відпарювач' in n or 'отпариватель' in n:
+            return '4444_v1'
+        if 'праск' in n or 'утюг' in n:
+            return '4444133276236'
+        if 'тримач' in n or 'держател' in n:
+            return '4444_v23'
+        if 'зарядн' in n:
+            return '4444_v24'
+        if 'термос' in n or 'пляшк' in n:
+            return '4444_v6'
+        if 'ніж' in n or 'нож' in n:
+            return '4444_v9'
+        return '444499999' if clean_cat == '99999' else '4444132827487'
+
+    # 2. Category 133276236: Утюги, пароочистители
+    if clean_cat == '133276236':
+        if 'відпарювач' in n or 'отпариватель' in n:
+            return '4444_v1'
+        if 'пароочисник' in n or 'пароочиститель' in n:
+            return '4444_v2'
+        if 'катишк' in n or 'котунц' in n or 'lint' in n:
+            return '4444_v3'
+        return '4444133276236'
+
+    # 3. Category 133276231: Кофеварки и кофемолки
+    if clean_cat == '133276231':
+        if 'кавомолк' in n or 'кофемолк' in n:
+            return '4444_v5'
+        return '4444_v4'
+
+    # 4. Category 148240778: Электрочайники и термосы
+    if clean_cat == '148240778':
+        if 'термос' in n or 'термокружк' in n or 'бутылк' in n or 'пляшк' in n:
+            return '4444_v6'
+        return '4444148240778'
+
+    # 5. Category 133276074: Техника и электроника
+    if clean_cat == '133276074':
+        if 'ваги' in n or 'весы' in n:
+            return '4444_v11'
+        if 'батарейк' in n or 'акумулятор' in n or 'аккумулятор' in n:
+            return '4444_v12'
+        if 'фен' in n:
+            return '4444_v13'
+        if 'бритв' in n or 'епілятор' in n:
+            return '4444_v16'
+        return '4444133276074'
+
+    # 6. Category 133276111: Товары для кухни
+    if clean_cat == '133276111':
+        if 'сковород' in n:
+            return '4444_v7'
+        if 'каструл' in n or 'ковш' in n:
+            return '4444_v8'
+        if 'ніж' in n or 'нож' in n:
+            return '4444_v9'
+        return '4444133276111'
+
+    # 7. Category 133276348: Аксессуары для кухни
+    if clean_cat == '133276348':
+        if 'дошк' in n or 'доск' in n:
+            return '4444_v10'
+        if 'ніж' in n or 'нож' in n:
+            return '4444_v9'
+        return '4444133276348'
+
+    # 8. Category 133276088: Автоаксессуары
+    if clean_cat == '133276088':
+        if 'тримач' in n or 'держател' in n:
+            return '4444_v23'
+        if 'зарядн' in n or ('usb' in n and 'адаптер' in n):
+            return '4444_v24'
+        if 'пилосос' in n or 'пылесос' in n:
+            return '4444_v22'
+        if 'ліхтар' in n or 'фонар' in n or 'прожектор' in n or 'підсвітк' in n or 'подсветк' in n:
+            return '4444_v21'
+        if 'матрац' in n or 'подушк' in n or 'плед' in n:
+            return '4444_v25'
+        return '4444133276088'
+
+    return f"4444{clean_cat}"
+
 def is_thin_category(cat_id, count, is_parent=False):
     """
     Визначає, чи є категорія тонкою/порожньою для подальшого видалення.
@@ -1160,7 +1326,7 @@ def is_thin_category(cat_id, count, is_parent=False):
     """
     if is_parent:
         return False
-    if str(cat_id) in _SUPPLIER_3000_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_9999_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1200_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1100_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_3333_VIRTUAL_CATEGORIES:
+    if str(cat_id) in _SUPPLIER_3000_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_9999_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1200_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_1100_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_3333_VIRTUAL_CATEGORIES or str(cat_id) in _SUPPLIER_4444_VIRTUAL_CATEGORIES:
         return False
     if str(cat_id).startswith("2000"):
         return count < 10
@@ -2310,6 +2476,12 @@ def process():
             v_cat.text = v_name
             final_categories[v_id] = v_cat
 
+    for v_id, v_name in _SUPPLIER_4444_VIRTUAL_CATEGORIES.items():
+        if v_id not in final_categories:
+            v_cat = ET.Element("category", id=v_id)
+            v_cat.text = v_name
+            final_categories[v_id] = v_cat
+
     for v_id, v_name in _SUPPLIER_1100_VIRTUAL_CATEGORIES.items():
         if v_id not in final_categories:
             v_cat = ET.Element("category", id=v_id)
@@ -2369,6 +2541,8 @@ def process():
                 cat_id = resolve_supplier_1100_category(get_name(offer), offer.findtext('vendor') or '', '', orig_cat)
             elif prefix == '3333':
                 cat_id = resolve_supplier_3333_category(get_name(offer), offer.findtext('vendor') or '', '', orig_cat)
+            elif prefix == '4444':
+                cat_id = resolve_supplier_4444_category(get_name(offer), offer.findtext('vendor') or '', '', orig_cat)
             cat_element = final_categories.get(cat_id)
             cat_name = cat_element.text if cat_element is not None else ""
             offer_name = get_name(offer)
@@ -2550,6 +2724,8 @@ def process():
                     cat_id = resolve_supplier_1100_category(name_ua, vendor, desc, orig_cat)
                 elif prefix == '3333':
                     cat_id = resolve_supplier_3333_category(name_ua, vendor, desc, orig_cat)
+                elif prefix == '4444':
+                    cat_id = resolve_supplier_4444_category(name_ua, vendor, desc, orig_cat)
 
                 # Якщо категорія відсутня у списку категорій постачальника -
                 # переносимо товар у фіксовану категорію "Інші товари [Постачальник]"

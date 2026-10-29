@@ -1,3 +1,5 @@
+import os
+import csv
 import unittest
 import lxml.etree as ET
 from masterevaxml import CATEGORY_NAME_OVERRIDES
@@ -533,6 +535,154 @@ class TestCategoryIntegrity(unittest.TestCase):
         from masterevaxml import is_thin_category, _SUPPLIER_3333_VIRTUAL_CATEGORIES
         self.assertEqual(len(_SUPPLIER_3333_VIRTUAL_CATEGORIES), 6)
         for v_id in _SUPPLIER_3333_VIRTUAL_CATEGORIES:
+            self.assertFalse(is_thin_category(v_id, 0), f"Virtual category {v_id} must not be thin")
+
+
+    def test_supplier_4444_category_mapping_integrity(self):
+        """Supplier 4444 (Dropom) must have complete, verified category mapping under EVA."""
+        from masterevaxml import load_eva_category_mapping
+        import json
+        mapping = load_eva_category_mapping()
+
+        rules_4444 = {k: v for k, v in mapping.items() if str(k).startswith("4444")}
+        self.assertGreaterEqual(len(rules_4444), 630, f"Supplier 4444 must have >= 630 mapped rules, got {len(rules_4444)}")
+
+        # Verify against eva_sheet_cache.json
+        cache_path = os.path.join(os.path.dirname(__file__), '..', 'scratch', 'eva_sheet_cache.json')
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                valid_leaf_ids = {item['id'] for item in json.load(f)}
+            for cid, info in rules_4444.items():
+                eva_id = info.get('eva_id', '')
+                self.assertIn(eva_id, valid_leaf_ids, f"Category {cid} maps to invalid leaf {eva_id}")
+
+        # Verify key mapped categories
+        self.assertEqual(rules_4444["4444133276351"]["eva_id"], "112356")  # Гірлянди -> Світлодіодні гірлянди
+        self.assertEqual(rules_4444["4444133276089"]["eva_id"], "104152")  # Машинки для стрижки
+        self.assertEqual(rules_4444["4444133276228"]["eva_id"], "121456")  # Блендери
+        self.assertEqual(rules_4444["4444133276239"]["eva_id"], "122255")  # Вентилятори
+        self.assertEqual(rules_4444["4444133276345"]["eva_id"], "116270")  # Ліхтарі
+        self.assertEqual(rules_4444["4444133276090"]["eva_id"], "122717")  # Навушники
+        self.assertEqual(rules_4444["4444133276179"]["eva_id"], "122876")  # Фени для волосся
+        self.assertEqual(rules_4444["4444133276282"]["eva_id"], "104116")  # Плойки та стайлери
+        self.assertEqual(rules_4444["4444133276191"]["eva_id"], "105752")  # Радіокеровані іграшки
+        self.assertEqual(rules_4444["4444133276192"]["eva_id"], "101231")  # М'які іграшки
+        self.assertEqual(rules_4444["4444133276214"]["eva_id"], "100879")  # Подушки
+        self.assertEqual(rules_4444["4444133276215"]["eva_id"], "100877")  # Пледи
+        self.assertEqual(rules_4444["4444133276216"]["eva_id"], "100882")  # Покривала
+        self.assertEqual(rules_4444["4444133276180"]["eva_id"], "116273")  # Масажери
+
+    def test_supplier_4444_category_resolver(self):
+        """Supplier 4444 resolver must correctly classify composite category offers."""
+        from masterevaxml import resolve_supplier_4444_category
+
+        # 1. Composite category 132827487
+        self.assertEqual(
+            resolve_supplier_4444_category("Бездротовий пилосос для прибирання дому 80Вт", "", "", "132827487"),
+            "4444_v22"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Професійний фен для волосся 6000 Вт Mozer MZ 3100", "", "", "132827487"),
+            "4444_v13"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Плойка для волосся афро плойка 9 мм Geemy GM 2825", "", "", "132827487"),
+            "4444_v14"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Машинка для стрижки волосся та бороди 2в1 Gemei GM-657", "", "", "132827487"),
+            "4444_v15"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Блендер занурювальний 4в1 RAINBERG RB 6211 1200Вт", "", "", "132827487"),
+            "4444_v17"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Електрична м'ясорубка із соковижималкою BITEK BT-3700", "", "", "132827487"),
+            "4444_v18"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Контактний електрогриль з лотком для жиру 2000Вт", "", "", "132827487"),
+            "4444_v19"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Крапельна кавоварка 1200Вт Top Kitchen TK00220", "", "", "132827487"),
+            "4444_v4"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Портативний масажер Fascial Gun KH-320", "", "", "132827487"),
+            "4444_v30"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Нічник Безкінечні тюльпани від USB", "", "", "132827487"),
+            "4444_v20"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Смарт годинник з функцією дзвінків XO M10", "", "", "132827487"),
+            "4444_v27"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Дитяча м'яка іграшка Гусь 110 см", "", "", "132827487"),
+            "4444_v29"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Електрична грілка для ніг від USB", "", "", "132827487"),
+            "4444_v25"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Вішалка для одягу підлогова на 2 яруси", "", "", "132827487"),
+            "4444_v26"
+        )
+
+        # 2. Steamers vs steam cleaners vs lint removers in 133276236
+        self.assertEqual(
+            resolve_supplier_4444_category("Відпарювач для одягу 1500Вт SOKANY SK-3050", "", "", "133276236"),
+            "4444_v1"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Ручний пароочисник на 350мл Steam Cleaner DF-A001", "", "", "133276236"),
+            "4444_v2"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Машинка від катишків акумуляторна Lint Remover M5", "", "", "133276236"),
+            "4444_v3"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Парова праска з керамічним покриттям 2200 Вт", "", "", "133276236"),
+            "4444133276236"
+        )
+
+        # 3. Coffee makers vs grinders in 133276231
+        self.assertEqual(
+            resolve_supplier_4444_category("Кавомолка електрична RAF-7113 150Вт", "", "", "133276231"),
+            "4444_v5"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Капельна кавоварка 650Вт SOKANY SK-125", "", "", "133276231"),
+            "4444_v4"
+        )
+
+        # 4. Thermoses vs kettles in 148240778
+        self.assertEqual(
+            resolve_supplier_4444_category("Вакуумний термос 2л із датчиком температури", "", "", "148240778"),
+            "4444_v6"
+        )
+        self.assertEqual(
+            resolve_supplier_4444_category("Електрочайник скляний 1,8 л 1800Вт", "", "", "148240778"),
+            "4444148240778"
+        )
+
+        # 5. Fallback 99999 routing
+        self.assertEqual(
+            resolve_supplier_4444_category("Аерофритюрниця на 6л 2800Вт Hoffmans", "", "", "99999"),
+            "4444_v19"
+        )
+
+    def test_supplier_4444_virtual_categories_protected(self):
+        """Supplier 4444 virtual categories must not be pruned by is_thin_category."""
+        from masterevaxml import is_thin_category, _SUPPLIER_4444_VIRTUAL_CATEGORIES
+        self.assertEqual(len(_SUPPLIER_4444_VIRTUAL_CATEGORIES), 30)
+        for v_id in _SUPPLIER_4444_VIRTUAL_CATEGORIES:
             self.assertFalse(is_thin_category(v_id, 0), f"Virtual category {v_id} must not be thin")
 
 if __name__ == '__main__':
