@@ -725,11 +725,24 @@ class TestCategoryIntegrity(unittest.TestCase):
         self.assertEqual(rules_kievopt['4193']['eva_id'], '100933')   # Сковородки - NEW!
         self.assertEqual(rules_kievopt['6583']['eva_id'], '120713')   # Шарики для сухого бассейна
 
-        # Verify legitimate NO_EVA_CATEGORY rules for IT components / consumables
+        self.assertEqual(rules_kievopt['1079']['eva_id'], '119658')   # Аккумуляторы внешние (PowerBank)
+        self.assertEqual(rules_kievopt['1445']['eva_id'], '116265')   # Детские электромобили
+        self.assertEqual(rules_kievopt['1968']['eva_id'], '116266')   # Роликовые коньки
+        self.assertEqual(rules_kievopt['1446']['eva_id'], '116267')   # Скутеры (самокати)
+        self.assertEqual(rules_kievopt['2102']['eva_id'], '122918')   # Женские сумки
+        self.assertEqual(rules_kievopt['4915']['eva_id'], '111752')   # Поясна сумка (бананка)
+        self.assertEqual(rules_kievopt['2754']['eva_id'], '100876')   # Электропростыни, одеяла -> Ковдри
+
+        # Verify legitimate NO_EVA_CATEGORY rules for IT components / consumables / PC peripherals
         self.assertEqual(rules_kievopt['1215']['status'], 'NO_EVA_CATEGORY')  # Картриджи
         self.assertEqual(rules_kievopt['1100']['status'], 'NO_EVA_CATEGORY')  # Корпуса ПК
         self.assertEqual(rules_kievopt['1067']['status'], 'NO_EVA_CATEGORY')  # Внутренние SSD
         self.assertEqual(rules_kievopt['1096']['status'], 'NO_EVA_CATEGORY')  # Процессоры
+        self.assertEqual(rules_kievopt['1198']['status'], 'NO_EVA_CATEGORY')  # Мышки
+        self.assertEqual(rules_kievopt['1197']['status'], 'NO_EVA_CATEGORY')  # Клавиатуры
+        self.assertEqual(rules_kievopt['1180']['status'], 'NO_EVA_CATEGORY')  # USB Flash
+        self.assertEqual(rules_kievopt['1090']['status'], 'NO_EVA_CATEGORY')  # Акустические системы
+        self.assertEqual(rules_kievopt['1149']['status'], 'NO_EVA_CATEGORY')  # Коврики для мыши
 
 if __name__ == '__main__':
     unittest.main()
