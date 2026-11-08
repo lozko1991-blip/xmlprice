@@ -91,7 +91,6 @@
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.81 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_MS-001 price=1.5 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_KS-001 price=1.5 UAH < 10.0 грн — пропускаємо
-[БЕЗ ФОТО] aveon.net.ua offer=1200_3265042639 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5031233 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5145648 price=5.0 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5271402 — пропускаємо
