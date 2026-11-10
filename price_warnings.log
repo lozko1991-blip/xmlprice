@@ -77,6 +77,7 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=809251-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1135354-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1132913-01 — пропускаємо
+[БЕЗ ФОТО] kievopt.com.ua offer=1132912-01 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-17 price=8.59 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=7.44 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=6.87 UAH < 10.0 грн — пропускаємо
@@ -167,7 +168,6 @@
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318196 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318193 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318201 — пропускаємо
-[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318203 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5267880 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5267879 price=7.0 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5241230 — пропускаємо
