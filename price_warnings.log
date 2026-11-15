@@ -79,7 +79,6 @@
 [БЕЗ ФОТО] kievopt.com.ua offer=809251-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1132913-01 — пропускаємо
 [БЕЗ ФОТО] kievopt.com.ua offer=1132912-01 — пропускаємо
-[БЕЗ ФОТО] kievopt.com.ua offer=893003-01 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-17 price=8.59 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-18 price=7.44 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_PL-19 price=6.87 UAH < 10.0 грн — пропускаємо
@@ -93,6 +92,7 @@
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_EV8203 price=4.81 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_MS-001 price=1.5 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] i-posud.com.ua offer=8888_KS-001 price=1.5 UAH < 10.0 грн — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327642 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5031233 price=7.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5145648 price=5.0 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5326897 — пропускаємо
@@ -102,14 +102,30 @@
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5314192 price=5.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5314193 price=5.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5314194 price=5.0 UAH < 10.0 грн — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327671 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327670 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327669 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327668 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5314206 price=5.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5314207 price=5.0 UAH < 10.0 грн — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327647 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327648 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327643 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327644 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327637 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327638 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327645 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327646 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327649 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327639 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327640 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1209420732 price=5.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1209428096 price=5.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1209445198 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1209436419 price=6.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1209446117 price=5.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_1209437851 price=5.0 UAH < 10.0 грн — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327650 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5232661 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5251248 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5251249 — пропускаємо
@@ -132,19 +148,45 @@
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5251226 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5326886 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5326887 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327674 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327675 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318195 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318189 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327676 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318199 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327684 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327685 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327687 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327686 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327688 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318197 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318190 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318191 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327677 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318200 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327689 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327690 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327692 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327691 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327693 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318194 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318188 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318198 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327679 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327680 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327682 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327681 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327683 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318196 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318193 — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5318201 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327694 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327696 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327695 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327697 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327700 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327701 — пропускаємо
+[БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5327702 — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5267880 price=8.0 UAH < 10.0 грн — пропускаємо
 [ПІДОЗРІЛА ЦІНА] crm.yavshoke.ua offer=2000_5267879 price=7.0 UAH < 10.0 грн — пропускаємо
 [БЕЗ ФОТО] crm.yavshoke.ua offer=2000_5241230 — пропускаємо
